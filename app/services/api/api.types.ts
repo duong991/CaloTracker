@@ -34,6 +34,18 @@ export interface ApiFeedResponse {
   items: EpisodeItem[]
 }
 
+
+export interface ApiRegisterResponse {
+  message: string;
+}
+
+export interface ApiLoginResponse {
+  accessToken?: string;
+  refreshToken?: string;
+  message?: string;
+}
+
+
 /**
  * The options used to configure apisauce.
  */

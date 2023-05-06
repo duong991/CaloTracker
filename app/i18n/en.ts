@@ -4,6 +4,8 @@ const en = {
     cancel: "Cancel",
     back: "Back",
     logOut: "Log Out", // @demo remove-current-line
+    signUp: "Sign Up", // @demo remove-current-line
+    signIn: "Sign In", // @demo remove-current-line
   },
   welcomeScreen: {
     postscript:
@@ -33,12 +35,23 @@ const en = {
   loginScreen: {
     signIn: "Sign In",
     enterDetails:
-      "Enter your details below to unlock top secret info. You'll never guess what we've got waiting. Or maybe you will; it's not rocket science here.",
+      "Enter your details below to unlock top secret info. You'll never guess what we've got waiting. Or maybe you will; it's not rocket science .",
     emailFieldLabel: "Email",
     passwordFieldLabel: "Password",
     emailFieldPlaceholder: "Enter your email address",
-    passwordFieldPlaceholder: "Super secret password here",
+    passwordFieldPlaceholder: "Super secret password ",
     tapToSignIn: "Tap to sign in!",
+    hint: "Hint: you can use any email address and your favorite password :)",
+  },
+  registerScreen: {
+    signUp: "Sign Up",
+    emailFieldLabel: "Email",
+    passwordFieldLabel: "Password",
+    passwordConfirmFieldLabel: "Password Confirm",
+    emailFieldPlaceholder: "Enter your email address",
+    passwordFieldPlaceholder: "Super secret password ",
+    passwordConfirmFieldPlaceholder: "Super secret password confirm ",
+    tapToSignUp: "Tap to sign up!",
     hint: "Hint: you can use any email address and your favorite password :)",
   },
   demoNavigator: {
@@ -60,7 +73,7 @@ const en = {
       "Have an idea to make Ignite even better? We're happy to hear that! We're always looking for others who want to help us build the best React Native tooling out there. Join us over on GitHub to join us in building the future of Ignite.",
     contributeToIgniteLink: "Contribute to Ignite",
     theLatestInReactNativeTitle: "The latest in React Native",
-    theLatestInReactNative: "We're here to keep you current on all React Native has to offer.",
+    theLatestInReactNative: "We're  to keep you current on all React Native has to offer.",
     reactNativeRadioLink: "React Native Radio",
     reactNativeNewsletterLink: "React Native Newsletter",
     reactNativeLiveLink: "React Native Live",
@@ -82,7 +95,7 @@ const en = {
     howTo: "HOW TO",
     title: "Debug",
     tagLine:
-      "Congratulations, you've got a very advanced React Native app template here.  Take advantage of this boilerplate!",
+      "Congratulations, you've got a very advanced React Native app template .  Take advantage of this boilerplate!",
     reactotron: "Send to Reactotron",
     reportBugs: "Report Bugs",
     demoList: "Demo List",
@@ -97,6 +110,11 @@ const en = {
       "If this doesn't work, ensure the Reactotron desktop app is running and reload app.",
     windowsReactotronHint:
       "If this doesn't work, ensure the Reactotron desktop app is running and reload app.",
+  },
+  homeScreen: {
+    title: "Hôm nay",
+
+
   },
   demoPodcastListScreen: {
     title: "React Native Radio episodes",

@@ -15,6 +15,8 @@ import { GeneralApiProblem, getGeneralApiProblem } from "./apiProblem" // @demo 
 import type {
   ApiConfig,
   ApiFeedResponse, // @demo remove-current-line
+  ApiLoginResponse,
+  ApiRegisterResponse,
 } from "./api.types"
 import type { EpisodeSnapshotIn } from "../../models/Episode" // @demo remove-current-line
 
@@ -82,6 +84,25 @@ export class Api {
     }
   }
   // @demo remove-block-end
+
+  async register(email: string, password: string): Promise<{ kind: string; data: any } | GeneralApiProblem> {
+    const response: ApiResponse<ApiRegisterResponse> = await this.apisauce.post("/auth/register", { email, password });
+    if (!response.ok) {
+      const problem = getGeneralApiProblem(response)
+      if (problem) return problem
+    }
+    return { kind: "ok", data: response.data }
+
+  }
+
+  async login(email: string, password: string) {
+    const response: ApiResponse<ApiLoginResponse> = await this.apisauce.post("/auth/login", { email, password });
+    if (!response.ok) {
+      const problem = getGeneralApiProblem(response)
+      if (problem) return problem
+    }
+    return { kind: "ok", data: response.data }
+  }
 }
 
 // Singleton instance of the API for convenience

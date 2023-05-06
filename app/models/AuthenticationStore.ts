@@ -4,11 +4,15 @@ export const AuthenticationStoreModel = types
   .model("AuthenticationStore")
   .props({
     authToken: types.maybe(types.string),
+    refreshToken: types.maybe(types.string),
     authEmail: "",
   })
   .views((store) => ({
     get isAuthenticated() {
       return !!store.authToken
+    },
+    get authTokenHeader() {
+      return store.authToken ? { Authorization: `Bearer ${store.authToken}` } : {}
     },
     get validationError() {
       if (store.authEmail.length === 0) return "can't be blank"
@@ -25,13 +29,17 @@ export const AuthenticationStoreModel = types
     setAuthEmail(value: string) {
       store.authEmail = value.replace(/ /g, "")
     },
+    setRefreshToken(value?: string) {
+      store.refreshToken = value
+    },
     logout() {
+      store.refreshToken = undefined
       store.authToken = undefined
       store.authEmail = ""
     },
   }))
 
-export interface AuthenticationStore extends Instance<typeof AuthenticationStoreModel> {}
-export interface AuthenticationStoreSnapshot extends SnapshotOut<typeof AuthenticationStoreModel> {}
+export interface AuthenticationStore extends Instance<typeof AuthenticationStoreModel> { }
+export interface AuthenticationStoreSnapshot extends SnapshotOut<typeof AuthenticationStoreModel> { }
 
 // @demo remove-file
