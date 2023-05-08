@@ -2,36 +2,42 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { FC } from "react"
-import { Image, ImageStyle, TextStyle, View, ViewStyle } from "react-native"
-import { ListItem, Screen, Text } from "../components"
+import { TextStyle, View, ViewStyle } from "react-native"
+import { ListItem, Screen, Text, Icon } from "../components"
 import { DemoTabScreenProps } from "../navigators/DemoNavigator"
-import { spacing } from "../theme"
+import { spacing, colors } from "../theme"
 import { isRTL } from "../i18n"
 import DonutChart from "../components/DonutChart"
-import { colors } from "../theme/colors"
+import GlassWater from "../components/fileSVG/GlassSVG"
+import CalenderSVG from "../components/fileSVG/CalenderSVG"
+
+import LineChartComponent from "../components/LineChart"
 export const HomeScreen: FC<DemoTabScreenProps<"Home">> = function HomeScreen(_props) {
   return (
-    <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["bottom"]}>
+    <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["bottom", "top"]}>
       {/* Header */}
       <View style={$wrapHeader}>
         <View style={$header}>
           <View style={$day}>
-            <Text preset="subheading" size="xxl">
+            <Text preset="subheading" size="xl">
               Hôm nay
             </Text>
           </View>
           <View style={$calender}>
+            <Icon icon="caretLeft" color={colors.mainText} size={30} />
+            <CalenderSVG size={20} />
             <Text preset="default" size="md">
               5 thg 5
             </Text>
+            <Icon icon="caretRight" color={colors.mainText} size={30} />
           </View>
         </View>
         {/* Line */}
         <View
           style={{
-            width: "80%",
+            width: "74%",
             borderBottomWidth: 2,
-            borderBottomColor: "#020203",
+            borderBottomColor: "#143d54",
             marginBottom: 10,
             marginTop: -12,
             opacity: 0.5,
@@ -47,7 +53,7 @@ export const HomeScreen: FC<DemoTabScreenProps<"Home">> = function HomeScreen(_p
               Đã nạp
             </Text>
           </View>
-          <DonutChart radius={84} color="#FEC23E" textColor="#020203" />
+          <DonutChart radius={84} color="#FEC23E" />
           <View>
             <Text preset="subheading" size="md" style={$textCenter}>
               1500
@@ -58,21 +64,63 @@ export const HomeScreen: FC<DemoTabScreenProps<"Home">> = function HomeScreen(_p
           </View>
         </View>
       </View>
-      {/* Content */}
+      {/*  */}
       <View style={$wrapContent}>
-        <View style={$waterLogContainer}>
-          <View style={$waterLogTitle}>
-            <View style={$wlTitleText}>
-              <Text preset="subheading" size="sm">
-                Bạn đã uống bao nhiêu nước
-              </Text>
-            </View>
-            <View>
-              <Text preset="default" size="sm" style={{ color: "#FEC23E" }}>
-                1000/2013ml
-              </Text>
-            </View>
+        <View style={$wrapTitle}>
+          <View style={$titleText}>
+            <Text preset="subheading" size="sm">
+              Bạn đã uống bao nhiêu nước
+            </Text>
           </View>
+          <View>
+            <Text
+              preset="subheading"
+              size="sm"
+              style={{
+                color: "#FEC23E",
+                textDecorationLine: "underline",
+                textDecorationStyle: "dotted",
+              }}
+            >
+              1000/2013ml
+            </Text>
+          </View>
+        </View>
+        <View style={$wrapContainer}>
+          <GlassWater isFull={true} />
+          <GlassWater isFull={true} />
+          <GlassWater isFull={true} />
+          <GlassWater isFull={false} />
+          <GlassWater isFull={false} />
+          <GlassWater isFull={false} />
+          <GlassWater isFull={false} />
+          <GlassWater isFull={false} />
+          <GlassWater isFull={false} />
+        </View>
+      </View>
+      <View style={$wrapContent}>
+        <View style={$wrapTitle}>
+          <View style={$titleText}>
+            <Text preset="subheading" size="sm">
+              Mục tiêu cân nặng
+            </Text>
+          </View>
+          <View>
+            <Text
+              preset="subheading"
+              size="sm"
+              style={{
+                color: "#FEC23E",
+                textDecorationLine: "underline",
+                textDecorationStyle: "dotted",
+              }}
+            >
+              60kg
+            </Text>
+          </View>
+        </View>
+        <View style={$wrapChart}>
+          <LineChartComponent />
         </View>
       </View>
     </Screen>
@@ -80,9 +128,10 @@ export const HomeScreen: FC<DemoTabScreenProps<"Home">> = function HomeScreen(_p
 }
 
 const $container: ViewStyle = {
-  paddingTop: spacing.large,
-  paddingHorizontal: spacing.extraSmall,
+  paddingTop: spacing.small,
+  paddingHorizontal: spacing.small,
 }
+// Header CSS
 const $wrapHeader: ViewStyle = {
   flex: 1,
   flexDirection: "column",
@@ -92,7 +141,7 @@ const $wrapHeader: ViewStyle = {
   padding: spacing.large + spacing.extraSmall,
   paddingHorizontal: spacing.extraSmall,
   backgroundColor: "#FFFFFF",
-  borderRadius: 40,
+  borderRadius: 28,
 }
 const $header: ViewStyle = {
   flex: 1,
@@ -106,7 +155,6 @@ const $header: ViewStyle = {
 const $day: ViewStyle = {
   flex: 1,
 }
-
 const $calender: ViewStyle = {
   flexDirection: "row",
   flex: 1,
@@ -126,30 +174,37 @@ const $textCenter: TextStyle = {
   textAlign: "center",
 }
 
+// Content CSS
 const $wrapContent: ViewStyle = {
   flex: 1,
   flexDirection: "column",
   justifyContent: "space-between",
-  marginBottom: spacing.medium,
-  padding: spacing.large + spacing.extraSmall,
-
+  marginBottom: spacing.extraSmall,
+  padding: spacing.large,
   backgroundColor: "#FFFFFF",
-  borderRadius: 40,
+  borderRadius: 28,
 }
 
-const $waterLogContainer: ViewStyle = {
-  flex: 1,
-  flexDirection: "column",
-  justifyContent: "space-between",
-  alignItems: "center",
-}
-
-const $waterLogTitle: ViewStyle = {
+const $wrapTitle: ViewStyle = {
   flex: 1,
   flexDirection: "row",
-  justifyContent: "space-evenly",
+  justifyContent: "space-between",
 }
-
-const $wlTitleText: ViewStyle = {
+const $wrapContainer: ViewStyle = {
   flex: 1,
+  flexDirection: "row",
+  flexWrap: "wrap",
+  justifyContent: "flex-start",
+  alignItems: "flex-start",
+  marginTop: 16,
+  width: "100%",
+}
+const $wrapChart: ViewStyle = {
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+  marginTop: 16,
+}
+const $titleText: ViewStyle = {
+  width: "60%",
 }
