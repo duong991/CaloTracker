@@ -13,7 +13,7 @@ interface LoginScreenProps extends AppStackScreenProps<"Login"> {}
 
 export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_props) {
   const { navigation } = _props
-  const loginLogo = require("../../assets/images/logo.png")
+  const loginLogo = require("../../assets/images/logo-2.png")
 
   const authPasswordInput = useRef<TextInput>()
 
@@ -73,9 +73,14 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   function goRegister() {
     navigation.navigate("Register")
   }
+  function goToStart() {
+    navigation.navigate("Start")
+  }
 
   useHeader({
     rightTx: "common.signUp",
+    leftIcon: "back",
+    onLeftPress: goToStart,
     onRightPress: goRegister,
   })
 
@@ -176,8 +181,9 @@ const $tapButton: ViewStyle = {
 }
 
 const $loginLogo: ImageStyle = {
-  height: 88,
+  height: 150,
   width: "100%",
-  marginBottom: spacing.huge,
+  marginBottom: spacing.large,
+  marginTop: -spacing.extraLarge - 20,
 }
 // @demo remove-file
