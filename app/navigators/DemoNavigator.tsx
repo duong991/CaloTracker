@@ -3,21 +3,29 @@ import { CompositeScreenProps } from "@react-navigation/native"
 import React from "react"
 import { TextStyle, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { Icon } from "../components"
-import { translate } from "../i18n"
+// import { translate } from "../i18n"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { DemoCommunityScreen, DemoShowroomScreen, DemoDebugScreen } from "../screens"
-import { DemoPodcastListScreen } from "../screens/DemoPodcastListScreen"
+import { DemoCommunityScreen, DemoShowroomScreen, SettingScreen } from "../screens"
+// import { DemoPodcastListScreen } from "../screens/DemoPodcastListScreen"
 import { colors, spacing, typography } from "../theme"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 import { HomeScreen } from "../screens/HomeScreen"
+import { FoodScreen } from "../screens/FoodScreen"
+import { PersonalScreen } from "../screens/PersonalScreen"
+
+import FoodSVG from "../components/fileSVG/FoodSVG"
+import HomeSVG from "../components/fileSVG/HomeSVG"
+import PersonalSVG from "../components/fileSVG/PersonalSVG"
+import SettingSVG from "../components/fileSVG/SettingSVG"
 
 export type DemoTabParamList = {
   DemoCommunity: undefined
   DemoShowroom: { queryIndex?: string; itemIndex?: string }
-  DemoDebug: undefined
+  Setting: undefined
   DemoPodcastList: undefined
   Home: undefined
+  Food: undefined
+  Personal: undefined
 }
 
 /**
@@ -47,7 +55,7 @@ export function DemoNavigator() {
         tabBarItemStyle: $tabBarItem,
       }}
     >
-      <Tab.Screen
+      {/* <Tab.Screen
         name="DemoShowroom"
         component={DemoShowroomScreen}
         options={{
@@ -56,39 +64,44 @@ export function DemoNavigator() {
             <Icon icon="components" color={focused && colors.tint} size={30} />
           ),
         }}
-      />
+      /> */}
 
       <Tab.Screen
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarLabel: translate("demoNavigator.communityTab"),
-          tabBarIcon: ({ focused }) => (
-            <Icon icon="community" color={focused && colors.tint} size={30} />
-          ),
+          tabBarLabel: "Nhật ký",
+          tabBarIcon: ({ focused }) => <HomeSVG size={32} isPick={focused} />,
         }}
       />
 
       <Tab.Screen
-        name="DemoPodcastList"
-        component={DemoPodcastListScreen}
+        name="Food"
+        component={FoodScreen}
         options={{
-          tabBarAccessibilityLabel: translate("demoNavigator.podcastListTab"),
-          tabBarLabel: translate("demoNavigator.podcastListTab"),
-          tabBarIcon: ({ focused }) => (
-            <Icon icon="podcast" color={focused && colors.tint} size={30} />
-          ),
+          // tabBarAccessibilityLabel: translate("demoNavigator.podcastListTab"),
+          tabBarLabel: "Món ăn",
+          tabBarIcon: ({ focused }) => <FoodSVG size={32} isPick={focused} />,
         }}
       />
 
       <Tab.Screen
-        name="DemoDebug"
-        component={DemoDebugScreen}
+        name="Personal"
+        component={PersonalScreen}
         options={{
-          tabBarLabel: translate("demoNavigator.debugTab"),
-          tabBarIcon: ({ focused }) => (
-            <Icon icon="debug" color={focused && colors.tint} size={30} />
-          ),
+          // tabBarAccessibilityLabel: translate("demoNavigator.podcastListTab"),
+          tabBarLabel: "Cá nhân",
+          tabBarIcon: ({ focused }) => <PersonalSVG size={32} isPick={focused} />,
+        }}
+      />
+
+      <Tab.Screen
+        name="Setting"
+        component={SettingScreen}
+        options={{
+          // tabBarLabel: translate("demoNavigator.debugTab"),
+          tabBarLabel: "Setting",
+          tabBarIcon: ({ focused }) => <SettingSVG size={32} isPick={focused} />,
         }}
       />
     </Tab.Navigator>

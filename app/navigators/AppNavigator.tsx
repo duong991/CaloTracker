@@ -34,6 +34,7 @@ import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
  *   https://reactnavigation.org/docs/typescript/#organizing-types
  */
 export type AppStackParamList = {
+  Start: undefined
   Welcome: undefined
   Login: undefined // @demo remove-current-line
   Register: undefined // @demo remove-current-line
@@ -66,7 +67,7 @@ const AppStack = observer(function AppStack() {
   return (
     <Stack.Navigator
       screenOptions={{ headerShown: false }}
-      initialRouteName={isAuthenticated ? "Welcome" : "Login"} // @demo remove-current-line
+      initialRouteName={isAuthenticated ? "Welcome" : "Start"} // @demo remove-current-line
     >
       {isAuthenticated ? (
         <>
@@ -78,6 +79,7 @@ const AppStack = observer(function AppStack() {
       ) : (
         <>
           <Stack.Screen name="Login" component={Screens.LoginScreen} />
+          <Stack.Screen name="Start" component={Screens.StartScreen} />
           <Stack.Screen name="Register" component={Screens.RegisterScreen} />
         </>
       )}
