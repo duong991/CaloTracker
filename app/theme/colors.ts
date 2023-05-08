@@ -1,7 +1,7 @@
 // TODO: write documentation for colors and palette in own markdown file and add links from here
 
 const palette = {
-  mainText: "#020203",
+  mainText: "#143d54",
 
   neutral100: "#FFFFFF",
   neutral200: "#F4F2F1",
@@ -51,6 +51,7 @@ export const colors = {
    */
   transparent: "rgba(0, 0, 0, 0)",
   mainText: palette.mainText,
+  bellColor: palette.accent500,
   /**
    * 
    * The default text color in many components.
