@@ -5,6 +5,7 @@
 import * as React from "react"
 import { Easing, TextInput, Animated, View, StyleSheet } from "react-native"
 import { Text } from "../components"
+import { colors } from "../theme"
 
 import Svg, { G, Circle } from "react-native-svg"
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput)
@@ -16,7 +17,7 @@ export default function Donut({
   duration = 500,
   color = "#8785A2",
   delay = 0,
-  textColor = "#020203",
+  textColor = colors.mainText,
   max = 1800,
 }) {
   const animated = React.useRef(new Animated.Value(0)).current
