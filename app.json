@@ -1,17 +1,18 @@
 {
-  "name": "PizzaApp",
-  "displayName": "PizzaApp",
+  "name": "Calo Tracker",
+  "displayName": "Calo Tracker",
   "expo": {
-    "name": "PizzaApp",
-    "slug": "PizzaApp",
+    "name": "Calo Tracker",
+    "slug": "Calo Tracker",
     "scheme": "pizzaapp",
     "version": "1.0.0",
+    "userInterfaceStyle": "automatic",
     "orientation": "portrait",
-    "icon": "./assets/images/app-icon-all.png",
+    "icon": "./assets/images/logoApp.png",
     "splash": {
-      "image": "./assets/images/splash-logo-all.png",
+      "image": "./assets/images/logoApp.png",
       "resizeMode": "contain",
-      "backgroundColor": "#191015"
+      "backgroundColor": "#143d54"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -19,27 +20,27 @@
     "jsEngine": "hermes",
     "assetBundlePatterns": ["**/*"],
     "android": {
-      "icon": "./assets/images/app-icon-android-legacy.png",
+      "icon": "./assets/images/logoApp.png",
       "package": "com.pizzaapp",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/app-icon-android-adaptive-foreground.png",
-        "backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
+        "foregroundImage": "./assets/images/logoApp.png",
+        "backgroundImage": "./assets/images/logoApp.png"
       },
       "splash": {
-        "image": "./assets/images/splash-logo-android-universal.png",
+        "image": "./assets/images/logoApp.png",
         "resizeMode": "contain",
-        "backgroundColor": "#191015"
+        "backgroundColor": "#143d54"
       }
     },
     "ios": {
-      "icon": "./assets/images/app-icon-ios.png",
+      "icon": "./assets/images/logoApp.png",
       "supportsTablet": true,
       "bundleIdentifier": "com.pizzaapp",
       "splash": {
-        "image": "./assets/images/splash-logo-ios-mobile.png",
-        "tabletImage": "./assets/images/splash-logo-ios-tablet.png",
+        "image": "./assets/images/logoApp.png",
+        "tabletImage": "./assets/images/logoApp.png",
         "resizeMode": "contain",
-        "backgroundColor": "#191015"
+        "backgroundColor": "#143d54"
       }
     },
     "web": {
@@ -47,7 +48,7 @@
       "splash": {
         "image": "./assets/images/splash-logo-web.png",
         "resizeMode": "contain",
-        "backgroundColor": "#191015"
+        "backgroundColor": "#143d54"
       }
     }
   }

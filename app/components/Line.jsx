@@ -7,24 +7,23 @@ import { Easing, TextInput, Animated, View, StyleSheet } from "react-native"
 import { Text } from "../components"
 import { colors } from "../theme"
 
-import Svg, { G, Circle } from "react-native-svg"
+import Svg, { G, Circle, Line } from "react-native-svg"
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput)
 
-export default function Donut({
-  percentage = 2000,
-  radius = 40,
+export default function _Line({
+  percentage = 800,
+  width = 70,
   strokeWidth = 10,
   duration = 500,
-  color = "#8785A2",
+  color = "#FEC23E",
   delay = 0,
   textColor = colors.mainText,
-  max = 1800,
+  max = 2000,
 }) {
   const animated = React.useRef(new Animated.Value(0)).current
-  const circleRef = React.useRef()
+  const lineRef = React.useRef()
   const inputRef = React.useRef()
-  const circumference = 2 * Math.PI * radius
-  const halfCircle = radius + strokeWidth
+  const circumference = width * 2
 
   const animation = (toValue) => {
     // Hàm animation để thực hiện animation
@@ -41,15 +40,15 @@ export default function Donut({
     animation(percentage)
     animated.addListener(
       (v) => {
-        const maxPerc = v.value > max ? 100 : (100 * v.value) / max
-        const strokeDashoffset = circumference - (circumference * maxPerc) / 100
+        const maxPerc = v.value > max ? max : (max - v.value) / max
+        const strokeDashoffset = maxPerc * circumference
         if (inputRef.current) {
           inputRef.current.setNativeProps({
-            text: `${max - Math.round(v.value)}`,
+            text: `${Math.round(v.value)}`,
           })
         }
-        if (circleRef?.current) {
-          circleRef.current.setNativeProps({
+        if (lineRef?.current) {
+          lineRef.current.setNativeProps({
             strokeDashoffset,
           })
         }
@@ -63,36 +62,32 @@ export default function Donut({
   })
 
   return (
-    <View style={{ width: radius * 2, height: radius * 2, position: "relative" }}>
-      <Svg
-        height={radius * 2}
-        width={radius * 2}
-        viewBox={`0 0 ${halfCircle * 2} ${halfCircle * 2}`}
-      >
-        <G rotation="-90" origin={`${halfCircle}, ${halfCircle}`}>
-          <Circle
-            ref={circleRef}
-            cx="50%"
-            cy="50%"
-            r={radius}
-            fill="transparent"
-            stroke={color}
-            strokeWidth={strokeWidth}
-            strokeLinecap="round"
-            strokeDashoffset={circumference}
-            strokeDasharray={circumference}
-          />
-          <Circle
-            cx="50%"
-            cy="50%"
-            r={radius}
-            fill="transparent"
-            stroke={color}
-            strokeWidth={strokeWidth / 2}
-            strokeLinejoin="round"
-            strokeOpacity=".4"
-          />
-        </G>
+    <View style={{ width, height: width / 1.4, position: "relative" }}>
+      <Svg height={width} width={width} viewBox={`0 0 ${width * 2} ${width}`}>
+        <Line
+          ref={lineRef}
+          x1={0}
+          y1={(width / 2) * 1.2}
+          x2={width * 2}
+          y2={(width / 2) * 1.2}
+          stroke={color}
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeDashoffset={circumference} // thêm thuộc tính strokeDashoffset
+          strokeDasharray={circumference} // thêm thuộc tính strokeDasharray
+        />
+
+        <Line
+          x1={0}
+          y1={(width / 2) * 1.2}
+          x2={width * 2}
+          y2={(width / 2) * 1.2}
+          stroke={color}
+          fill="transparent"
+          strokeWidth={strokeWidth / 2}
+          strokeLinecap="round"
+          strokeOpacity=".4"
+        />
       </Svg>
       <AnimatedTextInput
         ref={inputRef}
@@ -101,20 +96,10 @@ export default function Donut({
         defaultValue="0"
         style={[
           StyleSheet.absoluteFillObject,
-          { fontSize: radius / 2, color: textColor ?? color },
+          { fontSize: width / 3.5, color: textColor ?? color },
           styles.text,
         ]}
       />
-      <View
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: [{ translateX: -radius / 3.2 }, { translateY: 10 }],
-        }}
-      >
-        <Text size="xs">Cần nạp</Text>
-      </View>
     </View>
   )
 }
@@ -123,6 +108,6 @@ const styles = StyleSheet.create({
   text: {
     fontWeight: "400",
     textAlign: "center",
-    transform: [{ translateX: 0 }, { translateY: -10 }],
+    transform: [{ translateX: 0 }, { translateY: -5 }],
   },
 })
