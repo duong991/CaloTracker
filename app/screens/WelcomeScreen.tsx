@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { observer } from "mobx-react-lite"
 import React, { FC } from "react"
 import { Image, ImageStyle, TextStyle, View, ViewStyle } from "react-native"
@@ -13,7 +14,6 @@ import { useHeader } from "../utils/useHeader" // @demo remove-current-line
 import { useSafeAreaInsetsStyle } from "../utils/useSafeAreaInsetsStyle"
 
 const welcomeLogo = require("../../assets/images/logo-2.png")
-const welcomeFace = require("../../assets/images/welcome-face.png")
 
 interface WelcomeScreenProps extends AppStackScreenProps<"Welcome"> {}
 
@@ -27,14 +27,12 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
   } = useStores()
 
   function goNext() {
-    navigation.navigate("Demo", { screen: "DemoShowroom" })
+    navigation.navigate("UpdateUserInfo")
   }
-
   useHeader({
     rightTx: "common.logOut",
     onRightPress: logout,
   })
-  // @demo remove-block-end
 
   const $bottomContainerInsets = useSafeAreaInsetsStyle(["bottom"])
 
@@ -49,7 +47,7 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
           preset="heading"
         />
         <Text tx="welcomeScreen.exciting" preset="subheading" />
-        <Image style={$welcomeFace} source={welcomeFace} resizeMode="contain" />
+        {/* <Image style={$welcomeFace} source={welcomeFace} resizeMode="contain" /> */}
       </View>
 
       <View style={[$bottomContainer, $bottomContainerInsets]}>
@@ -96,14 +94,14 @@ const $welcomeLogo: ImageStyle = {
   marginBottom: spacing.huge,
 }
 
-const $welcomeFace: ImageStyle = {
-  height: 169,
-  width: 269,
-  position: "absolute",
-  bottom: -47,
-  right: -80,
-  transform: [{ scaleX: isRTL ? -1 : 1 }],
-}
+// const $welcomeFace: ImageStyle = {
+//   height: 169,
+//   width: 269,
+//   position: "absolute",
+//   bottom: -47,
+//   right: -80,
+//   transform: [{ scaleX: isRTL ? -1 : 1 }],
+// }
 
 const $welcomeHeading: TextStyle = {
   marginBottom: spacing.medium,
