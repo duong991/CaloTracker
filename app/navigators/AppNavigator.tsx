@@ -8,7 +8,7 @@ import {
   DarkTheme,
   DefaultTheme,
   NavigationContainer,
-  NavigatorScreenParams, // @demo remove-current-line
+  NavigatorScreenParams,
 } from "@react-navigation/native"
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack"
 import { observer } from "mobx-react-lite"
@@ -16,10 +16,16 @@ import React from "react"
 import { useColorScheme } from "react-native"
 import * as Screens from "app/screens"
 import Config from "../config"
-import { useStores } from "../models" // @demo remove-current-line
-import { DemoNavigator, DemoTabParamList } from "./DemoNavigator" // @demo remove-current-line
+import { useStores } from "../models"
+import { DemoNavigator, DemoTabParamList } from "./DemoNavigator"
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
-
+import {
+  AddFoodScreen,
+  StatisticalScreen,
+  TargetScreen,
+  UpdateUserInfoScreen,
+  AddMealScreen,
+} from "app/screens"
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
  * as well as what properties (if any) they might take when navigating to them.
@@ -34,11 +40,15 @@ import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
  *   https://reactnavigation.org/docs/typescript/#organizing-types
  */
 export type AppStackParamList = {
-  Start: undefined
   Welcome: undefined
-  Login: undefined // @demo remove-current-line
-  Register: undefined // @demo remove-current-line
-  Demo: NavigatorScreenParams<DemoTabParamList> // @demo remove-current-line
+  Login: undefined
+  Register: undefined
+  AddMeal: undefined
+  UpdateUserInfo: undefined
+  Target: undefined
+  Statistical: undefined
+  AddFood: undefined
+  Demo: NavigatorScreenParams<DemoTabParamList>
   // 🔥 Your screens go here
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
@@ -67,19 +77,24 @@ const AppStack = observer(function AppStack() {
   return (
     <Stack.Navigator
       screenOptions={{ headerShown: false }}
-      initialRouteName={isAuthenticated ? "Welcome" : "Start"} // @demo remove-current-line
+      initialRouteName={isAuthenticated ? "Welcome" : "Login"}
     >
       {isAuthenticated ? (
         <>
           {/* @demo remove-block-end */}
           <Stack.Screen name="Welcome" component={Screens.WelcomeScreen} />
+          <Stack.Screen name="UpdateUserInfo" component={UpdateUserInfoScreen} />
+          <Stack.Screen name="Target" component={TargetScreen} />
+          <Stack.Screen name="AddMeal" component={AddMealScreen} />
+          <Stack.Screen name="Statistical" component={StatisticalScreen} />
+          <Stack.Screen name="AddFood" component={AddFoodScreen} />
+
           {/* @demo remove-block-start */}
           <Stack.Screen name="Demo" component={DemoNavigator} />
         </>
       ) : (
         <>
           <Stack.Screen name="Login" component={Screens.LoginScreen} />
-          <Stack.Screen name="Start" component={Screens.StartScreen} />
           <Stack.Screen name="Register" component={Screens.RegisterScreen} />
         </>
       )}

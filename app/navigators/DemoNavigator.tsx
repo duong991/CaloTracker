@@ -5,18 +5,13 @@ import { TextStyle, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 // import { translate } from "../i18n"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { DemoCommunityScreen, DemoShowroomScreen, SettingScreen } from "../screens"
+// import { DemoCommunityScreen, DemoShowroomScreen, SettingScreen } from "../screens"
 // import { DemoPodcastListScreen } from "../screens/DemoPodcastListScreen"
 import { colors, spacing, typography } from "../theme"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
-import { HomeScreen } from "../screens/HomeScreen"
-import { FoodScreen } from "../screens/FoodScreen"
-import { PersonalScreen } from "../screens/PersonalScreen"
-
-import FoodSVG from "../components/fileSVG/FoodSVG"
-import HomeSVG from "../components/fileSVG/HomeSVG"
-import PersonalSVG from "../components/fileSVG/PersonalSVG"
-import SettingSVG from "../components/fileSVG/SettingSVG"
+import { FoodScreen, SettingScreen, PersonalScreen } from "../screens"
+import { HomeScreen } from "../screens/Home/HomeScreen"
+import { FoodSVG, HomeSVG, PersonalSVG, SettingSVG } from "../components/fileSVG"
 
 export type DemoTabParamList = {
   DemoCommunity: undefined

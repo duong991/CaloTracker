@@ -1,44 +1,69 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from "react"
-import { ViewStyle, View } from "react-native"
+import { ViewStyle, View, TouchableOpacity } from "react-native"
 import { Text } from "../../../components"
 import { spacing } from "../../../theme"
-import FemaleSVG from "../../../components/fileSVG/FemaleSVG"
-import MaleSVG from "../../../components/fileSVG/MaleSVG"
+import { FemaleSVG, MaleSVG } from "../../../components/fileSVG"
 import { Slider } from "@miblanchard/react-native-slider"
 import { customStyles4 } from "../../../utils/styles"
 
-export default function PersonalInfo({ height, weight, old, setHeight, setWeight, setOld }) {
+export function PersonalInfo({
+  gender,
+  height,
+  weight,
+  old,
+  setGender,
+  setHeight,
+  setWeight,
+  setOld,
+}) {
   return (
-    <View style={$contentBodyIndex}>
+    <View style={$container}>
       <View style={$wrapGender}>
-        <View style={$wrapItemGender}>
-          <MaleSVG size={32} isPicked={true} />
-        </View>
-        <View style={[$wrapItemGender, { opacity: 0.4 }]}>
-          <FemaleSVG size={32} isPicked={false} />
-        </View>
+        <TouchableOpacity onPress={() => setGender(true)}>
+          <View
+            style={
+              gender
+                ? [$wrapItemGender, { backgroundColor: "#d9f1ff" }]
+                : [$wrapItemGender, { opacity: 0.3, backgroundColor: "#d9f1ff" }]
+            }
+          >
+            <MaleSVG size={44} isPicked={gender} />
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => setGender(false)}>
+          <View
+            style={
+              gender
+                ? [$wrapItemGender, { opacity: 0.4, backgroundColor: "#f8dae0" }]
+                : [$wrapItemGender, { backgroundColor: "#f8dae0" }]
+            }
+          >
+            <FemaleSVG size={44} isPicked={!gender} />
+          </View>
+        </TouchableOpacity>
       </View>
       <PersonalInfoSlider
         title="Chiều cao"
         value={height}
         setValue={setHeight}
         maxValue={300}
-        color="#A75D5D"
+        color={gender ? "#146C94" : "#E06469"}
       />
       <PersonalInfoSlider
         title="Cân nặng"
         value={weight}
         setValue={setWeight}
-        maxValue={200}
-        color="#D3756B"
+        maxValue={150}
+        color={gender ? "#19A7CE" : "#FF6D60"}
       />
       <PersonalInfoSlider
         title="Tuổi"
         value={old}
         setValue={setOld}
         maxValue={100}
-        color="#F0997D"
+        color={gender ? "#088395" : "#F99B7D"}
       />
     </View>
   )
@@ -46,19 +71,19 @@ export default function PersonalInfo({ height, weight, old, setHeight, setWeight
 
 const PersonalInfoSlider = ({ title, value, setValue, maxValue, color }) => {
   return (
-    <View style={$wrapHeight}>
-      <View style={$headerOfHeight}>
+    <View style={$childContent}>
+      <View style={$headerOfChildContent}>
         <Text preset="default" size="md">
           {title}
         </Text>
       </View>
-      <View style={$contentOfHeight}>
+      <View style={$SliderOfChildContent}>
         <Text
           preset="subheading"
           size="md"
           style={{ color: color, textAlign: "center", marginTop: 10, marginBottom: -5 }}
         >
-          {value} {title === "Tuổi" ? "tuổi" : "cm"}
+          {value} {title === "Tuổi" ? "tuổi" : title === "Chiều cao" ? "cm" : "kg"}
         </Text>
         <Slider
           value={value}
@@ -75,7 +100,7 @@ const PersonalInfoSlider = ({ title, value, setValue, maxValue, color }) => {
   )
 }
 
-const $contentBodyIndex: ViewStyle = {
+const $container: ViewStyle = {
   flex: 1,
   flexDirection: "column",
   justifyContent: "center",
@@ -84,45 +109,53 @@ const $contentBodyIndex: ViewStyle = {
   marginHorizontal: spacing.tiny,
   padding: spacing.extraLarge,
   backgroundColor: "#FFFFFF",
-  borderRadius: 18,
+  borderRadius: 12,
 
   shadowColor: "#143d54",
   elevation: 12,
+
+  shadowOffset: {
+    width: 3,
+    height: 3,
+  },
+  shadowOpacity: 0.25,
+  shadowRadius: 4.59,
+  opacity: 0.9,
 }
 
 const $wrapGender: ViewStyle = {
   flexDirection: "row",
-  width: "100%",
-  justifyContent: "space-around",
+  width: "90%",
+  justifyContent: "space-between",
   alignItems: "center",
 }
 
 const $wrapItemGender: ViewStyle = {
   justifyContent: "center",
   alignItems: "center",
-  width: 75,
-  height: 75,
-  borderColor: "#cccccc",
+  width: 100,
+  height: 100,
+  borderColor: "#212A3E",
   borderWidth: 2,
-  borderRadius: 20,
-  marginBottom: 32,
+  borderRadius: 12,
+  marginBottom: 12,
 }
 
-const $wrapHeight: ViewStyle = {
+const $childContent: ViewStyle = {
   flexDirection: "column",
   width: "100%",
   justifyContent: "center",
   alignItems: "center",
 }
 
-const $headerOfHeight: ViewStyle = {
+const $headerOfChildContent: ViewStyle = {
   flexDirection: "row",
   width: "100%",
   justifyContent: "space-between",
   alignItems: "center",
 }
 
-const $contentOfHeight: ViewStyle = {
+const $SliderOfChildContent: ViewStyle = {
   flex: 1,
   marginLeft: 10,
   marginRight: 10,

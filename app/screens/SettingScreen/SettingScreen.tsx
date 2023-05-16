@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { FC } from "react"
 import { TextStyle, View, ViewStyle } from "react-native"
-import { Button, ListItem, Screen, Text } from "../components"
-import { DemoTabScreenProps } from "../navigators/DemoNavigator"
-import { colors, spacing } from "../theme"
-import { isRTL } from "../i18n"
-import { useStores } from "../models"
+import { Button, ListItem, Screen, Text } from "../../components"
+import { DemoTabScreenProps } from "../../navigators/DemoNavigator"
+import { colors, spacing } from "../../theme"
+import { isRTL } from "../../i18n"
+import { useStores } from "../../models"
 
 export const SettingScreen: FC<DemoTabScreenProps<"Setting">> = function SettingScreen(_props) {
   const {

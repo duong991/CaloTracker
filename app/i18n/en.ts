@@ -9,10 +9,42 @@ const en = {
   },
   welcomeScreen: {
     postscript:
-      "psst  — This probably isn't what your app looks like. (Unless your designer handed you these screens, and in that case, ship it!)",
-    readyForLaunch: "Your app, almost ready for launch!",
+      "Track your daily calorie intake and ensure nutritional balance for a healthy lifestyle.",
+    readyForLaunch: "Welcome To Calo Tracker",
     exciting: "(ohh, this is exciting!)",
     letsGo: "Let's go!", // @demo remove-current-line
+  },
+  updateInfoUserScreen: {
+    title: "Chỉ số trao đổi chất (BMR)",
+    minuteLabel: "Số phút/ngày",
+    dayLabel: "Số ngày/tuần",
+  },
+
+  targetScreen: {
+    title: "Mục tiêu của bạn là gì?",
+    losing_weight_title: "Giảm cân",
+    losing_weight_detail: "Quản lí cân nặng của bạn bằng cách ăn uống thông minh hơn",
+    weight_gain_title: "Tăng cân",
+    weight_gain_detail: "Tăng cân với eat clean",
+    keep_stableg_weight_title: "Giữ nguyên cân nặng",
+    keep_stableg_weight_detail: "Tối ưu cho sức khỏe của bạn"
+  },
+
+  statisticalScreen: {
+    title: "Thống kê các chỉ số",
+    losing_weight_title: "Năng lượng nạp vào để giảm cân (calo thâm hụt = TDEE - 500)"
+
+  },
+
+  addFoodScreen: {
+    title: "Tạo thực phẩm mới",
+    basicInfo: "Thông tin cơ bản",
+    nutritionalInfo: "Thông tin dinh dưỡng",
+  },
+  addMealScreen: {
+    title: "Tạo mới món ăn",
+    basicInfo: "Nhập thông tin về món ăn",
+    ingredientMeal: "Thành phần thực phẩm trong món ăn",
   },
   errorScreen: {
     title: "Something went wrong!",
@@ -96,8 +128,6 @@ const en = {
   },
   homeScreen: {
     title: "Hôm nay",
-
-
   },
   demoPodcastListScreen: {
     title: "React Native Radio episodes",

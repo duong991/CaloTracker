@@ -3,15 +3,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { FC } from "react"
 import { TextStyle, View, ViewStyle, useWindowDimensions, Dimensions } from "react-native"
-import { ListItem, Screen, Text, TextField } from "../components"
-import { DemoTabScreenProps } from "../navigators/DemoNavigator"
-import { spacing, colors } from "../theme"
-import { isRTL } from "../i18n"
+import { ListItem, Screen, Text, TextField } from "../../components"
+import { DemoTabScreenProps } from "../../navigators/DemoNavigator"
+import { spacing, colors } from "../../theme"
+import { isRTL } from "../../i18n"
 
-import { Icon } from "../components/Icon"
-import AvatarSVG from "../components/fileSVG/AvatarSVG"
-import MenuBarSVG from "../components/fileSVG/MenuBarSVG"
-import ClockSVG from "../components/fileSVG/ClockSVG"
+import { Icon } from "../../components/Icon"
+import { AvatarSVG, MenuBarSVG, ClockSVG } from "../../components/fileSVG"
 
 export const PersonalScreen: FC<DemoTabScreenProps<"Personal">> = function PersonalScreen(_props) {
   return (

@@ -1,18 +1,26 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { FC } from "react"
-import { TextStyle, View, ViewStyle, useWindowDimensions, Dimensions } from "react-native"
-import { ListItem, Screen, Text, TextField } from "../components"
-import { DemoTabScreenProps } from "../navigators/DemoNavigator"
-import { spacing, colors } from "../theme"
-import { isRTL } from "../i18n"
-import BulbSVG from "../components/fileSVG/BulbSVG"
-import PlusSVG from "../components/fileSVG/PlusSVG"
-import SearchSVG from "../components/fileSVG/SearchSVG"
-import { Icon } from "../components/Icon"
+import React, { FC, useState } from "react"
+import { TextStyle, View, ViewStyle, Dimensions, TouchableOpacity } from "react-native"
+import { Screen, Text, TextField } from "../../components"
+import { DemoTabScreenProps } from "../../navigators/DemoNavigator"
+import { spacing, colors } from "../../theme"
+import { BulbSVG, PlusSVG, SearchSVG } from "../../components/fileSVG"
 
 export const FoodScreen: FC<DemoTabScreenProps<"Food">> = function FoodScreen(_props) {
+  const { navigation } = _props
+
+  const [activeTab, setActiveTab] = useState(0)
+  // activeTab = 0 => Thuc pham | activeTab = 1 => Mon an
+  function goToAddMeal() {
+    navigation.navigate(activeTab ? "AddMeal" : "AddFood")
+  }
+
+  const handlePress = (index) => {
+    setActiveTab(index)
+  }
+
   return (
     <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["bottom", "top"]}>
       {/* Header */}
@@ -34,12 +42,17 @@ export const FoodScreen: FC<DemoTabScreenProps<"Food">> = function FoodScreen(_p
             />
           </View>
 
-          <View style={$buttonOfSearchInput}>
-            <SearchSVG size={20} />
-          </View>
-          <View style={$buttonOfSearchInput}>
-            <PlusSVG size={20} />
-          </View>
+          <TouchableOpacity>
+            <View style={$buttonOfSearchInput}>
+              <SearchSVG size={20} />
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={goToAddMeal}>
+            <View style={$buttonOfSearchInput}>
+              <PlusSVG size={20} />
+            </View>
+          </TouchableOpacity>
         </View>
       </View>
       {/*  ContentHeader */}
@@ -47,20 +60,44 @@ export const FoodScreen: FC<DemoTabScreenProps<"Food">> = function FoodScreen(_p
         <View
           style={{
             flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
             borderRightWidth: 1,
             borderColor: "rgba(79, 94, 79, 0.33) ",
           }}
         >
-          <Text preset="subheading" size="md" style={$textHeader}>
-            Thực phẩm
-          </Text>
+          <TouchableOpacity
+            style={[
+              {
+                width: "100%",
+                height: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+              },
+              activeTab === 0 ? $activeTab : null,
+            ]}
+            onPress={() => handlePress(0)}
+          >
+            <Text preset="subheading" size="md" style={$textHeader}>
+              Thực phẩm
+            </Text>
+          </TouchableOpacity>
         </View>
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-          <Text preset="subheading" size="md" style={$textHeader}>
-            Món ăn
-          </Text>
+          <TouchableOpacity
+            style={[
+              {
+                width: "100%",
+                height: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+              },
+              activeTab === 1 ? $activeTab : null,
+            ]}
+            onPress={() => handlePress(1)}
+          >
+            <Text preset="subheading" size="md" style={$textHeader}>
+              Món ăn
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -180,4 +217,10 @@ const $wrapIcon: ViewStyle = {
   marginStart: spacing.extraSmall,
   borderWidth: 1,
   borderColor: colors.palette.neutral400,
+}
+
+const $activeTab: ViewStyle = {
+  borderBottomWidth: 2,
+  borderColor: "#FEC23E",
+  borderRadius: 4,
 }

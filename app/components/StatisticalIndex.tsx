@@ -7,8 +7,7 @@ import { Text } from "."
 import { spacing, colors } from "../theme"
 
 import { Icon } from "./Icon"
-import MenuBarSVG from "./fileSVG/MenuBarSVG"
-import ClockSVG from "./fileSVG/ClockSVG"
+import { ClockSVG, MenuBarSVG } from "./fileSVG"
 
 export function StatisticalIndex() {
   return (
