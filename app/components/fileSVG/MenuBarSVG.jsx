@@ -1,7 +1,7 @@
 import React from "react"
 import { Svg, Path } from "react-native-svg"
 
-const MenuBarSVG = ({ size, isPick = false }) => {
+export const MenuBarSVG = ({ size, isPick = false }) => {
   return (
     // eslint-disable-next-line react-native/no-inline-styles
     <Svg width={size} height={size} viewBox="0 0 64 64">
@@ -12,4 +12,3 @@ const MenuBarSVG = ({ size, isPick = false }) => {
     </Svg>
   )
 }
-export default MenuBarSVG

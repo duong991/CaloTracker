@@ -2,7 +2,7 @@ import React from "react"
 import { Svg, Path } from "react-native-svg"
 import { View } from "react-native"
 
-const BulbSVG = ({ width = 60, height = 70 }) => {
+export const BulbSVG = ({ width = 60, height = 70 }) => {
   return (
     // eslint-disable-next-line react-native/no-inline-styles
     <View style={{ padding: 4 }}>
@@ -28,4 +28,3 @@ const BulbSVG = ({ width = 60, height = 70 }) => {
     </View>
   )
 }
-export default BulbSVG

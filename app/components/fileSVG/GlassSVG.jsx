@@ -2,7 +2,7 @@ import React from "react"
 import { Svg, Path } from "react-native-svg"
 import { View } from "react-native"
 
-const GlassWater = ({ width = 48, height = 52, isFull = false }) => {
+export const GlassWater = ({ width = 48, height = 52, isFull = false }) => {
   return (
     // eslint-disable-next-line react-native/no-inline-styles
     <View style={{ padding: 4 }}>
@@ -37,4 +37,3 @@ const GlassWater = ({ width = 48, height = 52, isFull = false }) => {
     </View>
   )
 }
-export default GlassWater

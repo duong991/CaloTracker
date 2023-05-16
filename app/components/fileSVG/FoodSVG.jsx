@@ -2,7 +2,7 @@ import React from "react"
 import { Svg, Path } from "react-native-svg"
 import { View } from "react-native"
 
-const FoodSVG = ({ size, isPick = false }) => {
+export const FoodSVG = ({ size, isPick = false }) => {
   return (
     // eslint-disable-next-line react-native/no-inline-styles
     <View style={{ padding: 4 }}>
@@ -19,4 +19,3 @@ const FoodSVG = ({ size, isPick = false }) => {
     </View>
   )
 }
-export default FoodSVG

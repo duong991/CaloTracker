@@ -1,7 +1,7 @@
 import React from "react"
 import { Svg, Path } from "react-native-svg"
 
-const FemaleSVG = ({ size = 400, isPicked = false }) => {
+export const FemaleSVG = ({ size = 400, isPicked = false }) => {
   return (
     // eslint-disable-next-line react-native/no-inline-styles
     <Svg width={size} height={size} viewBox="0 0  64 64">
@@ -12,4 +12,3 @@ const FemaleSVG = ({ size = 400, isPicked = false }) => {
     </Svg>
   )
 }
-export default FemaleSVG

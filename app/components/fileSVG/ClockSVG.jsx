@@ -1,7 +1,7 @@
 import React from "react"
 import { Svg, Path } from "react-native-svg"
 import { View } from "react-native"
-const ClockSVG = ({ size, isPick = false }) => {
+export const ClockSVG = ({ size, isPick = false }) => {
   return (
     // eslint-disable-next-line react-native/no-inline-styles, react/jsx-no-undef
     <View style={{ marginRight: 4 }}>
@@ -18,4 +18,3 @@ const ClockSVG = ({ size, isPick = false }) => {
     </View>
   )
 }
-export default ClockSVG

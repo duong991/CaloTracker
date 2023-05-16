@@ -2,7 +2,7 @@ import React from "react"
 import { Svg, Path } from "react-native-svg"
 import { View } from "react-native"
 
-const PersonalSVG = ({ size, isPick = false }) => {
+export const PersonalSVG = ({ size, isPick = false }) => {
   return (
     // eslint-disable-next-line react-native/no-inline-styles
     <View style={{ padding: 4 }}>
@@ -15,4 +15,3 @@ const PersonalSVG = ({ size, isPick = false }) => {
     </View>
   )
 }
-export default PersonalSVG
