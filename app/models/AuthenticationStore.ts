@@ -1,18 +1,23 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import deleteTables from "../database/deleteTables"
 
 export const AuthenticationStoreModel = types
   .model("AuthenticationStore")
   .props({
+    availInfo: types.optional(types.boolean, true),
     authToken: types.maybe(types.string),
     refreshToken: types.maybe(types.string),
     authEmail: "",
   })
   .views((store) => ({
+    get isFirstTime() {
+      return store.availInfo
+    },
     get isAuthenticated() {
       return !!store.authToken
     },
     get authTokenHeader() {
-      return store.authToken ? { Authorization: `Bearer ${store.authToken}` } : {}
+      return store.authToken
     },
     get validationError() {
       if (store.authEmail.length === 0) return "can't be blank"
@@ -23,6 +28,9 @@ export const AuthenticationStoreModel = types
     },
   }))
   .actions((store) => ({
+    setFirstTime(value: boolean) {
+      store.availInfo = value
+    },
     setAuthToken(value?: string) {
       store.authToken = value
     },
@@ -36,6 +44,8 @@ export const AuthenticationStoreModel = types
       store.refreshToken = undefined
       store.authToken = undefined
       store.authEmail = ""
+      store.availInfo = true
+      deleteTables()
     },
   }))
 
