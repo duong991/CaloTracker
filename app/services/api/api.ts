@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * This Api class lets you define an API endpoint and methods to request
  * data and process it.
@@ -17,6 +18,7 @@ import type {
   ApiFeedResponse, // @demo remove-current-line
   ApiLoginResponse,
   ApiRegisterResponse,
+  ApiFetchDataResponse
 } from "./api.types"
 import type { EpisodeSnapshotIn } from "../../models/Episode" // @demo remove-current-line
 
@@ -46,6 +48,7 @@ export class Api {
       timeout: this.config.timeout,
       headers: {
         Accept: "application/json",
+        // Authorization: 'Bearer ' + authTokenHeader
       },
     })
   }
@@ -97,6 +100,16 @@ export class Api {
 
   async login(email: string, password: string) {
     const response: ApiResponse<ApiLoginResponse> = await this.apisauce.post("/auth/login", { email, password });
+    if (!response.ok) {
+      const problem = getGeneralApiProblem(response)
+      if (problem) return problem
+    }
+    this.apisauce.setHeader("Authorization", "Bearer " + response.data.accessToken)
+    return { kind: "ok", data: response.data }
+  }
+
+  async fetchData(): Promise<{ kind: "ok", data: ApiFetchDataResponse } | GeneralApiProblem> {
+    const response: ApiResponse<ApiFetchDataResponse> = await this.apisauce.get("/data");
     if (!response.ok) {
       const problem = getGeneralApiProblem(response)
       if (problem) return problem

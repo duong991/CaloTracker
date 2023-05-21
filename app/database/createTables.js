@@ -1,13 +1,10 @@
 import { DatabaseConnection } from "./database-connection"
-// DatabaseConnection
-// const database = require("../assets/database.db")
-// const db = await openDatabase(database)
 
 const db = DatabaseConnection.getConnection()
 const createTables = () => {
   db.transaction((tx) => {
     tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS Food (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, calories INTEGER NOT NULL, protein REAL NOT NULL, carbohydrates REAL NOT NULL, fat REAL NOT NULL)",
+      "CREATE TABLE IF NOT EXISTS Food (id INTEGER PRIMARY KEY ,serverId INTEGER, name TEXT NOT NULL, calories INTEGER NOT NULL, protein REAL NOT NULL, carbohydrates REAL NOT NULL, fat REAL NOT NULL, isSynced BOOLEAN DEFAULT false)",
       [],
       () => {
         console.log("Created food table")
@@ -18,7 +15,7 @@ const createTables = () => {
     )
 
     tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS userFood (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, calories REAL NOT NULL, protein REAL NOT NULL, carbohydrates REAL NOT NULL, fat REAL NOT NULL)",
+      "CREATE TABLE IF NOT EXISTS userFood (id INTEGER PRIMARY KEY AUTOINCREMENT, serverId INTEGER, name TEXT NOT NULL, calories REAL NOT NULL, protein REAL NOT NULL, carbohydrates REAL NOT NULL, fat REAL NOT NULL, isSynced BOOLEAN DEFAULT false)",
       [],
       () => {
         console.log("Created userFood table")
@@ -29,7 +26,7 @@ const createTables = () => {
     )
 
     tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS Meal (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, description TEXT, image BLOB, calories INTEGER NOT NULL, protein REAL NOT NULL, carbohydrates REAL NOT NULL, fat REAL NOT NULL, mealType TEXT NOT NULL CHECK(mealType IN ('breakfast', 'lunch', 'dinner', 'snacks')))",
+      "CREATE TABLE IF NOT EXISTS Meal (id INTEGER PRIMARY KEY AUTOINCREMENT,serverId INTEGER, name TEXT NOT NULL, description TEXT, image BLOB, calories INTEGER NOT NULL, protein REAL NOT NULL, carbohydrates REAL NOT NULL, fat REAL NOT NULL, mealType TEXT NOT NULL CHECK(mealType IN ('breakfast', 'lunch', 'dinner', 'snacks')), isSynced BOOLEAN DEFAULT false)",
       [],
       () => {
         console.log("Created meal table")
@@ -40,7 +37,7 @@ const createTables = () => {
     )
 
     tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS userMeal (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, description TEXT, image BLOB, calories INTEGER NOT NULL, protein REAL NOT NULL, carbohydrates REAL NOT NULL, fat REAL NOT NULL, mealType TEXT NOT NULL CHECK(mealType IN ('breakfast', 'lunch', 'dinner', 'snacks')))",
+      "CREATE TABLE IF NOT EXISTS userMeal (id INTEGER PRIMARY KEY AUTOINCREMENT,serverId INTEGER, name TEXT NOT NULL, description TEXT, image BLOB, calories INTEGER NOT NULL, protein REAL NOT NULL, carbohydrates REAL NOT NULL, fat REAL NOT NULL, mealType TEXT NOT NULL CHECK(mealType IN ('breakfast', 'lunch', 'dinner', 'snacks')), isSynced BOOLEAN DEFAULT false)",
       [],
       () => {
         console.log("Created userMeal table")
@@ -51,7 +48,7 @@ const createTables = () => {
     )
 
     tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS Menu (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, description TEXT NOT NULL)",
+      "CREATE TABLE IF NOT EXISTS Menu (id INTEGER PRIMARY KEY AUTOINCREMENT,serverId INTEGER, name TEXT NOT NULL, description TEXT NOT NULL, isSynced BOOLEAN DEFAULT false)",
       [],
       () => {
         console.log("Created menu table")
@@ -62,7 +59,7 @@ const createTables = () => {
     )
 
     tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS userMenu (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, description TEXT NOT NULL)",
+      "CREATE TABLE IF NOT EXISTS userMenu (id INTEGER PRIMARY KEY AUTOINCREMENT,serverId INTEGER, name TEXT NOT NULL, description TEXT NOT NULL, isSynced BOOLEAN DEFAULT false)",
       [],
       () => {
         console.log("Created menu table")
@@ -73,7 +70,7 @@ const createTables = () => {
     )
 
     tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS MealFood (id INTEGER PRIMARY KEY AUTOINCREMENT, mealId INTEGER NOT NULL REFERENCES Meal(id), foodId INTEGER NOT NULL REFERENCES Food(id), servingSize INTEGER NOT NULL)",
+      "CREATE TABLE IF NOT EXISTS MealFood (id INTEGER PRIMARY KEY AUTOINCREMENT,serverId INTEGER, mealId INTEGER NOT NULL REFERENCES Meal(serverId), foodId INTEGER NOT NULL REFERENCES Food(serverId), servingSize INTEGER NOT NULL, isSynced BOOLEAN DEFAULT false)",
       [],
       () => {
         console.log("Created MealFood table")
@@ -84,7 +81,7 @@ const createTables = () => {
     )
 
     tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS MealMenu (id INTEGER PRIMARY KEY AUTOINCREMENT, menuId INTEGER NOT NULL REFERENCES Menu(id), mealId INTEGER NOT NULL REFERENCES Meal(id));",
+      "CREATE TABLE IF NOT EXISTS MealMenu (id INTEGER PRIMARY KEY AUTOINCREMENT,serverId INTEGER, menuId INTEGER NOT NULL REFERENCES Menu(serverId), mealId INTEGER NOT NULL REFERENCES Meal(serverId), isSynced BOOLEAN DEFAULT false);",
       [],
       () => {
         console.log("Created MealMenu table")
@@ -95,7 +92,7 @@ const createTables = () => {
     )
 
     tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS userMealFood (id INTEGER PRIMARY KEY AUTOINCREMENT, mealId INTEGER NOT NULL REFERENCES UserMeal(id), foodId INTEGER REFERENCES Food(id), userFoodId INTEGER REFERENCES UserFood(id), servingSize INTEGER NOT NULL)",
+      "CREATE TABLE IF NOT EXISTS userMealFood (id INTEGER PRIMARY KEY AUTOINCREMENT,serverId INTEGER, mealId INTEGER NOT NULL REFERENCES UserMeal(serverId), foodId INTEGER REFERENCES Food(serverId), userFoodId INTEGER REFERENCES UserFood(serverId), servingSize INTEGER NOT NULL, isSynced BOOLEAN DEFAULT false)",
       [],
       () => {
         console.log("Created userMealFood table")
@@ -106,7 +103,7 @@ const createTables = () => {
     )
 
     tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS userMealMenu (id INTEGER PRIMARY KEY AUTOINCREMENT, menuId INTEGER NOT NULL REFERENCES UserMenu(id), mealId INTEGER REFERENCES Meal(id), userMealId INTEGER REFERENCES UserMeal(id))",
+      "CREATE TABLE IF NOT EXISTS userMealMenu (id INTEGER PRIMARY KEY AUTOINCREMENT,serverId INTEGER, menuId INTEGER NOT NULL REFERENCES UserMenu(serverId), mealId INTEGER REFERENCES Meal(serverId), userMealId INTEGER REFERENCES UserMeal(serverId), isSynced BOOLEAN DEFAULT false)",
       [],
       () => {
         console.log("Created useMealMenu table")
@@ -117,7 +114,7 @@ const createTables = () => {
     )
 
     tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS Exercise (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, caloriesBurned INTEGER NOT NULL, duration INTEGER NOT NULL)",
+      "CREATE TABLE IF NOT EXISTS Exercise (id INTEGER PRIMARY KEY AUTOINCREMENT,serverId INTEGER, name TEXT NOT NULL, caloriesBurned INTEGER NOT NULL, duration INTEGER NOT NULL, isSynced BOOLEAN DEFAULT false)",
       [],
       () => {
         console.log("Created exercise table")
@@ -128,7 +125,7 @@ const createTables = () => {
     )
 
     tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS UserWeightHistory (id INTEGER PRIMARY KEY AUTOINCREMENT, date DATE NOT NULL, weight FLOAT NOT NULL)",
+      "CREATE TABLE IF NOT EXISTS UserWeightHistory (id INTEGER PRIMARY KEY AUTOINCREMENT,serverId INTEGER, date DATE NOT NULL, weight FLOAT NOT NULL, isSynced BOOLEAN DEFAULT false)",
       [],
       () => {
         console.log("Created UserWeightHistory table")
@@ -139,7 +136,7 @@ const createTables = () => {
     )
 
     tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS WaterLog (id INTEGER PRIMARY KEY AUTOINCREMENT, date DATEONLY NOT NULL, amount FLOAT NOT NULL)",
+      "CREATE TABLE IF NOT EXISTS WaterLog (id INTEGER PRIMARY KEY AUTOINCREMENT,serverId INTEGER, date DATEONLY NOT NULL, amount FLOAT NOT NULL, isSynced BOOLEAN DEFAULT false)",
       [],
       () => {
         console.log("Created WaterLog table")
@@ -150,7 +147,7 @@ const createTables = () => {
     )
 
     tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS UserExercise (id INTEGER PRIMARY KEY AUTOINCREMENT, exerciseId INTEGER NOT NULL REFERENCES Exercise(id), date DATEONLY NOT NULL, duration INTEGER NOT NULL)",
+      "CREATE TABLE IF NOT EXISTS UserExercise (id INTEGER PRIMARY KEY AUTOINCREMENT,serverId INTEGER, exerciseId INTEGER NOT NULL REFERENCES Exercise(serverId), date DATEONLY NOT NULL, duration INTEGER NOT NULL, isSynced BOOLEAN DEFAULT false)",
       [],
       () => {
         console.log("Created UserExercise table")
@@ -161,16 +158,26 @@ const createTables = () => {
     )
 
     tx.executeSql(
-      "CREATE TABLE IF NOT EXISTS DailyMenu (id INTEGER PRIMARY KEY AUTOINCREMENT,  menuId INTEGER NOT NULL REFERENCES Menu(id), userMenuId INTEGER NOT NULL REFERENCES UserMenu(id), date DATEONLY NOT NULL, note TEXT NOT NULL)",
+      "CREATE TABLE IF NOT EXISTS DailyCalo (id INTEGER PRIMARY KEY AUTOINCREMENT, serverId INTEGER, totalCalo INTEGER NOT NULL, date DATEONLY NOT NULL, isSynced BOOLEAN DEFAULT false);",
       [],
       () => {
-        console.log("Created DailyMenu table")
+        console.log("Created DailyCalo table")
       },
       (error) => {
-        console.log("Error creating DailyMenu table:", error)
+        console.log("Error creating DailyCalo table:", error)
       },
     )
-    tx.executeSql("SELECT name FROM sqlite_master WHERE type='table'")
+
+    tx.executeSql(
+      "CREATE TABLE IF NOT EXISTS DailyCaloFoodMappings (id INTEGER PRIMARY KEY AUTOINCREMENT,serverId INTEGER, dailyCaloId INTEGER NOT NULL REFERENCES DailyCalo(serverId), foodId INTEGER REFERENCES Food(serverId), userFoodId INTEGER REFERENCES UserFood(serverId), mealId INTEGER NOT NULL REFERENCES Meal(serverId), userMealId INTEGER REFERENCES UserMeal(serverId), menuId INTEGER NOT NULL REFERENCES Menu(serverId), userMenuId INTEGER REFERENCES UserMenu(serverId), servingSize INTEGER, isSynced BOOLEAN DEFAULT false)",
+      [],
+      () => {
+        console.log("Created DailyCaloFoodMappings table")
+      },
+      (error) => {
+        console.log("Error creating DailyCaloFoodMappings table:", error)
+      },
+    )
   })
 }
 

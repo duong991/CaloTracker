@@ -2,6 +2,37 @@
  * These types indicate the shape of the data you expect to receive from your
  * API endpoint, assuming it's a JSON object like we have.
  */
+
+import {
+  UserInfoAttributes, UserFoodAttributes, UserMealFoodAttributes,
+  UserMealMenuAttributes, UserMealAttributes, FoodAttributes,
+  UserMenuAttributes, MealFoodAttributes, MealAttributes,
+  MealMenuAttributes, MenuAttributes, ExerciseAttributes,
+  UserExrAttributes, WaterLogAttributes, UserWeightHistoryAttributes,
+  DailyCaloAttributes, DailyCaloFoodMappingAttributes
+} from "../../interfaces/table-server.interface"
+
+export interface ApiFetchDataResponse {
+  userInfo: UserInfoAttributes | null;
+  userFoods: UserFoodAttributes[] | [];
+  userMealFoods: UserMealFoodAttributes[] | [];
+  userMeals: UserMealAttributes[] | [];
+  userMealMenus: UserMealMenuAttributes[] | [];
+  userMenus: UserMenuAttributes[] | [];
+  foods: FoodAttributes[];
+  mealFoods: MealFoodAttributes[];
+  meals: MealAttributes[];
+  mealMenus: MealMenuAttributes[] | [];
+  menus: MenuAttributes[] | [];
+  exercises: ExerciseAttributes[];
+  userExercise: UserExrAttributes[] | [];
+  waterLogs: WaterLogAttributes[] | [];
+  userWeightHistories: UserWeightHistoryAttributes[];
+  dailyCalos: DailyCaloAttributes[] | [];
+  dailyCaloFoodMapping: DailyCaloFoodMappingAttributes[] | [];
+}
+
+
 export interface EpisodeItem {
   title: string
   pubDate: string
