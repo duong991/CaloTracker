@@ -32,8 +32,9 @@ const en = {
 
   statisticalScreen: {
     title: "Thống kê các chỉ số",
-    losing_weight_title: "Năng lượng nạp vào để giảm cân (calo thâm hụt = TDEE - 500)"
-
+    losing_weight_title: "Năng lượng nạp vào để giảm cân (calo thâm hụt = TDEE - 500)",
+    gaining_weight_title: "Năng lượng nạp vào để tăng cân (calo thặng dư = TDEE + 500)",
+    maintain_weight_title: "Năng lượng nạp vào để giữ nguyên cân nặng (calo cân bằng = TDEE)",
   },
 
   addFoodScreen: {

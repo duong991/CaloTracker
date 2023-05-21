@@ -4,11 +4,16 @@ import App from "./app/app.tsx"
 import React from "react"
 import { registerRootComponent } from "expo"
 import * as SplashScreen from "expo-splash-screen"
-
+import { GestureHandlerRootView } from "react-native-gesture-handler"
 SplashScreen.preventAutoHideAsync()
 
 function IgniteApp() {
-  return <App hideSplashScreen={SplashScreen.hideAsync} />
+  return (
+    // eslint-disable-next-line react-native/no-inline-styles
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <App hideSplashScreen={SplashScreen.hideAsync} />
+    </GestureHandlerRootView>
+  )
 }
 
 registerRootComponent(IgniteApp)

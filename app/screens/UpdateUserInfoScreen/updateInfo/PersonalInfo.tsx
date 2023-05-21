@@ -11,11 +11,11 @@ export function PersonalInfo({
   gender,
   height,
   weight,
-  old,
+  age,
   setGender,
   setHeight,
   setWeight,
-  setOld,
+  setAge,
 }) {
   return (
     <View style={$container}>
@@ -60,8 +60,8 @@ export function PersonalInfo({
       />
       <PersonalInfoSlider
         title="Tuổi"
-        value={old}
-        setValue={setOld}
+        value={age}
+        setValue={setAge}
         maxValue={100}
         color={gender ? "#088395" : "#F99B7D"}
       />

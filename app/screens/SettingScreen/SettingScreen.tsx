@@ -10,8 +10,13 @@ import { useStores } from "../../models"
 export const SettingScreen: FC<DemoTabScreenProps<"Setting">> = function SettingScreen(_props) {
   const {
     authenticationStore: { logout },
+    userInfoStore: { clearUserInfo },
   } = useStores()
 
+  const handleLogout = () => {
+    clearUserInfo()
+    logout()
+  }
   return (
     <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$container}>
       <Text style={$title} preset="heading" tx="settingScreen.title" />
@@ -40,7 +45,7 @@ export const SettingScreen: FC<DemoTabScreenProps<"Setting">> = function Setting
       </View>
 
       <View style={$buttonContainer}>
-        <Button style={$button} tx="common.logOut" onPress={logout} />
+        <Button style={$button} tx="common.logOut" onPress={handleLogout} />
       </View>
     </Screen>
   )

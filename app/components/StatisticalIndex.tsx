@@ -9,7 +9,14 @@ import { spacing, colors } from "../theme"
 import { Icon } from "./Icon"
 import { ClockSVG, MenuBarSVG } from "./fileSVG"
 
-export function StatisticalIndex() {
+export function StatisticalIndex({
+  BMI,
+  water,
+  weightStatus,
+  height,
+  weight,
+  dateForUpdateWeight,
+}) {
   return (
     <>
       <View style={$wrapContent}>
@@ -27,12 +34,12 @@ export function StatisticalIndex() {
                 BMI
               </Text>
               <Text preset="subheading" size="md" style={$redText}>
-                20.4
+                {BMI}
               </Text>
             </View>
             <View style={$leftItemTop}>
               <Text preset="default" size="sm">
-                <ClockSVG size={12} /> 6 tháng 5 - 17:56
+                <ClockSVG size={12} /> {dateForUpdateWeight}
               </Text>
               <Text preset="default" size="xxs" style={$redText}>
                 Cập nhật cân nặng
@@ -61,7 +68,7 @@ export function StatisticalIndex() {
           <View style={$wrapItem}>
             <View>
               <Text preset="default" size="sm">
-                160 cm
+                {height} cm
               </Text>
               <Text preset="subheading" size="sm" style={$labelBodyIndex}>
                 Chiều cao
@@ -69,10 +76,10 @@ export function StatisticalIndex() {
             </View>
             <View style={{ justifyContent: "flex-end" }}>
               <Text preset="default" size="sm">
-                51 kg
+                {weight} kg
               </Text>
               <Text preset="subheading" size="sm" style={$labelBodyIndex}>
-                Thiếu cân
+                {weightStatus}
               </Text>
             </View>
           </View>
@@ -88,7 +95,7 @@ export function StatisticalIndex() {
           <View style={$wrapItem}>
             <View>
               <Text preset="subheading" size="xl" style={$redText}>
-                2207ml
+                {water} ml
               </Text>
               <Text preset="subheading" size="xs" style={$labelBodyIndex}>
                 Lượng nước bạn cần uống

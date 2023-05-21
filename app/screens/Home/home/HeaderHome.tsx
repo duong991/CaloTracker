@@ -1,29 +1,37 @@
 /* eslint-disable react/display-name */
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState, memo } from "react"
+import React, { useState, FC } from "react"
 import { TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
 import { Text, Icon, Calender } from "../../../components"
 import { spacing, colors } from "../../../theme"
 import DonutChart from "../../../components/DonutChart"
 import { CalenderSVG } from "../../../components/fileSVG"
 import _Line from "../../../components/Line"
+import { useStores } from "app/models"
+import { observer } from "mobx-react-lite"
 
-export const HeaderHome = () => {
+type HeaderHomeProps = {
+  calorPerDay: number
+}
+
+export const HeaderHome: FC<HeaderHomeProps> = observer(({ calorPerDay }) => {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
-  const [date, setDate] = useState(new Date())
   const toggleDatePicker = () => {
     setDatePickerVisibility(!isDatePickerVisible)
   }
 
-  const handleConfirm = (date) => {
-    if (date > new Date()) {
-      setDate(new Date())
+  const {
+    dateStore: { dateTime, setDateTime },
+  } = useStores()
+
+  const handleConfirm = (dateTime) => {
+    if (dateTime > new Date()) {
+      setDateTime(new Date())
       toggleDatePicker()
       return
     }
-    setDate(date)
+    setDateTime(dateTime)
     toggleDatePicker()
   }
 
@@ -32,23 +40,23 @@ export const HeaderHome = () => {
   }
 
   const handleIncrementDate = () => {
-    const nextDate = date.setDate(date.getDate() + 1)
-    setDate(new Date(nextDate))
+    const nextDate = dateTime.setDate(dateTime.getDate() + 1)
+    setDateTime(new Date(nextDate))
   }
 
   const handleDecrementDate = () => {
-    const prevDate = date.setDate(date.getDate() - 1)
-    setDate(new Date(prevDate))
+    const prevDate = dateTime.setDate(dateTime.getDate() - 1)
+    setDateTime(new Date(prevDate))
   }
 
-  const dateString = date.toLocaleString("vi-VN", { day: "numeric", month: "short" })
+  const dateString = dateTime.toLocaleString("vi-VN", { day: "numeric", month: "short" })
   const today = new Date()
   const dayOfWeek =
-    date.getDate() === today.getDate() &&
-    date.getMonth() === today.getMonth() &&
-    date.getFullYear() === today.getFullYear()
+    dateTime.getDate() === today.getDate() &&
+    dateTime.getMonth() === today.getMonth() &&
+    dateTime.getFullYear() === today.getFullYear()
       ? "Hôm nay"
-      : date.toLocaleDateString("vi-VN", { weekday: "long" }).split(",")[0]
+      : dateTime.toLocaleDateString("vi-VN", { weekday: "long" }).split(",")[0]
 
   return (
     <>
@@ -104,7 +112,7 @@ export const HeaderHome = () => {
               Đã nạp
             </Text>
           </View>
-          <DonutChart radius={84} color="#FEC23E" />
+          <DonutChart radius={84} color="#FEC23E" max={calorPerDay} percentage={0} />
           <View>
             <Text preset="subheading" size="md" style={$textCenter}>
               1500
@@ -137,7 +145,7 @@ export const HeaderHome = () => {
       </View>
     </>
   )
-}
+})
 
 // Header CSS
 const $wrapHeader: ViewStyle = {

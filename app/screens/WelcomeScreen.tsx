@@ -1,37 +1,58 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { observer } from "mobx-react-lite"
-import React, { FC } from "react"
+import React, { FC, useEffect } from "react"
 import { Image, ImageStyle, TextStyle, View, ViewStyle } from "react-native"
-import {
-  Button, // @demo remove-current-line
-  Text,
-} from "../components"
-import { isRTL } from "../i18n"
-import { useStores } from "../models" // @demo remove-current-line
-import { AppStackScreenProps } from "../navigators" // @demo remove-current-line
+import { Button, Text } from "../components"
+import { useStores } from "../models"
+import { AppStackScreenProps } from "../navigators"
 import { colors, spacing } from "../theme"
-import { useHeader } from "../utils/useHeader" // @demo remove-current-line
+import { useHeader } from "../utils/useHeader"
 import { useSafeAreaInsetsStyle } from "../utils/useSafeAreaInsetsStyle"
+import { api } from "../services/api/api"
+import { insertData } from "../database/insetTable"
 
 const welcomeLogo = require("../../assets/images/logo-2.png")
 
 interface WelcomeScreenProps extends AppStackScreenProps<"Welcome"> {}
 
-export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeScreen(
-  _props, // @demo remove-current-line
-) {
+export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeScreen(_props) {
   // @demo remove-block-start
   const { navigation } = _props
   const {
-    authenticationStore: { logout },
+    authenticationStore: { logout, isFirstTime, setFirstTime },
+    userInfoStore: { setUserInfo, clearUserInfo },
   } = useStores()
 
+  const handleLogout = () => {
+    clearUserInfo()
+    logout()
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await api.fetchData()
+      console.log("res", response)
+      // Xử lý dữ liệu sau khi fetch
+      if (response.kind === "ok") {
+        const data = response.data
+        if (data.userInfo) {
+          setFirstTime(false)
+          setUserInfo(data.userInfo)
+        }
+        await insertData(data)
+      } else {
+        console.log("Lỗi khi lấy dữ liệu từ API")
+      }
+    }
+    fetchData()
+  }, [])
+
   function goNext() {
-    navigation.navigate("UpdateUserInfo")
+    navigation.navigate(isFirstTime ? "UpdateUserInfo" : "Demo")
   }
   useHeader({
     rightTx: "common.logOut",
-    onRightPress: logout,
+    onRightPress: handleLogout,
   })
 
   const $bottomContainerInsets = useSafeAreaInsetsStyle(["bottom"])
@@ -47,7 +68,6 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
           preset="heading"
         />
         <Text tx="welcomeScreen.exciting" preset="subheading" />
-        {/* <Image style={$welcomeFace} source={welcomeFace} resizeMode="contain" /> */}
       </View>
 
       <View style={[$bottomContainer, $bottomContainerInsets]}>

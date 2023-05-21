@@ -7,19 +7,55 @@ import { Icon, Screen, Text, StatisticalIndex, Button } from "../../components"
 import { AppStackScreenProps } from "../../navigators"
 import { colors, spacing } from "../../theme"
 import DonutChart from "../../components/DonutChart"
+import { useStores } from "app/models"
+import { DatabaseConnection } from "../../database/database-connection"
+import { dateToString } from "../../utils/convertDate"
 interface StatisticalScreenProps extends AppStackScreenProps<"Statistical"> {}
 
 export const StatisticalScreen: FC<StatisticalScreenProps> = observer(function StatisticalScreen(
   _props,
 ) {
   const navigation = _props.navigation
+  const db = DatabaseConnection.getConnection()
+  const {
+    userInfoStore: { getUserInfo },
+    bodyIndexStore: { getBodyIndex, setCalorPerDay },
+  } = useStores()
 
+  const userInfo = getUserInfo()
+  const bodyIndx = getBodyIndex()
+  const caloNeedPerDay =
+    userInfo.target === "Giảm cân"
+      ? bodyIndx.TDEE - 500
+      : userInfo.target === "Tăng cân"
+      ? bodyIndx.TDEE + 500
+      : bodyIndx.TDEE
+
+  setCalorPerDay(caloNeedPerDay)
   function goToTargetScreen() {
     navigation.navigate("Target")
   }
 
   function goNext() {
     navigation.navigate("Demo", { screen: "DemoShowroom" })
+    insertToTableWaterLog()
+  }
+
+  const insertToTableWaterLog = () => {
+    const date = new Date()
+    const chuoiNgayThang = dateToString(date)
+
+    const amount = 0
+
+    db.transaction(function (tx) {
+      tx.executeSql(
+        "Insert into WaterLog(date, amount) VALUES (?,?)",
+        [chuoiNgayThang, amount],
+        (tx, results) => {
+          console.log("Results", results.rowsAffected)
+        },
+      )
+    })
   }
 
   return (
@@ -42,26 +78,52 @@ export const StatisticalScreen: FC<StatisticalScreenProps> = observer(function S
       <Text
         preset="subheading"
         size="md"
-        tx="statisticalScreen.losing_weight_title"
+        tx={
+          userInfo.target === "Giảm cân"
+            ? "statisticalScreen.losing_weight_title"
+            : userInfo.target === "Tăng cân"
+            ? "statisticalScreen.gaining_weight_title"
+            : "statisticalScreen.maintain_weight_title"
+        }
         style={{ textAlign: "center" }}
       />
 
       <View style={$wrapContainer}>
-        <View style={{ alignItems: "center" }}>
+        <View style={{ height: "65%", marginRight: spacing.large }}>
+          <View style={{ width: "100%" }}>
+            <Text preset="subheading" size="md">
+              TDEE của bạn
+            </Text>
+          </View>
+
           <Text preset="subheading" size="xxl" style={{ color: "#b70000" }}>
-            2165
+            {bodyIndx.TDEE}
           </Text>
-          <Text preset="default" size="xs" style={{ color: "#b70000" }}>
+          <Text preset="subheading" size="xs" style={{ color: "#b70000" }}>
             Kcal/ngày
           </Text>
         </View>
 
         <View style={{ alignItems: "center" }}>
-          <DonutChart radius={84} color="#FEC23E" percentage={0} strokeWidth={6} max={2165} />
+          <DonutChart
+            radius={84}
+            color="#FEC23E"
+            percentage={caloNeedPerDay}
+            strokeWidth={8}
+            max={caloNeedPerDay}
+            reverse={true}
+          />
         </View>
       </View>
 
-      <StatisticalIndex />
+      <StatisticalIndex
+        BMI={bodyIndx.BMI}
+        water={bodyIndx.water}
+        weightStatus={bodyIndx.weightStatus}
+        height={userInfo.height}
+        weight={userInfo.weight}
+        dateForUpdateWeight={userInfo.dateForUpdateWeight}
+      />
 
       <View
         style={{

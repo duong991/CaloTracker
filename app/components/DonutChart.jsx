@@ -19,6 +19,7 @@ export default function Donut({
   delay = 0,
   textColor = colors.mainText,
   max = 1800,
+  reverse = false,
 }) {
   const animated = React.useRef(new Animated.Value(0)).current
   const circleRef = React.useRef()
@@ -45,12 +46,14 @@ export default function Donut({
         const strokeDashoffset = circumference - (circumference * maxPerc) / 100
         if (inputRef.current) {
           inputRef.current.setNativeProps({
-            text: `${max - Math.round(v.value)}`,
+            text: reverse ? `${0 + Math.round(v.value)}` : `${max - Math.round(v.value)}`,
           })
         }
         if (circleRef?.current) {
           circleRef.current.setNativeProps({
-            strokeDashoffset,
+            strokeDashoffset: reverse
+              ? circumference - (circumference * maxPerc * 0.98) / 100
+              : strokeDashoffset,
           })
         }
       },

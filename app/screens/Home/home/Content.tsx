@@ -1,13 +1,27 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState } from "react"
+import React, { useState, FC, useEffect } from "react"
 import { TouchableOpacity, View, ViewStyle } from "react-native"
 import { Text } from "../../../components"
 import { spacing } from "../../../theme"
 import { GlassWater } from "../../../components/fileSVG"
 import LineChartComponent from "../../../components/LineChart"
-export const Content = () => {
+import { DatabaseConnection } from "../../../database/database-connection"
+import { useStores } from "app/models"
+import { observer } from "mobx-react-lite"
+import { stringToDate, dateToString } from "../../../utils/convertDate"
+interface ContentProps {
+  waterPerDay: number
+}
+
+const db = DatabaseConnection.getConnection()
+
+export const Content: FC<ContentProps> = observer(({ waterPerDay = 0 }) => {
+  const {
+    dateStore: { dateTime },
+  } = useStores()
+  const [amount, setAmount] = useState(0)
   const [glassWaterList, setGlassWaterList] = useState([
     { isFull: true, index: 0 },
     { isFull: true, index: 1 },
@@ -19,6 +33,16 @@ export const Content = () => {
     { isFull: false, index: 7 },
     { isFull: false, index: 8 },
   ])
+  useEffect(() => {
+    db.transaction(function (tx) {
+      tx.executeSql("Select * from WaterLog ", [], (tx, results) => {
+        console.log("Results1", results.rows)
+      })
+    })
+  }, [])
+
+  const numberGlassWater = Math.round(waterPerDay / 250)
+  console.log(numberGlassWater)
 
   const handlePressGlassWater = (index: number) => {
     if (!glassWaterList[index].isFull) {
@@ -74,7 +98,7 @@ export const Content = () => {
                 textDecorationStyle: "dotted",
               }}
             >
-              1000/2013ml
+              1000/{waterPerDay}ml
             </Text>
           </View>
         </View>
@@ -113,7 +137,7 @@ export const Content = () => {
       </View>
     </>
   )
-}
+})
 // Content CSS
 const $wrapContent: ViewStyle = {
   flex: 1,

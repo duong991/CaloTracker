@@ -6,17 +6,32 @@ import { ViewStyle, View, Dimensions, TouchableOpacity } from "react-native"
 import { Icon, Screen, Text } from "../../components"
 import { AppStackScreenProps } from "../../navigators"
 import { colors, spacing } from "../../theme"
-
+import { useStores } from "../../models"
 interface TargetScreenProps extends AppStackScreenProps<"Target"> {}
 
 export const TargetScreen: FC<TargetScreenProps> = observer(function TargetScreen(_props) {
   const navigation = _props.navigation
 
+  const {
+    userInfoStore: { setTarget, getUserInfo },
+    bodyIndexStore: { setBodyIndex, getBodyIndex },
+  } = useStores()
+
   function goToUpdateUserInfoScreen() {
     navigation.navigate("UpdateUserInfo")
   }
 
-  function goToStatisticalScreen() {
+  function setTargetAndGoToNextScreen(value: number) {
+    if (value === 1) {
+      setTarget("Giảm cân")
+    } else if (value === 2) {
+      setTarget("Tăng cân")
+    } else {
+      setTarget("Giữ nguyên cân nặng")
+    }
+    const userInfo = getUserInfo()
+    setBodyIndex(userInfo.gender, userInfo.height, userInfo.weight, userInfo.age, userInfo.R)
+    console.log(getBodyIndex())
     navigation.navigate("Statistical")
   }
 
@@ -38,7 +53,7 @@ export const TargetScreen: FC<TargetScreenProps> = observer(function TargetScree
         <Text preset="subheading" size="md" tx="targetScreen.title" />
       </View>
 
-      <TouchableOpacity onPress={goToStatisticalScreen}>
+      <TouchableOpacity onPress={() => setTargetAndGoToNextScreen(1)}>
         <View style={$wrapContainer}>
           <Text
             tx="targetScreen.losing_weight_title"
@@ -52,7 +67,7 @@ export const TargetScreen: FC<TargetScreenProps> = observer(function TargetScree
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={goToStatisticalScreen}>
+      <TouchableOpacity onPress={() => setTargetAndGoToNextScreen(2)}>
         <View style={$wrapContainer}>
           <Text
             tx="targetScreen.weight_gain_title"
@@ -66,7 +81,7 @@ export const TargetScreen: FC<TargetScreenProps> = observer(function TargetScree
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={goToStatisticalScreen}>
+      <TouchableOpacity onPress={() => setTargetAndGoToNextScreen(3)}>
         <View style={$wrapContainer}>
           <Text
             tx="targetScreen.keep_stableg_weight_title"

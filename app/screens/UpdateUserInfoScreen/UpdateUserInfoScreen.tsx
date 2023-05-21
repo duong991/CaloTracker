@@ -2,30 +2,55 @@
 /* eslint-disable react-native/no-color-literals */
 import { observer } from "mobx-react-lite"
 import React, { FC, useState } from "react"
-import { ViewStyle, View, Dimensions, TouchableOpacity } from "react-native"
+import { ViewStyle, View, Dimensions, TouchableOpacity, Alert } from "react-native"
 import { Icon, Screen, Text, Button } from "../../components"
 import { AppStackScreenProps } from "../../navigators"
 import { colors, spacing } from "../../theme"
 
 import { PersonalInfo, ActiveLevel } from "./updateInfo"
+
+import { useStores } from "../../models"
 interface UpdateUserInfoScreenProps extends AppStackScreenProps<"UpdateUserInfo"> {}
 
 export const UpdateUserInfoScreen: FC<UpdateUserInfoScreenProps> = observer(
   function UpdateUserInfoScreen(_props) {
     const navigation = _props.navigation
-    const [minute, setMinute] = useState("")
-    const [day, setDay] = useState("")
-    const [height, setHeight] = useState<number>(0)
-    const [weight, setWeight] = useState<number>(0)
-    const [old, setOld] = useState<number>(0)
+    const [minute, setMinute] = useState<number>()
+    const [day, setDay] = useState<number>()
 
-    const [gender, setGender] = useState<boolean>(true)
-
+    const {
+      userInfoStore: {
+        gender,
+        height,
+        weight,
+        age,
+        setActiveLevel,
+        setGender,
+        setHeight,
+        setWeight,
+        setAge,
+        getUserInfo,
+      },
+    } = useStores()
     function goToWelcomeScreen() {
       navigation.navigate("Welcome")
     }
-    function goToTargetScreen() {
+    const calculatorActiveLevelAndGoToNextScreen = () => {
+      if (!minute || !day || !height || !weight || !age) {
+        Alert.alert("Thông báo", "Vui lòng nhập đầy đủ thông tin")
+        return
+      }
+      setActiveLevel(minute, day)
+      console.log(getUserInfo())
       navigation.navigate("Target")
+    }
+
+    const handleDayChange = (value: number) => {
+      if (value >= 0 && value <= 7) {
+        setDay(value)
+      } else {
+        Alert.alert("Thông báo", "Nhập số ngày trong tuân từ 0 - 7")
+      }
     }
 
     return (
@@ -47,18 +72,18 @@ export const UpdateUserInfoScreen: FC<UpdateUserInfoScreenProps> = observer(
         </View>
         <View style={$wrapContainer}>
           <View style={$contentActiveLevel}>
-            <ActiveLevel minute={minute} day={day} setMinute={setMinute} setDay={setDay} />
+            <ActiveLevel minute={minute} day={day} setMinute={setMinute} setDay={handleDayChange} />
           </View>
 
           <PersonalInfo
             gender={gender}
             height={height}
             weight={weight}
-            old={old}
+            age={age}
             setGender={setGender}
             setHeight={setHeight}
             setWeight={setWeight}
-            setOld={setOld}
+            setAge={setAge}
           />
         </View>
         <View
@@ -69,7 +94,7 @@ export const UpdateUserInfoScreen: FC<UpdateUserInfoScreenProps> = observer(
           <Button
             text="Tiếp tục"
             preset="filled"
-            onPress={goToTargetScreen}
+            onPress={calculatorActiveLevelAndGoToNextScreen}
             style={{
               paddingVertical: 10,
               borderRadius: 50,

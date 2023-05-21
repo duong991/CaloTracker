@@ -9,6 +9,7 @@ import { colors, spacing } from "../theme"
 import { useHeader } from "../utils/useHeader" // @demo remove-current-line
 import { api } from "../services/api/api"
 import { showErrorMessage } from "../utils/errorMessage"
+import createTables from "../../app/database/createTables"
 interface LoginScreenProps extends AppStackScreenProps<"Login"> {}
 
 export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_props) {
@@ -32,6 +33,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   } = useStores()
 
   useEffect(() => {
+    createTables()
     setAuthEmail("")
     setAuthPassword("")
   }, [])
@@ -47,40 +49,35 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       Alert.alert("Error", "Please enter email and password")
       return
     }
-    setIsSubmitted(false)
-    setAuthPassword("")
-    setAuthEmail("")
-    setAuthToken(String(Date.now()))
+    // setIsSubmitted(false)
+    // setAuthPassword("")
+    // setAuthEmail("")
+    // setAuthToken(String(Date.now()))
 
-    // try {
-    //   const result = await api.login(authEmail, authPassword)
-    //   if (result.kind === "ok") {
-    //     setAuthToken(result.data.accessToken)
-    //     setRefreshToken(result.data.refreshToken)
-    //     setIsSubmitted(false)
-    //     setAuthPassword("")
-    //     setAuthEmail("")
-    //   } else if (result.kind === "bad-data") {
-    //     Alert.alert("Error", "Tên người dùng hoặc mật khẩu không hợp lệ!")
-    //   } else if (typeof result === "object" && result.kind !== undefined) {
-    //     Alert.alert("Error", showErrorMessage(result))
-    //   }
-    // } catch (error) {
-    //   console.log(error)
-    // }
+    try {
+      const result = await api.login(authEmail, authPassword)
+      if (result.kind === "ok") {
+        setAuthToken(result.data.accessToken)
+        setRefreshToken(result.data.refreshToken)
+        setIsSubmitted(false)
+        setAuthPassword("")
+        // setAuthEmail("")
+      } else if (result.kind === "bad-data") {
+        Alert.alert("Error", "Tên người dùng hoặc mật khẩu không hợp lệ!")
+      } else if (typeof result === "object" && result.kind !== undefined) {
+        Alert.alert("Error", showErrorMessage(result))
+      }
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   function goRegister() {
     navigation.navigate("Register")
   }
-  function goToStart() {
-    navigation.navigate("Start")
-  }
 
   useHeader({
     rightTx: "common.signUp",
-    leftIcon: "back",
-    onLeftPress: goToStart,
     onRightPress: goRegister,
   })
 

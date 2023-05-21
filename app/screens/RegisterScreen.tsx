@@ -129,7 +129,7 @@ export const RegisterScreen: FC<RegisterScreenProps> = observer(function registe
         }
         safeAreaEdges={["top", "bottom"]}
       >
-        <Text testID="login-heading" tx="registerScreen.signUp" preset="heading" style={$signIn} />
+        <Text tx="registerScreen.signUp" preset="heading" style={$signIn} />
 
         <TextField
           value={authEmail}
