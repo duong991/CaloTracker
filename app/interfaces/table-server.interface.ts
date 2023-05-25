@@ -111,7 +111,10 @@ interface UserInfoAttributes {
     activityLevel: "Rất ít hoạt động" | "Ít hoạt động" | "Hoạt động vừa phải" | "Hoạt động nhiều" | "Hoạt động tích cực";
     BMR: number;
     target: "Giảm cân" | "Tăng cân" | "Giữ nguyên cân nặng";
-
+    lastTimeToUpdate: string;
+    protein: number;
+    fat: number;
+    carb: number;
 }
 interface UserMealAttributes {
     id?: number;

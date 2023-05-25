@@ -17,11 +17,11 @@ import type {
   ApiConfig,
   ApiFeedResponse, // @demo remove-current-line
   ApiLoginResponse,
-  ApiRegisterResponse,
+  ApiResponseMessage,
   ApiFetchDataResponse
 } from "./api.types"
 import type { EpisodeSnapshotIn } from "../../models/Episode" // @demo remove-current-line
-
+import { UpdateInfoUserRequest } from "../../interfaces/req-params.interface"
 /**
  * Configuring the apisauce instance.
  */
@@ -29,6 +29,7 @@ export const DEFAULT_API_CONFIG: ApiConfig = {
   url: Config.API_URL,
   timeout: 10000,
 }
+
 
 /**
  * Manages all requests to the API. You can use this class to build out
@@ -89,7 +90,7 @@ export class Api {
   // @demo remove-block-end
 
   async register(email: string, password: string): Promise<{ kind: string; data: any } | GeneralApiProblem> {
-    const response: ApiResponse<ApiRegisterResponse> = await this.apisauce.post("/auth/register", { email, password });
+    const response: ApiResponse<ApiResponseMessage> = await this.apisauce.post("/auth/register", { email, password });
     if (!response.ok) {
       const problem = getGeneralApiProblem(response)
       if (problem) return problem
@@ -116,7 +117,24 @@ export class Api {
     }
     return { kind: "ok", data: response.data }
   }
-}
 
+  async createUserInfo(data: UpdateInfoUserRequest): Promise<{ kind: "ok", data: ApiResponseMessage } | GeneralApiProblem> {
+    const response: ApiResponse<ApiResponseMessage> = await this.apisauce.post("/users", data);
+    if (!response.ok) {
+      const problem = getGeneralApiProblem(response)
+      if (problem) return problem
+    }
+    return { kind: "ok", data: response.data }
+  }
+
+  async updateUserInfo(data: UpdateInfoUserRequest): Promise<{ kind: "ok", data: ApiResponseMessage } | GeneralApiProblem> {
+    const response: ApiResponse<ApiResponseMessage> = await this.apisauce.put("/users", data);
+    if (!response.ok) {
+      const problem = getGeneralApiProblem(response)
+      if (problem) return problem
+    }
+    return { kind: "ok", data: response.data }
+  }
+}
 // Singleton instance of the API for convenience
 export const api = new Api()

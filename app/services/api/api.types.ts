@@ -66,7 +66,7 @@ export interface ApiFeedResponse {
 }
 
 
-export interface ApiRegisterResponse {
+export interface ApiResponseMessage {
   message: string;
 }
 
