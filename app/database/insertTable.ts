@@ -1,18 +1,26 @@
 import { ApiFetchDataResponse } from "../services/api/api.types"
-import { DatabaseConnection } from "./database-connection"
+import { db } from "./database-connection"
 
 export const insertData = async (data: ApiFetchDataResponse) => {
-  const db = DatabaseConnection.getConnection()
-
   try {
-    await db.transaction(async (tx) => {
+    db.transaction(async (tx) => {
+      // Chèn dữ liệu vào bảng exercises
+      const { exercises } = data
+      for (const exercise of exercises) {
+        const { id, name, caloriesBurned, duration } = exercise
+        tx.executeSql(
+          "INSERT INTO exercises (serverId, name, caloriesBurned, duration) VALUES (?, ?, ?, ?)",
+          [id, name, caloriesBurned, duration],
+        )
+      }
+
       // Chèn dữ liệu vào bảng userFoods
       const { userFoods } = data
       for (const userFood of userFoods) {
         const { id, name, calories, protein, carbohydrates, fat } = userFood
-        await tx.executeSql(
-          "INSERT INTO userFood (serverId, name, calories, protein, carbohydrates, fat, isSynced) VALUES ( ?, ?, ?, ?, ?, ?, ?)",
-          [id, name, calories, protein, carbohydrates, fat, true],
+        tx.executeSql(
+          "INSERT INTO user_foods (serverId, name, calories, protein, carbohydrates, fat) VALUES ( ?, ?, ?, ?, ?, ?)",
+          [id, name, calories, protein, carbohydrates, fat],
         )
       }
 
@@ -20,9 +28,9 @@ export const insertData = async (data: ApiFetchDataResponse) => {
       const { userMealFoods } = data
       for (const userMealFood of userMealFoods) {
         const { id, mealId, foodId, servingSize } = userMealFood
-        await tx.executeSql(
-          "INSERT INTO userMealFood (serverId, mealId, foodId, servingSize, isSynced) VALUES (?, ?, ?, ?, ?)",
-          [id, mealId, foodId, servingSize, true],
+        tx.executeSql(
+          "INSERT INTO user_meal_foods (serverId, mealId, foodId, servingSize) VALUES (?, ?, ?, ?)",
+          [id, mealId, foodId, servingSize],
         )
       }
 
@@ -30,19 +38,19 @@ export const insertData = async (data: ApiFetchDataResponse) => {
       const { userMeals } = data
       for (const userMeal of userMeals) {
         const { id, name, description, calories, protein, carbohydrates, fat, mealType } = userMeal
-        await tx.executeSql(
-          "INSERT INTO userMeals (serverId, name, description, calories, protein, carbohydrates, fat, mealType, isSynced) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-          [id, name, description, calories, protein, carbohydrates, fat, mealType, true],
+        tx.executeSql(
+          "INSERT INTO user_meals (serverId, name, description, calories, protein, carbohydrates, fat, mealType) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+          [id, name, description, calories, protein, carbohydrates, fat, mealType],
         )
       }
 
       // Chèn dữ liệu vào bảng userMealMenus
       const { userMealMenus } = data
       for (const userMealMenu of userMealMenus) {
-        const { id, menuId, mealId } = userMealMenu
-        await tx.executeSql(
-          "INSERT INTO userMealMenus (serverId, menuId, mealId, isSynced) VALUES (?, ?, ?, ?)",
-          [id, menuId, mealId, true],
+        const { id, menuId, mealId, userMealId } = userMealMenu
+        tx.executeSql(
+          "INSERT INTO user_meal_menus (serverId, menuId, mealId, userMealId) VALUES (?, ?, ?)",
+          [id, menuId, mealId, userMealId],
         )
       }
 
@@ -50,9 +58,9 @@ export const insertData = async (data: ApiFetchDataResponse) => {
       const { userMenus } = data
       for (const userMenu of userMenus) {
         const { id, name, description } = userMenu
-        await tx.executeSql(
-          "INSERT INTO userMenus (serverId, name, description, isSynced) VALUES (?, ?, ?, ?)",
-          [id, name, description, true],
+        tx.executeSql(
+          "INSERT INTO user_menus (serverId, name, description) VALUES (?, ?, ?)",
+          [id, name, description],
         )
       }
 
@@ -60,19 +68,20 @@ export const insertData = async (data: ApiFetchDataResponse) => {
       const { foods } = data
       for (const food of foods) {
         const { id, name, calories, protein, carbohydrates, fat } = food
-        await tx.executeSql(
-          "INSERT INTO foods ( serverId, name, calories, protein, carbohydrates, fat, isSynced) VALUES ( ?, ?, ?, ?, ?, ?, ?)",
-          [id, name, calories, protein, carbohydrates, fat, true],
+        tx.executeSql(
+          "INSERT INTO foods ( serverId, name, calories, protein, carbohydrates, fat) VALUES ( ?, ?, ?, ?, ?, ?)",
+          [id, name, calories, protein, carbohydrates, fat],
         )
       }
+
 
       // Chèn dữ liệu vào bảng mealFoods
       const { mealFoods } = data
       for (const mealFood of mealFoods) {
         const { id, mealId, foodId, servingSize } = mealFood
-        await tx.executeSql(
-          "INSERT INTO mealFoods (serverId, mealId, foodId, servingSize, isSynced) VALUES (?, ?, ?, ?, ?)",
-          [id, mealId, foodId, servingSize, true],
+        tx.executeSql(
+          "INSERT INTO meal_foods (serverId, mealId, foodId, servingSize) VALUES (?, ?, ?, ?)",
+          [id, mealId, foodId, servingSize],
         )
       }
 
@@ -80,9 +89,9 @@ export const insertData = async (data: ApiFetchDataResponse) => {
       const { meals } = data
       for (const meal of meals) {
         const { id, name, description, calories, protein, carbohydrates, fat, mealType } = meal
-        await tx.executeSql(
-          "INSERT INTO meals (serverId, name, description, calories, protein, carbohydrates, fat, mealType, isSynced) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-          [id, name, description, calories, protein, carbohydrates, fat, mealType, true],
+        tx.executeSql(
+          "INSERT INTO meals (serverId, name, description, calories, protein, carbohydrates, fat, mealType) VALUES (?, ?, ?, ?, ?, ?, ?)",
+          [id, name, description, calories, protein, carbohydrates, fat, mealType],
         )
       }
 
@@ -90,9 +99,9 @@ export const insertData = async (data: ApiFetchDataResponse) => {
       const { mealMenus } = data
       for (const mealMenu of mealMenus) {
         const { id, menuId, mealId } = mealMenu
-        await tx.executeSql(
-          "INSERT INTO mealMenus (serverId, menuId, mealId, isSynced) VALUES (?, ?, ?, ?)",
-          [id, menuId, mealId, true],
+        tx.executeSql(
+          "INSERT INTO meal_menus (serverId, menuId, mealId) VALUES (?, ?, ?)",
+          [id, menuId, mealId],
         )
       }
 
@@ -100,29 +109,21 @@ export const insertData = async (data: ApiFetchDataResponse) => {
       const { menus } = data
       for (const menu of menus) {
         const { id, name, description } = menu
-        await tx.executeSql(
-          "INSERT INTO menus (serverId, name, description, isSynced) VALUES (?, ?, ?, ?)",
-          [id, name, description, true],
+        tx.executeSql(
+          "INSERT INTO menus (serverId, name, description) VALUES (?, ?, ?)",
+          [id, name, description],
         )
       }
 
-      // Chèn dữ liệu vào bảng exercises
-      const { exercises } = data
-      for (const exercise of exercises) {
-        const { id, name, caloriesBurned, duration } = exercise
-        await tx.executeSql(
-          "INSERT INTO exercises (serverId, name, caloriesBurned, duration, isSynced) VALUES (?, ?, ?, ?, ?)",
-          [id, name, caloriesBurned, duration, true],
-        )
-      }
+
 
       // Chèn dữ liệu vào bảng userExercise
       const { userExercise } = data
       for (const userExr of userExercise) {
         const { id, exerciseId, date, duration } = userExr
-        await tx.executeSql(
-          "INSERT INTO userExercise (serverId, exerciseId, date, duration, isSynced) VALUES (?, ?, ?, ?, ?)",
-          [id, exerciseId, date, duration, true],
+        tx.executeSql(
+          "INSERT INTO user_exercises (serverId, exerciseId, date, duration) VALUES (?, ?, ?, ?)",
+          [id, exerciseId, date, duration],
         )
       }
 
@@ -130,9 +131,9 @@ export const insertData = async (data: ApiFetchDataResponse) => {
       const { waterLogs } = data
       for (const waterLog of waterLogs) {
         const { id, date, amount } = waterLog
-        await tx.executeSql(
-          "INSERT INTO waterLogs (serverId, date, amount, isSynced) VALUES (?, ?, ?, ?)",
-          [id, date, amount, true],
+        tx.executeSql(
+          "INSERT INTO water_logs (serverId, date, amount) VALUES (?, ?, ?)",
+          [id, date, amount],
         )
       }
 
@@ -140,9 +141,9 @@ export const insertData = async (data: ApiFetchDataResponse) => {
       const { userWeightHistories } = data
       for (const userWeightHistory of userWeightHistories) {
         const { id, date, weight } = userWeightHistory
-        await tx.executeSql(
-          "INSERT INTO userWeightHistories (serverId, date, weight, isSynced) VALUES (?, ?, ?, ?)",
-          [id, date, weight, true],
+        tx.executeSql(
+          "INSERT INTO user_weight_histories (serverId, date, weight) VALUES (?, ?, ?)",
+          [id, date, weight],
         )
       }
 
@@ -150,9 +151,9 @@ export const insertData = async (data: ApiFetchDataResponse) => {
       const { dailyCalos } = data
       for (const dailyCalo of dailyCalos) {
         const { id, date, totalCalo } = dailyCalo
-        await tx.executeSql(
-          "INSERT INTO dailyCalos (serverId, totalCalo,date, isSynced) VALUES (?, ?, ?, ?)",
-          [id, totalCalo, date, true],
+        tx.executeSql(
+          "INSERT INTO daily_calos (serverId, totalCalo,date) VALUES (?, ?, ?)",
+          [id, totalCalo, date],
         )
       }
 
@@ -170,8 +171,8 @@ export const insertData = async (data: ApiFetchDataResponse) => {
           userMenuId,
           servingSize,
         } = caloFoodMapping
-        await tx.executeSql(
-          "INSERT INTO dailyCaloFoodMapping (serverId, dailyCaloId, foodId, userFoodId, mealId, userMealId, menuId, userMenuId servingSize, isSynced) VALUES (?, ?, ?, ?, ?, ?, ? ,? ,? ,?)",
+        tx.executeSql(
+          "INSERT INTO daily_calo_food_mappings (serverId, dailyCaloId, foodId, userFoodId, mealId, userMealId, menuId, userMenuId,servingSize) VALUES (?, ?, ?, ?, ?, ?, ? ,? ,?)",
           [
             id,
             dailyCaloId,
@@ -182,13 +183,15 @@ export const insertData = async (data: ApiFetchDataResponse) => {
             menuId,
             userMenuId,
             servingSize,
-            true,
           ],
         )
       }
     })
     console.log("Chèn dữ liệu thành công")
+
   } catch (error) {
     console.log("Lỗi khi chèn dữ liệu:", error)
   }
 }
+
+
