@@ -11,8 +11,8 @@ import Svg, { G, Circle, Line } from "react-native-svg"
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput)
 
 export default function _Line({
-  percentage = 800,
-  width = 70,
+  percentage = 100,
+  width = 80,
   strokeWidth = 10,
   duration = 500,
   color = "#FEC23E",
@@ -44,7 +44,7 @@ export default function _Line({
         const strokeDashoffset = maxPerc * circumference
         if (inputRef.current) {
           inputRef.current.setNativeProps({
-            text: `${Math.round(v.value)}`,
+            text: `${Math.round(v.value)} / ${Math.round(max)}g`,
           })
         }
         if (lineRef?.current) {
@@ -96,7 +96,7 @@ export default function _Line({
         defaultValue="0"
         style={[
           StyleSheet.absoluteFillObject,
-          { fontSize: width / 3.5, color: textColor ?? color },
+          { fontSize: 16, color: textColor ?? color },
           styles.text,
         ]}
       />
