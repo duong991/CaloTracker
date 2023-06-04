@@ -18,10 +18,13 @@ import type {
   ApiFeedResponse, // @demo remove-current-line
   ApiLoginResponse,
   ApiResponseMessage,
-  ApiFetchDataResponse
+  ApiFetchDataResponse,
+  ApiFetchDataUserInfoResponse
 } from "./api.types"
 import type { EpisodeSnapshotIn } from "../../models/Episode" // @demo remove-current-line
 import { UpdateInfoUserRequest } from "../../interfaces/req-params.interface"
+
+
 /**
  * Configuring the apisauce instance.
  */
@@ -43,18 +46,21 @@ export class Api {
    * Set up our API instance. Keep this lightweight!
    */
   constructor(config: ApiConfig = DEFAULT_API_CONFIG) {
-    this.config = config
+    this.config = config;
     this.apisauce = create({
       baseURL: this.config.url,
       timeout: this.config.timeout,
       headers: {
         Accept: "application/json",
-        // Authorization: 'Bearer ' + authTokenHeader
       },
-    })
+    });
+
   }
 
-  // @demo remove-block-start
+  async setAuthToken(authToken: string) {
+    this.apisauce.setHeader("Authorization", "Bearer " + authToken)
+  }
+
   /**
    * Gets a list of recent React Native Radio episodes.
    */
@@ -101,6 +107,7 @@ export class Api {
 
   async login(email: string, password: string) {
     const response: ApiResponse<ApiLoginResponse> = await this.apisauce.post("/auth/login", { email, password });
+    console.log(response);
     if (!response.ok) {
       const problem = getGeneralApiProblem(response)
       if (problem) return problem
@@ -118,17 +125,26 @@ export class Api {
     return { kind: "ok", data: response.data }
   }
 
-  async createUserInfo(data: UpdateInfoUserRequest): Promise<{ kind: "ok", data: ApiResponseMessage } | GeneralApiProblem> {
+  async createUserInfo(data: UpdateInfoUserRequest): Promise<{ kind: "ok", data: string } | GeneralApiProblem> {
     const response: ApiResponse<ApiResponseMessage> = await this.apisauce.post("/users", data);
     if (!response.ok) {
       const problem = getGeneralApiProblem(response)
       if (problem) return problem
     }
-    return { kind: "ok", data: response.data }
+    return { kind: "ok", data: response.data.message }
   }
 
-  async updateUserInfo(data: UpdateInfoUserRequest): Promise<{ kind: "ok", data: ApiResponseMessage } | GeneralApiProblem> {
+  async updateUserInfo(data: UpdateInfoUserRequest): Promise<{ kind: "ok", data: string } | GeneralApiProblem> {
     const response: ApiResponse<ApiResponseMessage> = await this.apisauce.put("/users", data);
+    if (!response.ok) {
+      const problem = getGeneralApiProblem(response)
+      if (problem) return problem
+    }
+    return { kind: "ok", data: response.data.message }
+  }
+
+  async getUserInfo(): Promise<{ kind: "ok", data: ApiFetchDataUserInfoResponse } | GeneralApiProblem> {
+    const response: ApiResponse<ApiFetchDataUserInfoResponse> = await this.apisauce.get("/users");
     if (!response.ok) {
       const problem = getGeneralApiProblem(response)
       if (problem) return problem

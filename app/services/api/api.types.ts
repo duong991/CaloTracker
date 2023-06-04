@@ -32,6 +32,10 @@ export interface ApiFetchDataResponse {
   dailyCaloFoodMapping: DailyCaloFoodMappingAttributes[] | [];
 }
 
+export interface ApiFetchDataUserInfoResponse {
+  userInfo: UserInfoAttributes | null;
+};
+
 
 export interface EpisodeItem {
   title: string
@@ -65,7 +69,23 @@ export interface ApiFeedResponse {
   items: EpisodeItem[]
 }
 
+export interface WeightLogItem {
+  date: string
+  weight: number
+}
+export interface ApiGetAllWeightLogResponse {
+  items: WeightLogItem[]
+}
 
+export interface ExerciseItem {
+  id: number;
+  name: string;
+  caloriesBurned: number;
+  duration: number;
+}
+export interface ApiGetExerciseResponse {
+  items: ExerciseItem[]
+}
 export interface ApiResponseMessage {
   message: string;
 }
@@ -74,6 +94,14 @@ export interface ApiLoginResponse {
   accessToken?: string;
   refreshToken?: string;
   message?: string;
+}
+
+export interface ApiResponseWaterLog {
+  amount: number;
+}
+
+export interface ApiResponseWeightLogByDate {
+  weight: number;
 }
 
 

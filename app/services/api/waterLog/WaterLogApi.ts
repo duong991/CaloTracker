@@ -1,8 +1,8 @@
-import { Api } from "../api";
+import { Api, api } from "../api";
 import { GeneralApiProblem } from "../apiProblem";
 import { ApiResponse } from "apisauce";
 import { IDataRequestWaterLog } from "../../../interfaces/req-params.interface";
-import type { ApiResponseMessage } from "../api.types"
+import type { ApiResponseMessage, ApiResponseWaterLog } from "../api.types"
 
 /**
 
@@ -36,13 +36,13 @@ export class WaterLogApi {
     
     Cập nhật thông tin một.
     */
-    async updateWaterLog(id: number, data: IDataRequestWaterLog): Promise<{ kind: "ok"; data: string } | GeneralApiProblem> {
+    async updateWaterLog(data: IDataRequestWaterLog): Promise<{ kind: "ok"; data: string, status: number } | { kind: "bad-data", status: number } | GeneralApiProblem> {
         try {
-            const response: ApiResponse<ApiResponseMessage> = await this.api.apisauce.put(`/water-log/${id}`, data);
+            const response: ApiResponse<ApiResponseMessage> = await this.api.apisauce.put("/water-log", data);
             if (response.ok) {
-                return { kind: "ok", data: response.data.message };
+                return { kind: "ok", status: response.status, data: response.data.message };
             } else {
-                return { kind: "bad-data" };
+                return { kind: "bad-data", status: response.status };
             }
         } catch (error) {
             return { kind: "bad-data" };
@@ -65,4 +65,23 @@ export class WaterLogApi {
             return { kind: "bad-data" };
         }
     }
+
+    /**
+    
+    lấy thông tin lượng nước uống trong ngày.
+    */
+    async getWaterLogByDate(date: string): Promise<{ kind: "ok", data: ApiResponseWaterLog } | GeneralApiProblem> {
+        try {
+            const response: ApiResponse<ApiResponseWaterLog> = await this.api.apisauce.get(`/water-log/?date=${date}`);
+            if (response.ok) {
+                return { kind: "ok", data: response.data };
+            } else {
+                return { kind: "bad-data" };
+            }
+        } catch (error) {
+            return { kind: "bad-data" };
+        }
+    }
 }
+
+export const waterLogApi = new WaterLogApi(api);
