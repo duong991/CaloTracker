@@ -30,6 +30,17 @@ const en = {
     keep_stableg_weight_detail: "Tối ưu cho sức khỏe của bạn"
   },
 
+  macroScreen: {
+    title: "Cập nhập macro của bạn",
+    moderate_Carb: "Chế độ ăn Moderate Carb",
+    moderate_Carb_Detail: "(30% protein/ 35% fat/ 35% carb)",
+    lower_Carb: "Chế độ ăn Lower Carb",
+    lower_Carb_Detail: "(40% protein / 30% fat / 30% carb)",
+    higher_Carb: "Chế độ ăn Higher Carb",
+    higher_Carb_Detail: "(30% protein / 20% fat / 50% carb)",
+
+  },
+
   statisticalScreen: {
     title: "Thống kê các chỉ số",
     losing_weight_title: "Năng lượng nạp vào để giảm cân (calo thâm hụt = TDEE - 500)",

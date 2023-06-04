@@ -6,7 +6,7 @@ import { DemoTabScreenProps } from "../../navigators/DemoNavigator"
 import { colors, spacing } from "../../theme"
 import { isRTL } from "../../i18n"
 import { useStores } from "../../models"
-
+import { cancelSyncQueueTask } from "../../utils/schedule"
 export const SettingScreen: FC<DemoTabScreenProps<"Setting">> = function SettingScreen(_props) {
   const {
     authenticationStore: { logout },
@@ -14,6 +14,7 @@ export const SettingScreen: FC<DemoTabScreenProps<"Setting">> = function Setting
   } = useStores()
 
   const handleLogout = () => {
+    cancelSyncQueueTask()
     clearUserInfo()
     logout()
   }

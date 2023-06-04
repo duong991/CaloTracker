@@ -1,122 +1,146 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { FC, useState } from "react"
+import { observer } from "mobx-react-lite"
+import React, { FC, useState, useEffect } from "react"
 import { TextStyle, View, ViewStyle, Dimensions, TouchableOpacity } from "react-native"
 import { Screen, Text, TextField } from "../../components"
 import { DemoTabScreenProps } from "../../navigators/DemoNavigator"
 import { spacing, colors } from "../../theme"
 import { BulbSVG, PlusSVG, SearchSVG } from "../../components/fileSVG"
-
-export const FoodScreen: FC<DemoTabScreenProps<"Food">> = function FoodScreen(_props) {
+import { AddButton } from "../../components/AddButton"
+import { useStores } from "../../models"
+export const FoodScreen: FC<DemoTabScreenProps<"Food">> = observer(function FoodScreen(_props) {
   const { navigation } = _props
 
   const [activeTab, setActiveTab] = useState(0)
   // activeTab = 0 => Thuc pham | activeTab = 1 => Mon an
+
+  const {
+    systemStore: { isOverlayVisible, setOverLayVisible },
+  } = useStores()
+
   function goToAddMeal() {
     navigation.navigate(activeTab ? "AddMeal" : "AddFood")
+  }
+
+  const goToScreen = (screenName: "AddDailySport" | "AddFood") => {
+    navigation.push(screenName)
   }
 
   const handlePress = (index) => {
     setActiveTab(index)
   }
-
   return (
-    <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["bottom", "top"]}>
-      {/* Header */}
-      <View style={$wrapHeader}>
-        <Text preset="heading" size="xl" style={$textHeader}>
-          Món ăn của riêng bạn
-        </Text>
-        <View style={$wrapInput}>
-          <View style={$search}>
-            <TextField
-              // value={authEmail}
-              // onChangeText={setAuthEmail}
-              autoCapitalize="none"
-              autoComplete="off"
-              autoCorrect={false}
-              keyboardType="default"
-              placeholder="Tìm kiếm"
-              // onSubmitEditing={() => authPasswordInput.current?.focus()}
-            />
-          </View>
-
-          <TouchableOpacity>
-            <View style={$buttonOfSearchInput}>
-              <SearchSVG size={20} />
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={goToAddMeal}>
-            <View style={$buttonOfSearchInput}>
-              <PlusSVG size={20} />
-            </View>
-          </TouchableOpacity>
-        </View>
-      </View>
-      {/*  ContentHeader */}
-      <View style={$wrapContentHeader}>
-        <View
-          style={{
-            flex: 1,
-            borderRightWidth: 1,
-            borderColor: "rgba(79, 94, 79, 0.33) ",
-          }}
-        >
-          <TouchableOpacity
-            style={[
-              {
-                width: "100%",
-                height: "100%",
-                justifyContent: "center",
-                alignItems: "center",
-              },
-              activeTab === 0 ? $activeTab : null,
-            ]}
-            onPress={() => handlePress(0)}
-          >
-            <Text preset="subheading" size="md" style={$textHeader}>
-              Thực phẩm
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-          <TouchableOpacity
-            style={[
-              {
-                width: "100%",
-                height: "100%",
-                justifyContent: "center",
-                alignItems: "center",
-              },
-              activeTab === 1 ? $activeTab : null,
-            ]}
-            onPress={() => handlePress(1)}
-          >
-            <Text preset="subheading" size="md" style={$textHeader}>
-              Món ăn
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={$wrapContentContainer}>
-        <View style={$tip}>
-          <BulbSVG width={90} />
-          <Text preset="subheading" size="md" style={$textHeader}>
-            Có thể bạn chưa biết
+    <View style={{ flex: 1 }}>
+      <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["bottom", "top"]}>
+        {/* Header */}
+        <View style={$wrapHeader}>
+          <Text preset="heading" size="xl" style={$textHeader}>
+            Món ăn của riêng bạn
           </Text>
-        </View>
-        <View style={$add}>
-          <View style={$wrapIcon}>
-            <PlusSVG size={20} />
+          <View style={$wrapInput}>
+            <View style={$search}>
+              <TextField
+                // value={authEmail}
+                // onChangeText={setAuthEmail}
+                autoCapitalize="none"
+                autoComplete="off"
+                autoCorrect={false}
+                keyboardType="default"
+                placeholder="Tìm kiếm"
+                // onSubmitEditing={() => authPasswordInput.current?.focus()}
+              />
+            </View>
+
+            <TouchableOpacity>
+              <View style={$buttonOfSearchInput}>
+                <SearchSVG size={20} />
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={goToAddMeal}>
+              <View style={$buttonOfSearchInput}>
+                <PlusSVG size={20} />
+              </View>
+            </TouchableOpacity>
           </View>
         </View>
-      </View>
-    </Screen>
+        {/*  ContentHeader */}
+        <View style={$wrapContentHeader}>
+          <View
+            style={{
+              flex: 1,
+              borderRightWidth: 1,
+              borderColor: "rgba(79, 94, 79, 0.33) ",
+            }}
+          >
+            <TouchableOpacity
+              style={[
+                {
+                  width: "100%",
+                  height: "100%",
+                  justifyContent: "center",
+                  alignItems: "center",
+                },
+                activeTab === 0 ? $activeTab : null,
+              ]}
+              onPress={() => handlePress(0)}
+            >
+              <Text preset="subheading" size="md" style={$textHeader}>
+                Thực phẩm
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+            <TouchableOpacity
+              style={[
+                {
+                  width: "100%",
+                  height: "100%",
+                  justifyContent: "center",
+                  alignItems: "center",
+                },
+                activeTab === 1 ? $activeTab : null,
+              ]}
+              onPress={() => handlePress(1)}
+            >
+              <Text preset="subheading" size="md" style={$textHeader}>
+                Món ăn
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={$wrapContentContainer}>
+          <View style={$tip}>
+            <BulbSVG width={90} />
+            <Text preset="subheading" size="md" style={$textHeader}>
+              Có thể bạn chưa biết
+            </Text>
+          </View>
+        </View>
+      </Screen>
+      <View
+        style={
+          isOverlayVisible
+            ? {
+                position: "absolute",
+                top: 0,
+                bottom: -100,
+                right: 0,
+                left: 0,
+                zIndex: 1,
+                backgroundColor: "rgba(0,0,0,0.21)",
+              }
+            : {}
+        }
+      />
+      {/* Add Button */}
+      <AddButton goToScreen={goToScreen} />
+    </View>
   )
-}
+})
 
 const $container: ViewStyle = {
   paddingTop: spacing.tiny,
@@ -196,27 +220,6 @@ const $tip: ViewStyle = {
   height: "80%",
   backgroundColor: "#ffffff",
   borderRadius: 8,
-}
-
-const $add: ViewStyle = {
-  marginTop: spacing.tiny,
-  flexDirection: "row",
-  width: "85%",
-  height: 52,
-  justifyContent: "flex-end",
-  alignItems: "center",
-}
-
-const $wrapIcon: ViewStyle = {
-  width: 52,
-  height: 52,
-  justifyContent: "center",
-  alignItems: "center",
-  backgroundColor: "#FFFFFF",
-  borderRadius: 45,
-  marginStart: spacing.extraSmall,
-  borderWidth: 1,
-  borderColor: colors.palette.neutral400,
 }
 
 const $activeTab: ViewStyle = {

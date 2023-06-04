@@ -1,17 +1,20 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { BottomTabScreenProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import { CompositeScreenProps } from "@react-navigation/native"
 import React from "react"
-import { TextStyle, ViewStyle } from "react-native"
+import { TextStyle, ViewStyle, TouchableOpacity } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 // import { translate } from "../i18n"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 // import { DemoCommunityScreen, DemoShowroomScreen, SettingScreen } from "../screens"
-// import { DemoPodcastListScreen } from "../screens/DemoPodcastListScreen"
+import { DemoPodcastListScreen } from "../screens/DemoPodcastListScreen"
 import { colors, spacing, typography } from "../theme"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 import { FoodScreen, SettingScreen, PersonalScreen } from "../screens"
 import { HomeScreen } from "../screens/Home/HomeScreen"
 import { FoodSVG, HomeSVG, PersonalSVG, SettingSVG } from "../components/fileSVG"
+import { useStores } from "app/models"
+import { navigate } from "./navigationUtilities"
 
 export type DemoTabParamList = {
   DemoCommunity: undefined
@@ -37,10 +40,15 @@ const Tab = createBottomTabNavigator<DemoTabParamList>()
 
 export function DemoNavigator() {
   const { bottom } = useSafeAreaInsets()
-
+  const {
+    systemStore: { setOverLayVisible },
+  } = useStores()
+  const handleTabPress = () => {
+    setOverLayVisible(false)
+  }
   return (
     <Tab.Navigator
-      screenOptions={{
+      screenOptions={({ route, navigation }) => ({
         headerShown: false,
         tabBarHideOnKeyboard: true,
         tabBarStyle: [$tabBar, { height: bottom + 70 }],
@@ -48,7 +56,16 @@ export function DemoNavigator() {
         tabBarInactiveTintColor: colors.text,
         tabBarLabelStyle: $tabBarLabel,
         tabBarItemStyle: $tabBarItem,
-      }}
+        tabBarButton: (props) => (
+          <TouchableOpacity
+            {...props}
+            onPress={() => {
+              handleTabPress()
+              navigation.navigate(route.name)
+            }}
+          />
+        ),
+      })}
     >
       {/* <Tab.Screen
         name="DemoShowroom"
@@ -91,8 +108,8 @@ export function DemoNavigator() {
       />
 
       <Tab.Screen
-        name="Setting"
-        component={SettingScreen}
+        name="DemoPodcastList"
+        component={DemoPodcastListScreen}
         options={{
           // tabBarLabel: translate("demoNavigator.debugTab"),
           tabBarLabel: "Setting",

@@ -13,139 +13,144 @@ import { observer } from "mobx-react-lite"
 
 type HeaderHomeProps = {
   calorPerDay: number
+  carbG: number
+  fatG: number
+  proteinG: number
 }
 
-export const HeaderHome: FC<HeaderHomeProps> = observer(({ calorPerDay }) => {
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
-  const toggleDatePicker = () => {
-    setDatePickerVisibility(!isDatePickerVisible)
-  }
-
-  const {
-    dateStore: { dateTime, setDateTime },
-  } = useStores()
-
-  const handleConfirm = (dateTime) => {
-    if (dateTime > new Date()) {
-      setDateTime(new Date())
-      toggleDatePicker()
-      return
+export const HeaderHome: FC<HeaderHomeProps> = observer(
+  ({ calorPerDay, carbG, fatG, proteinG }) => {
+    const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
+    const toggleDatePicker = () => {
+      setDatePickerVisibility(!isDatePickerVisible)
     }
-    setDateTime(dateTime)
-    toggleDatePicker()
-  }
 
-  const handleCancel = () => {
-    toggleDatePicker()
-  }
+    const {
+      dateStore: { dateTime, setDateTime },
+    } = useStores()
 
-  const handleIncrementDate = () => {
-    const nextDate = dateTime.setDate(dateTime.getDate() + 1)
-    setDateTime(new Date(nextDate))
-  }
+    const handleConfirm = (dateTime) => {
+      if (dateTime > new Date()) {
+        setDateTime(new Date())
+        toggleDatePicker()
+        return
+      }
+      setDateTime(dateTime)
+      toggleDatePicker()
+    }
 
-  const handleDecrementDate = () => {
-    const prevDate = dateTime.setDate(dateTime.getDate() - 1)
-    setDateTime(new Date(prevDate))
-  }
+    const handleCancel = () => {
+      toggleDatePicker()
+    }
 
-  const dateString = dateTime.toLocaleString("vi-VN", { day: "numeric", month: "short" })
-  const today = new Date()
-  const dayOfWeek =
-    dateTime.getDate() === today.getDate() &&
-    dateTime.getMonth() === today.getMonth() &&
-    dateTime.getFullYear() === today.getFullYear()
-      ? "Hôm nay"
-      : dateTime.toLocaleDateString("vi-VN", { weekday: "long" }).split(",")[0]
+    const handleIncrementDate = () => {
+      const nextDate = dateTime.setDate(dateTime.getDate() + 1)
+      setDateTime(new Date(nextDate))
+    }
 
-  return (
-    <>
-      {isDatePickerVisible && (
-        <Calender
-          isVisible={isDatePickerVisible}
-          onConfirm={handleConfirm}
-          onCancel={handleCancel}
-        />
-      )}
-      <View style={$wrapHeader}>
-        <View style={$header}>
-          <View style={$day}>
-            <Text preset="subheading" size="xl">
-              {dayOfWeek}
-            </Text>
-          </View>
-          <View style={$calender}>
-            <TouchableOpacity onPress={handleDecrementDate}>
-              <Icon icon="caretLeft" color={colors.mainText} size={30} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={toggleDatePicker}
-              style={{ flexDirection: "row", marginHorizontal: 4 }}
-            >
-              <CalenderSVG size={20} />
-              <Text preset="default" size="sm">
-                {dateString}
+    const handleDecrementDate = () => {
+      const prevDate = dateTime.setDate(dateTime.getDate() - 1)
+      setDateTime(new Date(prevDate))
+    }
+
+    const dateString = dateTime.toLocaleString("vi-VN", { day: "numeric", month: "short" })
+    const today = new Date()
+    const dayOfWeek =
+      dateTime.getDate() === today.getDate() &&
+      dateTime.getMonth() === today.getMonth() &&
+      dateTime.getFullYear() === today.getFullYear()
+        ? "Hôm nay"
+        : dateTime.toLocaleDateString("vi-VN", { weekday: "long" }).split(",")[0]
+
+    return (
+      <>
+        {isDatePickerVisible && (
+          <Calender
+            isVisible={isDatePickerVisible}
+            onConfirm={handleConfirm}
+            onCancel={handleCancel}
+          />
+        )}
+        <View style={$wrapHeader}>
+          <View style={$header}>
+            <View style={$day}>
+              <Text preset="subheading" size="xl">
+                {dayOfWeek}
               </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleIncrementDate}>
-              <Icon icon="caretRight" color={colors.mainText} size={30} />
-            </TouchableOpacity>
+            </View>
+            <View style={$calender}>
+              <TouchableOpacity onPress={handleDecrementDate}>
+                <Icon icon="caretLeft" color={colors.mainText} size={30} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={toggleDatePicker}
+                style={{ flexDirection: "row", marginHorizontal: 4 }}
+              >
+                <CalenderSVG size={20} />
+                <Text preset="default" size="sm">
+                  {dateString}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleIncrementDate}>
+                <Icon icon="caretRight" color={colors.mainText} size={30} />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View
+            // eslint-disable-next-line react-native/no-inline-styles
+            style={{
+              width: "74%",
+              borderBottomWidth: 2,
+              borderBottomColor: "#143d54",
+              marginBottom: 10,
+              marginTop: -12,
+              opacity: 0.5,
+            }}
+          />
+          <View style={$calories}>
+            <View>
+              <Text preset="subheading" size="md" style={$textCenter}>
+                1500
+              </Text>
+              <Text preset="default" size="xs">
+                Đã nạp
+              </Text>
+            </View>
+            <DonutChart radius={84} color="#FEC23E" max={calorPerDay} percentage={0} />
+            <View>
+              <Text preset="subheading" size="md" style={$textCenter}>
+                1500
+              </Text>
+              <Text preset="default" size="xs">
+                Tiêu hao
+              </Text>
+            </View>
+          </View>
+          <View style={$bmr}>
+            <View style={$itemBmr}>
+              <_Line max={carbG} />
+              <Text preset="default" size="xs">
+                Cab
+              </Text>
+            </View>
+            <View style={$itemBmr}>
+              <_Line max={fatG} />
+              <Text preset="default" size="xs">
+                Fat
+              </Text>
+            </View>
+            <View style={$itemBmr}>
+              <_Line max={proteinG} />
+              <Text preset="default" size="xs">
+                Protein
+              </Text>
+            </View>
           </View>
         </View>
-        <View
-          // eslint-disable-next-line react-native/no-inline-styles
-          style={{
-            width: "74%",
-            borderBottomWidth: 2,
-            borderBottomColor: "#143d54",
-            marginBottom: 10,
-            marginTop: -12,
-            opacity: 0.5,
-          }}
-        />
-        <View style={$calories}>
-          <View>
-            <Text preset="subheading" size="md" style={$textCenter}>
-              1500
-            </Text>
-            <Text preset="default" size="xs">
-              Đã nạp
-            </Text>
-          </View>
-          <DonutChart radius={84} color="#FEC23E" max={calorPerDay} percentage={0} />
-          <View>
-            <Text preset="subheading" size="md" style={$textCenter}>
-              1500
-            </Text>
-            <Text preset="default" size="xs">
-              Tiêu hao
-            </Text>
-          </View>
-        </View>
-        <View style={$bmr}>
-          <View style={$itemBmr}>
-            <_Line />
-            <Text preset="default" size="xs">
-              Cab
-            </Text>
-          </View>
-          <View style={$itemBmr}>
-            <_Line />
-            <Text preset="default" size="xs">
-              Fat
-            </Text>
-          </View>
-          <View style={$itemBmr}>
-            <_Line />
-            <Text preset="default" size="xs">
-              Protein
-            </Text>
-          </View>
-        </View>
-      </View>
-    </>
-  )
-})
+      </>
+    )
+  },
+)
 
 // Header CSS
 const $wrapHeader: ViewStyle = {

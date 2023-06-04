@@ -1,4 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react-native/no-color-literals */
 import { observer } from "mobx-react-lite"
 import React, { FC } from "react"
 import { ViewStyle, View, Dimensions, TouchableOpacity } from "react-native"
@@ -6,49 +7,30 @@ import { Icon, Screen, Text } from "../../components"
 import { AppStackScreenProps } from "../../navigators"
 import { colors, spacing } from "../../theme"
 import { useStores } from "../../models"
+interface MacroScreenProps extends AppStackScreenProps<"Macro"> {}
 
-interface TargetScreenProps extends AppStackScreenProps<"Target"> {}
-
-export const TargetScreen: FC<TargetScreenProps> = observer(function TargetScreen(_props) {
+export const MacroScreen: FC<MacroScreenProps> = observer(function MacroScreen(_props) {
   const navigation = _props.navigation
 
   const {
-    userInfoStore: { setTarget, getUserInfo },
-    bodyIndexStore: { setBodyIndex },
+    userInfoStore: { setMacro, getUserInfoForUpdate },
   } = useStores()
 
-  function goToUpdateUserInfoScreen() {
-    navigation.navigate("UpdateUserInfo")
+  function goToTargetScreen() {
+    navigation.navigate("Target")
   }
-  const userInfo = getUserInfo()
 
-  function setTargetAndGoToNextScreen(value: number) {
-    if (value === 1) {
-      setTarget("Giảm cân")
-    } else if (value === 2) {
-      setTarget("Tăng cân")
-    } else {
-      setTarget("Giữ nguyên cân nặng")
-    }
-    setBodyIndex(
-      userInfo.gender,
-      userInfo.height,
-      userInfo.weight,
-      userInfo.age,
-      userInfo.R,
-      userInfo.target,
-      userInfo.protein,
-      userInfo.fat,
-      userInfo.carb,
-    )
-
-    navigation.navigate("Macro")
+  function setMacroAndGoToNextScreen(value: number) {
+    const userInfo = getUserInfoForUpdate()
+    setMacro(value)
+    console.log(userInfo)
+    navigation.navigate("Statistical")
   }
 
   return (
     <Screen preset="auto" safeAreaEdges={["top", "bottom"]} contentContainerStyle={$container}>
       <View style={$wrapHeading}>
-        <TouchableOpacity onPress={goToUpdateUserInfoScreen}>
+        <TouchableOpacity onPress={goToTargetScreen}>
           <View
             style={{
               width: 50,
@@ -60,47 +42,47 @@ export const TargetScreen: FC<TargetScreenProps> = observer(function TargetScree
             <Icon icon="back" color={colors.mainText} size={30} />
           </View>
         </TouchableOpacity>
-        <Text preset="subheading" size="md" tx="targetScreen.title" />
+        <Text preset="subheading" size="md" tx="macroScreen.title" />
       </View>
 
-      <TouchableOpacity onPress={() => setTargetAndGoToNextScreen(1)}>
+      <TouchableOpacity onPress={() => setMacroAndGoToNextScreen(1)}>
         <View style={$wrapContainer}>
           <Text
-            tx="targetScreen.losing_weight_title"
+            tx="macroScreen.moderate_Carb"
             preset="subheading"
             size="lg"
             style={{ textDecorationLine: "underline" }}
           />
           <View style={$detail}>
-            <Text tx="targetScreen.losing_weight_detail" preset="default" size="md" />
+            <Text tx="macroScreen.moderate_Carb_Detail" preset="default" size="md" />
           </View>
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => setTargetAndGoToNextScreen(2)}>
+      <TouchableOpacity onPress={() => setMacroAndGoToNextScreen(2)}>
         <View style={$wrapContainer}>
           <Text
-            tx="targetScreen.weight_gain_title"
+            tx="macroScreen.lower_Carb"
             preset="subheading"
             size="lg"
             style={{ textDecorationLine: "underline" }}
           />
           <View style={$detail}>
-            <Text tx="targetScreen.weight_gain_detail" preset="default" size="md" />
+            <Text tx="macroScreen.lower_Carb_Detail" preset="default" size="md" />
           </View>
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => setTargetAndGoToNextScreen(3)}>
+      <TouchableOpacity onPress={() => setMacroAndGoToNextScreen(3)}>
         <View style={$wrapContainer}>
           <Text
-            tx="targetScreen.keep_stableg_weight_title"
+            tx="macroScreen.higher_Carb"
             preset="subheading"
             size="lg"
             style={{ textDecorationLine: "underline" }}
           />
           <View style={$detail}>
-            <Text tx="targetScreen.keep_stableg_weight_detail" preset="default" size="md" />
+            <Text tx="macroScreen.higher_Carb_Detail" preset="default" size="md" />
           </View>
         </View>
       </TouchableOpacity>
