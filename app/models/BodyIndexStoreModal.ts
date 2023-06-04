@@ -1,7 +1,8 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import * as calBodyIdx from "../utils/calculateBodyIndex"
+import { TTarget } from "./UserInfoStoreModel"
+import * as calculateMacro from "../utils/calculateMacro"
 type TWeightStatus = "Thiếu cân" | "Cân đối" | "Thừa cân" | "Béo phì" | "Béo phì nguy hiểm"
-
 export const BodyIndexStoreModal = types
   .model("BodyIndexStore")
   .props({
@@ -11,7 +12,9 @@ export const BodyIndexStoreModal = types
     water: types.optional(types.number, 0),
     weightStatus: types.maybe(types.enumeration<TWeightStatus>(["Thiếu cân", "Cân đối", "Thừa cân", "Béo phì", "Béo phì nguy hiểm"])),
     calorPerDay: types.optional(types.number, 0),
-
+    gramOfProtein: types.optional(types.number, 0),
+    gramOfCarb: types.optional(types.number, 0),
+    gramOfFat: types.optional(types.number, 0),
   })
   .views((store) => ({
     getBodyIndex() {
@@ -21,7 +24,10 @@ export const BodyIndexStoreModal = types
         BMR: store.BMR,
         water: store.water,
         weightStatus: store.weightStatus,
-        calorPerDay: store.calorPerDay
+        calorPerDay: store.calorPerDay,
+        gramOfProtein: store.gramOfProtein,
+        gramOfCarb: store.gramOfCarb,
+        gramOfFat: store.gramOfFat,
       }
     },
     get getCalorPerDay() {
@@ -46,6 +52,11 @@ export const BodyIndexStoreModal = types
     setWater(weight: number) {
       store.water = calBodyIdx.water(weight)
     },
+    setMacro(calorPerDay: number, protein: number, fat: number, carb: number) {
+      store.gramOfCarb = calculateMacro.gramOfCarb(calorPerDay, carb)
+      store.gramOfFat = calculateMacro.gramOfFat(calorPerDay, fat)
+      store.gramOfProtein = calculateMacro.gramOfProtein(calorPerDay, protein)
+    },
     setWeightStatus(BMI: number) {
       if (BMI < 18.5) {
         store.weightStatus = "Thiếu cân"
@@ -62,12 +73,29 @@ export const BodyIndexStoreModal = types
     setCalorPerDay(calor: number) {
       store.calorPerDay = calor
     },
-    setBodyIndex(gender: boolean, height: number, weight: number, age: number, R: number) {
+    setCaloPerDayByTarget(target: TTarget) {
+      switch (target) {
+        case "Giảm cân":
+          store.calorPerDay = store.TDEE - 500;
+          break;
+        case "Tăng cân":
+          store.calorPerDay = store.TDEE + 500;
+          break;
+        case "Giữ nguyên cân nặng":
+          store.calorPerDay = store.TDEE;
+          break;
+        default:
+          break;
+      }
+    },
+    setBodyIndex(gender: boolean, height: number, weight: number, age: number, R: number, target: TTarget, protein: number, fat: number, carb: number) {
       this.setBMI(height, weight)
       this.setWeightStatus(store.BMI)
       this.setBMR(gender, height, weight, age)
       this.setTDEE(store.BMR, R)
+      this.setCaloPerDayByTarget(target)
       this.setWater(weight)
+      this.setMacro(store.calorPerDay, protein, fat, carb)
     },
 
   }))

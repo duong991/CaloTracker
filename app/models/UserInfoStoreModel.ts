@@ -1,9 +1,11 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { formatDateToString } from "../utils/formatDateToString"
 import { UserInfoAttributes } from "../interfaces/table-server.interface"
+import { UpdateInfoUserRequest } from "../interfaces/req-params.interface"
 type TActiveLevel = "Rất ít hoạt động" | "Ít hoạt động" | "Hoạt động vừa phải" | "Hoạt động nhiều" | "Hoạt động tích cực"
 type TR = 1.2 | 1.377 | 1.55 | 1.725 | 1.9;
-type TTarget = "Giảm cân" | "Tăng cân" | "Giữ nguyên cân nặng"
+export type TTarget = "Giảm cân" | "Tăng cân" | "Giữ nguyên cân nặng"
+
 interface userInfo {
   activeLevel: TActiveLevel,
   gender: boolean,
@@ -12,7 +14,10 @@ interface userInfo {
   dateForUpdateWeight: string,
   age: number,
   R: TR,
-  target: TTarget
+  target: TTarget,
+  protein: number,
+  fat: number,
+  carb
 }
 
 const activeLevelToRMap = {
@@ -30,6 +35,9 @@ export const UserInfoStoreModel = types
     gender: types.optional(types.boolean, true),
     height: types.optional(types.number, 0),
     weight: types.optional(types.number, 0),
+    fat: types.optional(types.number, 0),
+    protein: types.optional(types.number, 0),
+    carb: types.optional(types.number, 0),
     dateForUpdateWeight: types.optional(types.string, ""),
     age: types.optional(types.number, 0),
     R: types.maybe(types.union(types.literal<TR>(1.2), types.literal<TR>(1.377), types.literal<TR>(1.55),
@@ -46,9 +54,26 @@ export const UserInfoStoreModel = types
         dateForUpdateWeight: store.dateForUpdateWeight,
         age: store.age,
         R: store.R,
-        target: store.target
+        target: store.target,
+        protein: store.protein,
+        fat: store.fat,
+        carb: store.carb
       }
     },
+    getUserInfoForUpdate(): UpdateInfoUserRequest {
+      return {
+        weight: store.weight,
+        height: store.height,
+        gender: store.gender,
+        activityLevel: store.activeLevel as string,
+        BMR: store.R as number,
+        target: store.target,
+        lastTimeToUpdate: store.dateForUpdateWeight,
+        protein: store.protein,
+        fat: store.fat,
+        carb: store.carb
+      }
+    }
 
   }))
   .actions((store) => ({
@@ -94,14 +119,33 @@ export const UserInfoStoreModel = types
     setTarget(value: TTarget) {
       store.target = value
     },
+    setMacro(type: number) {
+      if (type === 1) {
+        store.protein = .3
+        store.fat = .35
+        store.carb = .35
+      } else if (type === 2) {
+        store.protein = 0.4
+        store.fat = .3
+        store.carb = .3
+      } else if (type === 3) {
+        store.protein = 0.3
+        store.fat = .2
+        store.carb = .5
+      }
+    },
     setUserInfo(userInfo: UserInfoAttributes) {
       store.activeLevel = userInfo.activityLevel
-      this.setR(userInfo.activityLevel)
       store.gender = userInfo.gender
       store.height = userInfo.height
       store.weight = userInfo.weight
       store.target = userInfo.target
       store.age = userInfo.age
+      store.dateForUpdateWeight = userInfo.lastTimeToUpdate
+      store.protein = userInfo.protein
+      store.fat = userInfo.fat
+      store.carb = userInfo.carb
+      this.setR(userInfo.activityLevel)
     },
     clearUserInfo() {
       store.activeLevel = undefined
@@ -112,6 +156,9 @@ export const UserInfoStoreModel = types
       store.height = 0
       store.target = undefined
       store.gender = true
+      store.protein = 0
+      store.fat = 0
+      store.carb = 0
     }
   }))
 

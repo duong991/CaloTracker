@@ -3,6 +3,7 @@ import { api } from "../services/api"
 import { Episode, EpisodeModel } from "./Episode"
 import { withSetPropAction } from "./helpers/withSetPropAction"
 
+
 export const EpisodeStoreModel = types
   .model("EpisodeStore")
   .props({
@@ -46,7 +47,7 @@ export const EpisodeStoreModel = types
     },
   }))
 
-export interface EpisodeStore extends Instance<typeof EpisodeStoreModel> {}
-export interface EpisodeStoreSnapshot extends SnapshotOut<typeof EpisodeStoreModel> {}
+export interface EpisodeStore extends Instance<typeof EpisodeStoreModel> { }
+export interface EpisodeStoreSnapshot extends SnapshotOut<typeof EpisodeStoreModel> { }
 
 // @demo remove-file

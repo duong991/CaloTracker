@@ -1,19 +1,30 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { AuthenticationStoreModel } from "./AuthenticationStore" // @demo remove-current-line
-import { EpisodeStoreModel } from "./EpisodeStore" // @demo remove-current-line
+
+import { SystemStoreModel } from "./SystemStore"
+
+import { AuthenticationStoreModel } from "./AuthenticationStore"
+
 import { UserInfoStoreModel } from "./UserInfoStoreModel"
 import { BodyIndexStoreModal } from "./BodyIndexStoreModal"
+
 import { DateStoreModel } from "./DateStoreModel"
+import { EpisodeStoreModel } from "./EpisodeStore"
+import { WeightLogStoreModel } from "./WeightLogStore"
+import { ExerciseStoreModel } from "./ExerciseStore"
 /**
  * A RootStore model.
  */
 export const RootStoreModel = types.model("RootStore").props({
-  authenticationStore: types.optional(AuthenticationStoreModel, {}), // @demo remove-current-line
-  userInfoStore: types.optional(UserInfoStoreModel, {}), // @demo remove-current-line
-  bodyIndexStore: types.optional(BodyIndexStoreModal, {}), // @demo remove-current-line
-  dateStore: types.optional(DateStoreModel, {}), // @demo remove-current-line
+  systemStore: types.optional(SystemStoreModel, {}),
 
-  episodeStore: types.optional(EpisodeStoreModel, {}), // @demo remove-current-line
+  authenticationStore: types.optional(AuthenticationStoreModel, {}),
+  userInfoStore: types.optional(UserInfoStoreModel, {}),
+  bodyIndexStore: types.optional(BodyIndexStoreModal, {}),
+  dateStore: types.optional(DateStoreModel, {}),
+
+  weightLogStore: types.optional(WeightLogStoreModel, {}),
+  exerciseStore: types.optional(ExerciseStoreModel, {}),
+  episodeStore: types.optional(EpisodeStoreModel, {}),
 })
 
 /**

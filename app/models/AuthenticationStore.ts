@@ -1,5 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import deleteTables from "../database/deleteTables"
+// import deleteTables from "../database/deleteTables"
 
 export const AuthenticationStoreModel = types
   .model("AuthenticationStore")
@@ -45,7 +45,6 @@ export const AuthenticationStoreModel = types
       store.authToken = undefined
       store.authEmail = ""
       store.availInfo = true
-      deleteTables()
     },
   }))
 

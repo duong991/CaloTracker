@@ -29,7 +29,7 @@ interface IUserMealFood {
 export interface IDataRequestCreateUserMeal {
     name: string;
     description?: string;
-    image?: Buffer;
+    image?: Blob;
     calories: number;
     protein: number;
     carbohydrates: number;
@@ -49,7 +49,7 @@ interface IUpdateUserMealFood {
 export interface IDataRequestUpdateUserMeal {
     name: string;
     description?: string;
-    image?: Buffer;
+    image?: Blob;
     calories: number;
     protein: number;
     carbohydrates: number;
@@ -60,5 +60,10 @@ export interface IDataRequestUpdateUserMeal {
 
 export interface IDataRequestWaterLog {
     amount: number;
+    date: string;
+}
+
+export interface IDataRequestWeightLog {
+    weight: number;
     date: string;
 }
