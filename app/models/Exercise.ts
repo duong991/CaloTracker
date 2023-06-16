@@ -5,9 +5,21 @@ export const ExerciseModel = types
     .props({
         id: types.number,
         name: types.string,
-        caloriesBurn: types.number,
+        caloriesBurned: types.number,
         duration: types.number,
-    });
+    })
+    .views((exercise) => ({
+        get caloriesBurnPerMinute() {
+            return exercise.caloriesBurned / exercise.duration;
+        },
+        get nameEx() {
+            return exercise.name;
+        },
+        get detailEx() {
+            return exercise.caloriesBurned + " Kcal - " + exercise.duration + " phút";
+        }
+    }))
+
 
 export interface Exercise extends Instance<typeof ExerciseModel> { }
 export interface ExerciseSnapshotOut extends SnapshotOut<typeof ExerciseModel> { }

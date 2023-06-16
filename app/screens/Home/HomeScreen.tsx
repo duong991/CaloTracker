@@ -7,20 +7,24 @@ import { ViewStyle, View } from "react-native"
 import { Screen } from "../../components"
 import { DemoTabScreenProps } from "../../navigators/DemoNavigator"
 import { spacing } from "../../theme"
-import { Content, HeaderHome } from "./home"
+import { Content, HeaderHome, DailyCalo, CaloBurned } from "./home"
 import { useStores } from "../../models"
 import { AddButton } from "../../components/AddButton"
-
 // import { displaySyncQueueData } from "../../database/processSyncQueue"
 // import printTableData from "../../database/printTable"
 // import findAllInfoFromTable from "../../database/findAllInfoFromTable"
 const MemoizedContent = React.memo(Content)
+const MemoizedDailyCalo = React.memo(DailyCalo)
+const MemoizedCaloBurned = React.memo(CaloBurned)
+export type TScreenName = "AddDailySport" | "AddDailyFood"
+export type TData = "Sport" | "Snack" | "Breakfast" | "Lunch" | "Dinner"
 
 export const HomeScreen: FC<DemoTabScreenProps<"Home">> = observer(function HomeScreen(_props) {
   const {
     userInfoStore: { getUserInfo },
     bodyIndexStore: { getBodyIndex, setBodyIndex },
     systemStore: { isOverlayVisible },
+    dateStore: { setDateTime },
   } = useStores()
   const { navigation } = _props
 
@@ -30,11 +34,12 @@ export const HomeScreen: FC<DemoTabScreenProps<"Home">> = observer(function Home
   }
 
   useEffect(() => {
+    setDateTime(new Date())
     handleCalculateBodyIndex()
   }, [])
 
-  const goToScreen = (screenName: "AddDailySport" | "AddFood") => {
-    navigation.push(screenName)
+  const goToScreen = (screenName: TScreenName, data: TData) => {
+    navigation.navigate(screenName, { data })
   }
 
   const bodyIndx = getBodyIndex()
@@ -49,6 +54,8 @@ export const HomeScreen: FC<DemoTabScreenProps<"Home">> = observer(function Home
           proteinG={bodyIndx.gramOfProtein}
         />
         <MemoizedContent waterPerDay={bodyIndx.water} />
+        <MemoizedDailyCalo />
+        <MemoizedCaloBurned />
       </Screen>
       <View
         style={
@@ -65,6 +72,7 @@ export const HomeScreen: FC<DemoTabScreenProps<"Home">> = observer(function Home
             : {}
         }
       />
+
       {/* Add Button */}
       <AddButton goToScreen={goToScreen} />
     </View>

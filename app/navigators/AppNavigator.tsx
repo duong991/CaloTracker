@@ -27,6 +27,7 @@ import {
   UpdateUserInfoScreen,
   AddMealScreen,
   AddDailySportScreen,
+  AddDailyFoodScreen,
 } from "app/screens"
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -54,10 +55,7 @@ export type AppStackParamList = {
   Demo: NavigatorScreenParams<DemoTabParamList>
 
   AddDailySport: undefined
-  AddDailyBreakfast: undefined
-  AddDailyLunch: undefined
-  AddDailyDinner: undefined
-  AddDailySnack: undefined
+  AddDailyFood: undefined
 
   // 🔥 Your screens go here
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
@@ -101,6 +99,7 @@ const AppStack = observer(function AppStack() {
           <Stack.Screen name="AddFood" component={AddFoodScreen} />
 
           <Stack.Screen name="AddDailySport" component={AddDailySportScreen} />
+          <Stack.Screen name="AddDailyFood" component={AddDailyFoodScreen} />
 
           {/* @demo remove-block-start */}
           <Stack.Screen name="Demo" component={DemoNavigator} />

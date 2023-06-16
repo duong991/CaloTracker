@@ -14,7 +14,26 @@ export const ExerciseStoreModel = types
         async fetchExercises() {
             const response = await exerciseApi.getExercises()
             if (response.kind === "ok") {
-                self.setProp("exercises", response.exercises)
+                const exerciseData = response.exercises.map((exercise) => ({
+                    ...exercise,
+                    id: exercise.id,
+                    name: exercise.name,
+                    caloriesBurned: exercise.caloriesBurned || 0,
+                    duration: exercise.duration || 0,
+                }))
+                exerciseData.sort((a, b) => {
+                    const nameA = a.name.toUpperCase(); // Chuyển tên thành chữ hoa để so sánh
+                    const nameB = b.name.toUpperCase();
+
+                    if (nameA < nameB) {
+                        return -1; // a đứng trước b trong sắp xếp
+                    }
+                    if (nameA > nameB) {
+                        return 1; // a đứng sau b trong sắp xếp
+                    }
+                    return 0; // Tên bằng nhau
+                });
+                self.setProp("exercises", exerciseData)
             } else {
                 console.tron.error(`Error fetching exercises: ${JSON.stringify(response)}`, [])
             }
@@ -25,7 +44,13 @@ export const ExerciseStoreModel = types
         removeExercise(exercise) {
             self.selectedExercises.remove(exercise);
         },
-    }));
+    }))
+    .views((store) => ({
+        get exercisesForList() {
+            return store.exercises
+        },
+
+    }))
 
 export interface ExerciseStore extends Instance<typeof ExerciseStoreModel> { }
 export interface ExerciseStoreSnapshot extends SnapshotOut<typeof ExerciseStoreModel> { }

@@ -25,7 +25,6 @@ export class ExerciseApi {
             const problem = getGeneralApiProblem(response)
             if (problem) return problem
         }
-
         try {
             const rawData = response.data
 
@@ -39,6 +38,7 @@ export class ExerciseApi {
             if (__DEV__) {
                 console.tron.error(`Bad data: ${e.message}\n${response.data}`, e.stack)
             }
+            console.log(e);
             return { kind: "bad-data" }
         }
 

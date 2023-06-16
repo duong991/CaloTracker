@@ -11,6 +11,8 @@ import { DateStoreModel } from "./DateStoreModel"
 import { EpisodeStoreModel } from "./EpisodeStore"
 import { WeightLogStoreModel } from "./WeightLogStore"
 import { ExerciseStoreModel } from "./ExerciseStore"
+import { MealFoodStoreModel } from "./MealFoodStore"
+import { DailyMealsModel } from "./DailyMealsModel"
 /**
  * A RootStore model.
  */
@@ -24,6 +26,8 @@ export const RootStoreModel = types.model("RootStore").props({
 
   weightLogStore: types.optional(WeightLogStoreModel, {}),
   exerciseStore: types.optional(ExerciseStoreModel, {}),
+  mealFoodStore: types.optional(MealFoodStoreModel, {}),
+  dailyMealsModel: types.optional(DailyMealsModel, {}),
   episodeStore: types.optional(EpisodeStoreModel, {}),
 })
 

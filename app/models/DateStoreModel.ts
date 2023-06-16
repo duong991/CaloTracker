@@ -19,10 +19,9 @@ export const DateStoreModel = types
   .actions((store) => ({
     async fetchData() {
       const response = await
-        waterLogApi.
-          getWaterLogByDate(
-            convertDateBeforeInsertOrUpdate(
-              store.dateTime))
+        waterLogApi.getWaterLogByDate(
+          convertDateBeforeInsertOrUpdate(
+            store.dateTime))
       if (response.kind === "ok") {
         store.setProp("amount", response.data.amount)
       } else {
@@ -35,6 +34,10 @@ export const DateStoreModel = types
     },
     setAmount(value: number) {
       store.amount = value
+    },
+    checkTimeChoseIsToday() {
+      const today = new Date()
+      return today.getDate() === store.dateTime.getDate() && today.getMonth() === store.dateTime.getMonth() && today.getFullYear() === store.dateTime.getFullYear()
     }
 
   }))

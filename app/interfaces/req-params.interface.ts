@@ -60,10 +60,10 @@ export interface IDataRequestUpdateUserMeal {
 
 export interface IDataRequestWaterLog {
     amount: number;
-    date: string;
+    date: Date;
 }
 
 export interface IDataRequestWeightLog {
     weight: number;
-    date: string;
+    date: Date;
 }

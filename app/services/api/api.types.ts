@@ -70,7 +70,7 @@ export interface ApiFeedResponse {
 }
 
 export interface WeightLogItem {
-  date: string
+  date: Date
   weight: number
 }
 export interface ApiGetAllWeightLogResponse {
@@ -86,6 +86,46 @@ export interface ExerciseItem {
 export interface ApiGetExerciseResponse {
   items: ExerciseItem[]
 }
+
+export interface FoodItem {
+  id: number;
+  name: string;
+  calories: number;
+  protein: number;
+  carbohydrates: number;
+  fat: number;
+}
+
+export interface ApiGetFoodResponse {
+  items: FoodItem[]
+}
+
+
+export interface mealFoodItem {
+  id: number
+  mealId: number
+  foodId: number
+  servingSize: number
+  food: FoodItem[]
+
+}
+
+export interface MealItem {
+  id: number;
+  name: string;
+  description: string;
+  calories: number;
+  protein: number;
+  carbohydrates: number;
+  fat: number;
+  mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  mealFoods: mealFoodItem[];
+}
+
+export interface ApiGetMealResponse {
+  items: MealItem[]
+}
+
 export interface ApiResponseMessage {
   message: string;
 }

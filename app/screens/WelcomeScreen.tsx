@@ -9,18 +9,19 @@ import { colors, spacing } from "../theme"
 import { useHeader } from "../utils/useHeader"
 import { useSafeAreaInsetsStyle } from "../utils/useSafeAreaInsetsStyle"
 import { api } from "../services/api/api"
-import { insertData } from "../database/insetTable"
-
+// import { insertData } from "../database/insertTable"
+// import findAllInfoFromTable from "../database/findAllInfoFromTable"
+// import { checkNetworkAndSchedule } from "../utils/schedule"
 const welcomeLogo = require("../../assets/images/logo-2.png")
 
 interface WelcomeScreenProps extends AppStackScreenProps<"Welcome"> {}
 
 export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeScreen(_props) {
-  // @demo remove-block-start
   const { navigation } = _props
   const {
-    authenticationStore: { logout, isFirstTime, setFirstTime },
+    authenticationStore: { logout, isFirstTime, setFirstTime, authToken },
     userInfoStore: { setUserInfo, clearUserInfo },
+    systemStore: { setOverLayVisible },
   } = useStores()
 
   const handleLogout = () => {
@@ -28,26 +29,34 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
     logout()
   }
 
+  // Lấy dữ liệu từ server
   useEffect(() => {
     const fetchData = async () => {
-      const response = await api.fetchData()
-      console.log("res", response)
-      // Xử lý dữ liệu sau khi fetch
-      if (response.kind === "ok") {
+      if (authToken) {
+        await api.setAuthToken(authToken)
+      }
+      const response = await api.getUserInfo()
+      if (response.kind === "not-found") {
+        setFirstTime(true)
+      } else if (response.kind === "ok") {
         const data = response.data
-        if (data.userInfo) {
+        if (data) {
           setFirstTime(false)
           setUserInfo(data.userInfo)
         }
-        await insertData(data)
+        console.info("welcomeScreen: ", "Call API successfully")
       } else {
-        console.log("Lỗi khi lấy dữ liệu từ API")
+        console.log("welcomeScreen: ", "Lỗi khi lấy dữ liệu từ API")
+        console.error("welcomeScreen: ", response.kind)
+        handleLogout()
       }
     }
     fetchData()
   }, [])
 
   function goNext() {
+    // checkNetworkAndSchedule()
+    setOverLayVisible(false)
     navigation.navigate(isFirstTime ? "UpdateUserInfo" : "Demo")
   }
   useHeader({
@@ -72,14 +81,12 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
 
       <View style={[$bottomContainer, $bottomContainerInsets]}>
         <Text tx="welcomeScreen.postscript" size="md" />
-        {/* @demo remove-block-start */}
         <Button
           testID="next-screen-button"
           preset="reversed"
           tx="welcomeScreen.letsGo"
           onPress={goNext}
         />
-        {/* @demo remove-block-end */}
       </View>
     </View>
   )
@@ -113,15 +120,6 @@ const $welcomeLogo: ImageStyle = {
   width: "100%",
   marginBottom: spacing.huge,
 }
-
-// const $welcomeFace: ImageStyle = {
-//   height: 169,
-//   width: 269,
-//   position: "absolute",
-//   bottom: -47,
-//   right: -80,
-//   transform: [{ scaleX: isRTL ? -1 : 1 }],
-// }
 
 const $welcomeHeading: TextStyle = {
   marginBottom: spacing.medium,

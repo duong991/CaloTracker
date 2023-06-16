@@ -15,7 +15,6 @@ import {
 import { Button, Icon, Screen, Text, TextField, TextFieldAccessoryProps } from "../../components"
 import { AppStackScreenProps } from "../../navigators"
 import { colors, spacing } from "../../theme"
-import { useHeader } from "../../utils/useHeader"
 
 interface AddFoodScreenProps extends AppStackScreenProps<"AddFood"> {}
 

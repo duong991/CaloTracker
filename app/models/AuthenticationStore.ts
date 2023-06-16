@@ -1,6 +1,7 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 // import deleteTables from "../database/deleteTables"
 
+
 export const AuthenticationStoreModel = types
   .model("AuthenticationStore")
   .props({

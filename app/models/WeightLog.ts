@@ -3,13 +3,13 @@ import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
 export const WeightLogModel = types
     .model("WeightLog", {
         weight: types.number,
-        date: types.string,
+        date: types.Date,
     })
     .actions(self => ({
         setWeight(weight: number) {
             self.weight = weight;
         },
-        setDate(date: string) {
+        setDate(date: Date) {
             self.date = date;
         },
     }));

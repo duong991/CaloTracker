@@ -42,6 +42,7 @@ export function DemoNavigator() {
   const { bottom } = useSafeAreaInsets()
   const {
     systemStore: { setOverLayVisible },
+    dateStore: { setDateTime, checkTimeChoseIsToday },
   } = useStores()
   const handleTabPress = () => {
     setOverLayVisible(false)
@@ -61,6 +62,13 @@ export function DemoNavigator() {
             {...props}
             onPress={() => {
               handleTabPress()
+              if (route.name === "Home") {
+                if (checkTimeChoseIsToday()) {
+                  navigation.navigate(route.name)
+                  return
+                }
+                setDateTime(new Date())
+              }
               navigation.navigate(route.name)
             }}
           />
@@ -108,8 +116,8 @@ export function DemoNavigator() {
       />
 
       <Tab.Screen
-        name="DemoPodcastList"
-        component={DemoPodcastListScreen}
+        name="Setting"
+        component={SettingScreen}
         options={{
           // tabBarLabel: translate("demoNavigator.debugTab"),
           tabBarLabel: "Setting",

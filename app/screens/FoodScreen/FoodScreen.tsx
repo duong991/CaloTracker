@@ -10,6 +10,7 @@ import { spacing, colors } from "../../theme"
 import { BulbSVG, PlusSVG, SearchSVG } from "../../components/fileSVG"
 import { AddButton } from "../../components/AddButton"
 import { useStores } from "../../models"
+import { TData, TScreenName } from "../Home/HomeScreen"
 export const FoodScreen: FC<DemoTabScreenProps<"Food">> = observer(function FoodScreen(_props) {
   const { navigation } = _props
 
@@ -24,8 +25,8 @@ export const FoodScreen: FC<DemoTabScreenProps<"Food">> = observer(function Food
     navigation.navigate(activeTab ? "AddMeal" : "AddFood")
   }
 
-  const goToScreen = (screenName: "AddDailySport" | "AddFood") => {
-    navigation.push(screenName)
+  const goToScreen = (screenName: TScreenName, data: TData) => {
+    navigation.navigate(screenName, { data })
   }
 
   const handlePress = (index) => {
@@ -52,13 +53,6 @@ export const FoodScreen: FC<DemoTabScreenProps<"Food">> = observer(function Food
                 // onSubmitEditing={() => authPasswordInput.current?.focus()}
               />
             </View>
-
-            <TouchableOpacity>
-              <View style={$buttonOfSearchInput}>
-                <SearchSVG size={20} />
-              </View>
-            </TouchableOpacity>
-
             <TouchableOpacity onPress={goToAddMeal}>
               <View style={$buttonOfSearchInput}>
                 <PlusSVG size={20} />

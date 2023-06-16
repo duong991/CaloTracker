@@ -110,34 +110,33 @@ export const AddButton = observer(function AddButton({ goToScreen }) {
     ],
   }
 
-  const handleGoTo = (screen) => {
-    console.log(screen)
-    goToScreen(screen)
+  const handleGoTo = (screen, data) => {
+    goToScreen(screen, data)
   }
 
   return (
     <View style={styles.container}>
-      <TouchableWithoutFeedback onPress={() => handleGoTo("AddDailySport")}>
+      <TouchableWithoutFeedback onPress={() => handleGoTo("AddDailySport", "Sport")}>
         <Animated.View style={[styles.wrapIcon, styles.secondary, btn5Style]}>
           <Sport size={34} />
         </Animated.View>
       </TouchableWithoutFeedback>
-      <TouchableWithoutFeedback>
+      <TouchableWithoutFeedback onPress={() => handleGoTo("AddDailyFood", "Snack")}>
         <Animated.View style={[styles.wrapIcon, styles.secondary, btn4Style]}>
           <Snack size={34} />
         </Animated.View>
       </TouchableWithoutFeedback>
-      <TouchableWithoutFeedback>
+      <TouchableWithoutFeedback onPress={() => handleGoTo("AddDailyFood", "Dinner")}>
         <Animated.View style={[styles.wrapIcon, styles.secondary, btn3Style]}>
           <Dinner size={34} />
         </Animated.View>
       </TouchableWithoutFeedback>
-      <TouchableWithoutFeedback>
+      <TouchableWithoutFeedback onPress={() => handleGoTo("AddDailyFood", "Lunch")}>
         <Animated.View style={[styles.wrapIcon, styles.secondary, btn2Style]}>
           <Lunch size={34} />
         </Animated.View>
       </TouchableWithoutFeedback>
-      <TouchableWithoutFeedback>
+      <TouchableWithoutFeedback onPress={() => handleGoTo("AddDailyFood", "Breakfast")}>
         <Animated.View style={[styles.wrapIcon, styles.secondary, btn1Style]}>
           <Breakfast size={34} />
         </Animated.View>
@@ -162,11 +161,11 @@ const styles = {
   wrapIcon: {
     position: "absolute",
 
-    width: 64,
-    height: 64,
+    width: 48,
+    height: 48,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 64 / 2,
+    borderRadius: 48 / 2,
 
     shadowRadius: 10,
     shadowColor: "#f02A4B",

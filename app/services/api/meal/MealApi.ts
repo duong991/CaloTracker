@@ -1,10 +1,10 @@
-import { Api } from "../api";
-import { GeneralApiProblem } from "../apiProblem";
+import { Api, api } from "../api";
+import { GeneralApiProblem, getGeneralApiProblem } from "../apiProblem";
 import { UserMealAttributes } from "../../../interfaces/table-server.interface";
 import { ApiResponse } from "apisauce";
 import { IDataRequestCreateUserMeal, IDataRequestUpdateUserMeal } from "../../../interfaces/req-params.interface";
-import type { ApiResponseMessage } from "../api.types"
-
+import type { ApiResponseMessage, ApiGetMealResponse } from "../api.types"
+import { MealSnapshotIn } from "app/models/Meal";
 /**
 
 Quản lý các yêu cầu API liên quan đến Meal.
@@ -84,4 +84,36 @@ export class MealApi {
             return { kind: "bad-data" };
         }
     }
+
+    /**
+    * Lấy toàn bộ danh sách meal từ hệ thống
+    */
+
+    async getAllFoodsFromSystem(): Promise<{ kind: "ok", meals: MealSnapshotIn[] } | GeneralApiProblem> {
+        const response: ApiResponse<ApiGetMealResponse> = await this.api.apisauce.get("/system/meal");
+        if (!response.ok) {
+            const problem = getGeneralApiProblem(response)
+            if (problem) return problem
+        }
+        try {
+            const rawData = response.data
+
+            // This is where we transform the data into the shape we expect for our MST model.
+            const meals: MealSnapshotIn[] = rawData.items.map((raw) => ({
+                ...raw,
+            }))
+
+            return { kind: "ok", meals }
+        } catch (e) {
+            if (__DEV__) {
+                console.tron.error(`Bad data: ${e.message}\n${response.data}`, e.stack)
+            }
+            console.log(e);
+            return { kind: "bad-data" }
+        }
+
+    }
 }
+
+const mealApi = new MealApi(api)
+export { mealApi }
