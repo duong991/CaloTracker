@@ -8,75 +8,75 @@ import { spacing } from "../../../theme"
 import { useStores } from "app/models"
 import { observer } from "mobx-react-lite"
 import { colors } from "../../../theme/colors"
-import { Meal } from "../../../models/Meal"
-import { Food } from "../../../models/Food"
+import { Exercise } from "../../../models/Exercise"
 
 interface ContentProps {}
 
 export const CaloBurned: FC<ContentProps> = observer(() => {
-  const { dailyMealsModel } = useStores()
-  const { combinedFoodsAndMeals } = dailyMealsModel
-  const [displayFood, setDisplayFood] = useState(true)
+  const {
+    dailyMealsModel,
+    exerciseStore,
+    systemStore: { isOverlayVisible },
+  } = useStores()
   const [visibleItems, setVisibleItems] = useState(3)
+  const [isTabsVisible, setIsTabsVisible] = useState(false)
+  const [textTabVisible, setTextTabVisible] = useState<"Xem thêm" | "Ẩn đi" | "">("")
+
+  useEffect(() => {
+    const selectedExercises = exerciseStore.exercisesSelectedForList
+    setIsTabsVisible(selectedExercises.length > 0)
+    if (selectedExercises.length > 3 && visibleItems === 3) {
+      setTextTabVisible("Xem thêm")
+    } else if (selectedExercises.length > 3 && visibleItems >= selectedExercises.length) {
+      setTextTabVisible("Ẩn đi")
+    } else {
+      setTextTabVisible("")
+    }
+  }, [isOverlayVisible, exerciseStore.exercisesSelectedForList.length, visibleItems])
   return (
     <View style={$wrapContent}>
-      <Title leftText="Lượng calo tiêu thụ" rightText={"690kcal"} />
+      <Title leftText="Bài tập trong ngày" rightText={`${exerciseStore.totalCaloriesBurn} kcal`} />
       {/* Header */}
-
-      {/* List food */}
-      {displayFood ? (
-        <FlatList<Food>
-          data={dailyMealsModel.breakfastFoods.slice(0, visibleItems)}
-          nestedScrollEnabled={true}
-          scrollEnabled={true}
-          contentContainerStyle={$flatListContentContainer}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item, index }) => (
-            <ItemCard
-              key={index}
-              item={item}
-              isSelected={true}
-              onPressDetail={() => {
-                console.log(dailyMealsModel.breakfastFoods.length, " Hlello")
-              }}
-              onPressAdd={() => {
-                console.log("onPressAdd")
-              }}
-            />
-          )}
-        />
-      ) : (
-        <FlatList<Meal>
-          data={dailyMealsModel.breakfastMeals}
-          contentContainerStyle={$flatListContentContainer}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item, index }) => (
-            <ItemCard
-              key={index}
-              item={item}
-              isSelected={true}
-              onPressDetail={() => {
-                console.log(dailyMealsModel.breakfastFoods.length, " Hlello")
-              }}
-              onPressAdd={() => {
-                console.log("onPressAdd")
-              }}
-            />
-          )}
-        />
-      )}
-      {visibleItems < dailyMealsModel.breakfastFoods.length ? (
-        <TouchableOpacity onPress={() => setVisibleItems(visibleItems + 4)}>
+      <FlatList<Exercise>
+        data={exerciseStore.exercisesSelectedForList.slice(0, visibleItems)}
+        nestedScrollEnabled={true}
+        scrollEnabled={true}
+        contentContainerStyle={$flatListContentContainer}
+        renderItem={({ item, index }) => (
+          <ItemCard
+            key={index}
+            item={item}
+            isSelected={true}
+            onPressDetail={() => {
+              console.log("onPressDetail")
+            }}
+            onPressAdd={() => {
+              console.log("onPressAdd")
+            }}
+          />
+        )}
+      />
+      {/* Load more */}
+      {isTabsVisible ? (
+        <TouchableOpacity
+          onPress={() => {
+            if (textTabVisible === "Xem thêm") {
+              setVisibleItems(visibleItems + 5)
+            } else {
+              setVisibleItems(3)
+            }
+          }}
+        >
           <Text style={$loadMoreButton} preset="subheading">
-            Xem thêm
+            {textTabVisible}
           </Text>
         </TouchableOpacity>
       ) : (
-        <TouchableOpacity onPress={() => setVisibleItems(3)}>
+        <View>
           <Text style={$loadMoreButton} preset="subheading">
-            Ẩn bớt
+            Không có dữ liệu
           </Text>
-        </TouchableOpacity>
+        </View>
       )}
     </View>
   )
@@ -88,7 +88,7 @@ const ItemCard = observer(function ItemCard({
   onPressDetail,
   onPressAdd,
 }: {
-  item: Food | Meal
+  item: Exercise
   isSelected: boolean
   onPressDetail: () => void
   onPressAdd: () => void
@@ -115,11 +115,11 @@ const ItemCard = observer(function ItemCard({
       HeadingComponent={
         <View style={$metadata}>
           <Text style={$metadataText} size="xs">
-            {item.name}
+            {item.nameEx}
           </Text>
         </View>
       }
-      content={`${item.calories} kcal`}
+      content={`${item.caloriesBurned} kcal - ${item.duration} phút`}
       RightComponent={
         <TouchableOpacity onPress={handlePressAdd}>
           <View style={$buttonOfSearchInput}>
@@ -139,25 +139,6 @@ const $wrapContent: ViewStyle = {
   padding: spacing.large,
   backgroundColor: "#FFFFFF",
   borderRadius: 28,
-}
-
-const $wrapContentDailyMeal: ViewStyle = {
-  flex: 1,
-  flexDirection: "column",
-  justifyContent: "space-between",
-  marginBottom: spacing.extraSmall,
-  padding: spacing.medium,
-  backgroundColor: "rgba(34,166,153,0.7)",
-  borderRadius: 12,
-  borderWidth: 1,
-}
-
-const $lineStyle: ViewStyle = {
-  borderBottomWidth: 1,
-  borderBottomColor: "#143d54",
-  marginBottom: 40,
-  marginTop: 40,
-  opacity: 0.2,
 }
 
 const $flatListContentContainer: ViewStyle = {

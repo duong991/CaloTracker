@@ -116,27 +116,27 @@ export const AddButton = observer(function AddButton({ goToScreen }) {
 
   return (
     <View style={styles.container}>
-      <TouchableWithoutFeedback onPress={() => handleGoTo("AddDailySport", "Sport")}>
+      <TouchableWithoutFeedback onPress={() => handleGoTo("AddDailySport", "sport")}>
         <Animated.View style={[styles.wrapIcon, styles.secondary, btn5Style]}>
           <Sport size={34} />
         </Animated.View>
       </TouchableWithoutFeedback>
-      <TouchableWithoutFeedback onPress={() => handleGoTo("AddDailyFood", "Snack")}>
+      <TouchableWithoutFeedback onPress={() => handleGoTo("AddDailyFood", "snack")}>
         <Animated.View style={[styles.wrapIcon, styles.secondary, btn4Style]}>
           <Snack size={34} />
         </Animated.View>
       </TouchableWithoutFeedback>
-      <TouchableWithoutFeedback onPress={() => handleGoTo("AddDailyFood", "Dinner")}>
+      <TouchableWithoutFeedback onPress={() => handleGoTo("AddDailyFood", "dinner")}>
         <Animated.View style={[styles.wrapIcon, styles.secondary, btn3Style]}>
           <Dinner size={34} />
         </Animated.View>
       </TouchableWithoutFeedback>
-      <TouchableWithoutFeedback onPress={() => handleGoTo("AddDailyFood", "Lunch")}>
+      <TouchableWithoutFeedback onPress={() => handleGoTo("AddDailyFood", "lunch")}>
         <Animated.View style={[styles.wrapIcon, styles.secondary, btn2Style]}>
           <Lunch size={34} />
         </Animated.View>
       </TouchableWithoutFeedback>
-      <TouchableWithoutFeedback onPress={() => handleGoTo("AddDailyFood", "Breakfast")}>
+      <TouchableWithoutFeedback onPress={() => handleGoTo("AddDailyFood", "breakfast")}>
         <Animated.View style={[styles.wrapIcon, styles.secondary, btn1Style]}>
           <Breakfast size={34} />
         </Animated.View>

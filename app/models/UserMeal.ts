@@ -10,14 +10,13 @@ interface FoodItem {
 }
 interface IMealFood {
     id: number
-    mealId: number
-    foodId: number
     servingSize: number
     food: FoodItem | null
+    userFood: FoodItem | null
 }
 type mealType = "breakfast" | "lunch" | "dinner" | "snack"
-export const MealModel = types
-    .model("Meal")
+export const UserMealModel = types
+    .model("UserMealModel")
     .props({
         id: types.identifierNumber,
         name: types.string,
@@ -27,7 +26,7 @@ export const MealModel = types
         carbohydrates: types.number,
         fat: types.number,
         mealType: types.enumeration<mealType>("mealType", ["breakfast", "lunch", "dinner", "snack"]),
-        mealFoods: types.array(types.frozen<IMealFood>())
+        userMealFoods: types.array(types.frozen<IMealFood>())
     })
     .views((store) => ({
         get nameMeal() {
@@ -36,7 +35,7 @@ export const MealModel = types
     }))
 
 
-export interface Meal extends Instance<typeof MealModel> { }
-export interface MealSnapshotOut extends SnapshotOut<typeof MealModel> { }
-export interface MealSnapshotIn extends SnapshotIn<typeof MealModel> { }
+export interface UserMeal extends Instance<typeof UserMealModel> { }
+export interface UserMealSnapshotOut extends SnapshotOut<typeof UserMealModel> { }
+export interface UserMealSnapshotIn extends SnapshotIn<typeof UserMealModel> { }
 

@@ -22,6 +22,8 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
     authenticationStore: { logout, isFirstTime, setFirstTime, authToken },
     userInfoStore: { setUserInfo, clearUserInfo },
     systemStore: { setOverLayVisible },
+    dateStore,
+    mealFoodStore,
   } = useStores()
 
   const handleLogout = () => {
@@ -31,6 +33,8 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
 
   // Lấy dữ liệu từ server
   useEffect(() => {
+    dateStore.mealFoodStoreModel.clearMealFood()
+    mealFoodStore.clearMealFood()
     const fetchData = async () => {
       if (authToken) {
         await api.setAuthToken(authToken)
@@ -46,7 +50,6 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
         }
         console.info("welcomeScreen: ", "Call API successfully")
       } else {
-        console.log("welcomeScreen: ", "Lỗi khi lấy dữ liệu từ API")
         console.error("welcomeScreen: ", response.kind)
         handleLogout()
       }

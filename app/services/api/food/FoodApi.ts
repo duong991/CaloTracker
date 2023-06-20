@@ -16,22 +16,6 @@ export class FoodApi {
         this.api = api
     }
 
-    /**
-     * Lấy danh sách các món ăn.
-     */
-    async getFoods(): Promise<{ kind: "ok"; data: UserFoodAttributes[] | null } | GeneralApiProblem> {
-        try {
-            const response: ApiResponse<UserFoodAttributes[] | null> = await this.api.apisauce.get("/foods")
-            if (response.ok) {
-                const foods = response.data
-                return { kind: "ok", data: foods }
-            } else {
-                return { kind: "bad-data" }
-            }
-        } catch (error) {
-            return { kind: "bad-data" }
-        }
-    }
 
     /**
      * Tạo một món ăn mới.
@@ -87,6 +71,31 @@ export class FoodApi {
 
     async getAllFoodsFromSystem(): Promise<{ kind: "ok", foods: FoodSnapshotIn[] } | GeneralApiProblem> {
         const response: ApiResponse<ApiGetFoodResponse> = await this.api.apisauce.get("/system/food");
+        if (!response.ok) {
+            const problem = getGeneralApiProblem(response)
+            if (problem) return problem
+        }
+        try {
+            const rawData = response.data
+
+            // This is where we transform the data into the shape we expect for our MST model.
+            const foods: FoodSnapshotIn[] = rawData.items.map((raw) => ({
+                ...raw,
+            }))
+
+            return { kind: "ok", foods }
+        } catch (e) {
+            if (__DEV__) {
+                console.tron.error(`Bad data: ${e.message}\n${response.data}`, e.stack)
+            }
+            console.log(e);
+            return { kind: "bad-data" }
+        }
+
+    }
+
+    async getAllFoodsFromUser(): Promise<{ kind: "ok", foods: FoodSnapshotIn[] } | GeneralApiProblem> {
+        const response: ApiResponse<ApiGetFoodResponse> = await this.api.apisauce.get("/foods/");
         if (!response.ok) {
             const problem = getGeneralApiProblem(response)
             if (problem) return problem

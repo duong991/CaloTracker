@@ -20,24 +20,74 @@ const btnSwap = [
 ]
 
 export const DailyCalo: FC<ContentProps> = observer(() => {
-  const { dailyMealsModel } = useStores()
-  const { combinedFoodsAndMeals } = dailyMealsModel
+  const {
+    dailyMealsModel,
+    dateStore,
+    systemStore: { isOverlayVisible },
+  } = useStores()
   const [displayFood, setDisplayFood] = useState(true)
+  const [data, setData] = useState({ foods: [], meals: [] })
+  const [mealIsSelected, setMealIsSelected] = useState(1)
+  const [totalCalo, setTotalCalo] = useState(0)
+  const [title, setTitle] = useState("")
   const [visibleItems, setVisibleItems] = useState(3)
+  const [isTabsVisible, setIsTabsVisible] = useState(false)
+  const [textTabVisible, setTextTabVisible] = useState<"Xem thêm" | "Ẩn đi" | "">("")
 
-  const [numberIsSelected, setNumberIsSelected] = useState(1)
+  const updateDataAndTabs = (mealType) => {
+    const selectedFoods = dateStore.mealFoodStoreModel.selectedFoodForList(mealType)
+    const selectedMeals = dateStore.mealFoodStoreModel.selectedMealForList(mealType)
+    const totalCalories =
+      dateStore.mealFoodStoreModel.dailyMeals[
+        `totalCaloFor${mealType.charAt(0).toUpperCase() + mealType.slice(1)}`
+      ]
+
+    setData({ foods: selectedFoods, meals: selectedMeals })
+    if (displayFood) {
+      setIsTabsVisible(selectedFoods.length > 0)
+
+      if (selectedFoods.length > 3 && visibleItems === 3) {
+        setTextTabVisible("Xem thêm")
+      } else if (selectedFoods.length > 3 && visibleItems >= selectedFoods.length) {
+        setTextTabVisible("Ẩn đi")
+      } else {
+        setTextTabVisible("")
+      }
+    } else {
+      setIsTabsVisible(selectedMeals.length > 0)
+      if (selectedMeals.length > 3 && visibleItems === 3) {
+        setTextTabVisible("Xem thêm")
+      } else if (selectedMeals.length > 3 && visibleItems >= selectedMeals.length) {
+        setTextTabVisible("Ẩn đi")
+      } else {
+        setTextTabVisible("")
+      }
+    }
+    setTitle(`${btnSwap.find((btn) => btn.valueEn === mealType).valueVi} - ${totalCalories} kcal`)
+  }
+
+  useEffect(() => {
+    updateDataAndTabs(btnSwap[mealIsSelected - 1].valueEn)
+    setVisibleItems(3)
+  }, [isOverlayVisible])
+
+  useEffect(() => {
+    setTotalCalo(dateStore.mealFoodStoreModel.dailyMeals.totalCalories)
+    updateDataAndTabs(btnSwap[mealIsSelected - 1].valueEn)
+  }, [dailyMealsModel, mealIsSelected, displayFood, visibleItems, dateStore.mealFoodStoreModel])
+
   const handleOnPressBtnSwap = (idChoose: number) => {
-    setNumberIsSelected(idChoose)
+    setMealIsSelected(idChoose)
+    setVisibleItems(3)
   }
 
   const handleToggle = () => {
     setDisplayFood(!displayFood)
     setVisibleItems(3)
   }
-
   return (
     <View style={$wrapContent}>
-      <Title leftText="Lượng calo tiêu thụ" rightText={"690kcal"} />
+      <Title leftText="Lượng calo tiêu thụ" rightText={totalCalo + " kcal"} />
 
       <View
         style={{
@@ -52,7 +102,7 @@ export const DailyCalo: FC<ContentProps> = observer(() => {
         {btnSwap.map((item, index) => {
           return (
             <TouchableOpacity key={item.id} onPress={() => handleOnPressBtnSwap(item.id)}>
-              <View style={numberIsSelected === item.id ? [$btnStyle, $isActived] : $btnStyle}>
+              <View style={mealIsSelected === item.id ? [$btnStyle, $isActived] : $btnStyle}>
                 <Text size="sm" preset="subheading" style={$btnTextStyle}>
                   {item.valueVi}
                 </Text>
@@ -64,14 +114,7 @@ export const DailyCalo: FC<ContentProps> = observer(() => {
       {/* Header */}
       <View style={$wrapContentDailyMeal}>
         <Text size="sm" preset="subheading" style={$subTitleStyle}>
-          {numberIsSelected === 1
-            ? "Bữa sáng"
-            : numberIsSelected === 2
-            ? "Bữa trưa"
-            : numberIsSelected === 3
-            ? "Bữa tối"
-            : "Bữa phụ"}
-          - 300kcal
+          {title}
         </Text>
         <Toggle value={displayFood} onValueChange={handleToggle} variant="switch" />
       </View>
@@ -83,7 +126,7 @@ export const DailyCalo: FC<ContentProps> = observer(() => {
       {/* List food */}
       {displayFood ? (
         <FlatList<Food>
-          data={dailyMealsModel.breakfastFoods.slice(0, visibleItems)}
+          data={data.foods.slice(0, visibleItems)}
           scrollEnabled={true}
           contentContainerStyle={$flatListContentContainer}
           keyExtractor={(item, index) => index.toString()}
@@ -103,7 +146,7 @@ export const DailyCalo: FC<ContentProps> = observer(() => {
         />
       ) : (
         <FlatList<Meal>
-          data={dailyMealsModel.breakfastMeals}
+          data={data.meals.slice(0, visibleItems)}
           contentContainerStyle={$flatListContentContainer}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item, index }) => (
@@ -121,18 +164,27 @@ export const DailyCalo: FC<ContentProps> = observer(() => {
           )}
         />
       )}
-      {visibleItems < dailyMealsModel.breakfastFoods.length ? (
-        <TouchableOpacity onPress={() => setVisibleItems(visibleItems + 4)}>
+      {/* Load more */}
+      {isTabsVisible ? (
+        <TouchableOpacity
+          onPress={() => {
+            if (textTabVisible === "Xem thêm") {
+              setVisibleItems(visibleItems + 5)
+            } else {
+              setVisibleItems(3)
+            }
+          }}
+        >
           <Text style={$loadMoreButton} preset="subheading">
-            Xem thêm
+            {textTabVisible}
           </Text>
         </TouchableOpacity>
       ) : (
-        <TouchableOpacity onPress={() => setVisibleItems(3)}>
+        <View>
           <Text style={$loadMoreButton} preset="subheading">
-            Ẩn bớt
+            Không có dữ liệu
           </Text>
-        </TouchableOpacity>
+        </View>
       )}
     </View>
   )

@@ -1,10 +1,10 @@
 import { Api, api } from "../api";
 import { GeneralApiProblem, getGeneralApiProblem } from "../apiProblem";
-import { UserMealAttributes } from "../../../interfaces/table-server.interface";
 import { ApiResponse } from "apisauce";
 import { IDataRequestCreateUserMeal, IDataRequestUpdateUserMeal } from "../../../interfaces/req-params.interface";
-import type { ApiResponseMessage, ApiGetMealResponse } from "../api.types"
+import type { ApiResponseMessage, ApiGetMealResponse, ApiGetUserMealResponse } from "../api.types"
 import { MealSnapshotIn } from "app/models/Meal";
+import { UserMealSnapshotIn } from "app/models/UserMeal";
 /**
 
 Quản lý các yêu cầu API liên quan đến Meal.
@@ -16,23 +16,6 @@ export class MealApi {
         this.api = api;
     }
 
-    /**
-    
-    Lấy danh sách các bữa ăn.
-    */
-    async getMeals(): Promise<{ kind: "ok"; data: UserMealAttributes[] | null } | GeneralApiProblem> {
-        try {
-            const response: ApiResponse<UserMealAttributes[]> = await this.api.apisauce.get("/meals");
-            if (response.ok) {
-                const meals = response.data;
-                return { kind: "ok", data: meals };
-            } else {
-                return { kind: "bad-data" };
-            }
-        } catch (error) {
-            return { kind: "bad-data" };
-        }
-    }
 
     /**
     
@@ -89,7 +72,7 @@ export class MealApi {
     * Lấy toàn bộ danh sách meal từ hệ thống
     */
 
-    async getAllFoodsFromSystem(): Promise<{ kind: "ok", meals: MealSnapshotIn[] } | GeneralApiProblem> {
+    async getAllMealFromSystem(): Promise<{ kind: "ok", meals: MealSnapshotIn[] } | GeneralApiProblem> {
         const response: ApiResponse<ApiGetMealResponse> = await this.api.apisauce.get("/system/meal");
         if (!response.ok) {
             const problem = getGeneralApiProblem(response)
@@ -113,6 +96,32 @@ export class MealApi {
         }
 
     }
+
+
+    async getAllMealFromUser(): Promise<{ kind: "ok", meals: UserMealSnapshotIn[] } | GeneralApiProblem> {
+        const response: ApiResponse<ApiGetUserMealResponse> = await this.api.apisauce.get("/meals/");
+        if (!response.ok) {
+            const problem = getGeneralApiProblem(response)
+            if (problem) return problem
+        }
+        try {
+            const rawData = response.data
+
+            // This is where we transform the data into the shape we expect for our MST model.
+            const meals: UserMealSnapshotIn[] = rawData.items.map((raw) => ({
+                ...raw,
+            }))
+            return { kind: "ok", meals }
+        } catch (e) {
+            if (__DEV__) {
+                console.tron.error(`Bad data: ${e.message}\n${response.data}`, e.stack)
+            }
+            console.log(e);
+            return { kind: "bad-data" }
+        }
+
+    }
+
 }
 
 const mealApi = new MealApi(api)

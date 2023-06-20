@@ -19,9 +19,11 @@ import { colors, spacing } from "../../theme"
 import { PlusSVG, TickSVG } from "../../components/fileSVG"
 import { useRoute } from "@react-navigation/native"
 import { Meal } from "../../models/Meal"
-import { Food } from "../../models/Food"
+// import { Food } from "../../models/Food"
+import { DailyFood } from "app/models/DailyFoodModel"
 
 interface AddDailyFoodScreenProps extends AppStackScreenProps<"AddDailyFood"> {}
+type TScreen = "breakfast" | "lunch" | "dinner" | "snack"
 
 export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function AddDailyFoodScreen(
   _props,
@@ -30,81 +32,28 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
 
   const route = useRoute()
 
-  const [screen, setScreen] = useState<"Dinner" | "Lunch" | "Breakfast" | "Snack" | "">("")
+  const [screen, setScreen] = useState<TScreen>()
   const [title, setTitle] = useState("")
-  const { mealFoodStore, dailyMealsModel } = useStores()
+  const { dateStore } = useStores()
 
   const [displayFood, setDisplayFood] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [isSelected, setIsSelected] = useState(false)
-
-  const {
-    breakfastFoods,
-    breakfastMeals,
-    lunchFoods,
-    lunchMeals,
-    snacksFoods,
-    snacksMeals,
-    dinnerFoods,
-    dinnerMeals,
-  } = dailyMealsModel
-  const actions = useMemo(() => {
-    switch (screen) {
-      case "Dinner":
-        return {
-          addMeal: dailyMealsModel.addMealToDinner,
-          removeMeal: dailyMealsModel.removeMealFromDinner,
-          addFood: dailyMealsModel.addFoodToDinner,
-          removeFood: dailyMealsModel.removeFoodFromDinner,
-          arrSelectedFoodId: dinnerFoods.map((item) => item.id),
-          arrSelectedMealId: dinnerMeals.map((item) => item.id),
-        }
-      case "Lunch":
-        return {
-          addMeal: dailyMealsModel.addMealToLunch,
-          removeMeal: dailyMealsModel.removeMealFromLunch,
-          addFood: dailyMealsModel.addFoodToLunch,
-          removeFood: dailyMealsModel.removeFoodFromLunch,
-          arrSelectedFoodId: lunchFoods.map((item) => item.id),
-          arrSelectedMealId: lunchMeals.map((item) => item.id),
-        }
-      case "Breakfast":
-        return {
-          addMeal: dailyMealsModel.addMealToBreakfast,
-          removeMeal: dailyMealsModel.removeMealFromBreakfast,
-          addFood: dailyMealsModel.addFoodToBreakfast,
-          removeFood: dailyMealsModel.removeFoodFromBreakfast,
-          arrSelectedFoodId: breakfastFoods.map((item) => item.id),
-          arrSelectedMealId: breakfastMeals.map((item) => item.id),
-        }
-      case "Snack":
-        return {
-          addMeal: dailyMealsModel.addMealToSnacks,
-          removeMeal: dailyMealsModel.removeMealFromSnacks,
-          addFood: dailyMealsModel.addFoodToSnacks,
-          removeFood: dailyMealsModel.removeFoodFromSnacks,
-          arrSelectedFoodId: snacksFoods.map((item) => item.id),
-          arrSelectedMealId: snacksMeals.map((item) => item.id),
-        }
-      default:
-        return {}
-    }
-  }, [screen, mealFoodStore])
+  const { mealFoodStoreModel } = dateStore
 
   useEffect(() => {
-    setScreen(route.params.data as string)
+    setScreen(route.params.data as TScreen)
     switch (screen) {
-      case "Dinner":
+      case "dinner":
         setTitle("Bữa tối")
         break
-      case "Lunch":
+      case "lunch":
         setTitle("Bữa trưa")
         break
-      case "Breakfast":
+      case "breakfast":
         setTitle("Bữa sáng")
         break
-      case "Snack":
+      case "snack":
         setTitle("Bữa phụ")
         break
       default:
@@ -115,14 +64,20 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
   useEffect(() => {
     ;(async function load() {
       setIsLoading(true)
-      await Promise.all([mealFoodStore.fetchFoods(), mealFoodStore.fetchMeals()])
+      await Promise.all([mealFoodStoreModel.fetchFoods(), mealFoodStoreModel.fetchMeals()])
+
+      mealFoodStoreModel.convertArrFoodToDailyFood(mealFoodStoreModel.foodsForList)
       setIsLoading(false)
     })()
-  }, [mealFoodStore])
+  }, [mealFoodStoreModel])
 
   async function manualRefresh() {
     setRefreshing(true)
-    await Promise.all([mealFoodStore.fetchFoods(), mealFoodStore.fetchMeals(), delay(750)])
+    await Promise.all([
+      mealFoodStoreModel.fetchFoods(),
+      mealFoodStoreModel.fetchMeals(),
+      delay(750),
+    ])
     setRefreshing(false)
   }
 
@@ -133,8 +88,7 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
   const handleToggle = () => {
     setDisplayFood(!displayFood)
   }
-  console.log(actions.arrSelectedFoodId.includes(1))
-  console.log(mealFoodStore.foodsForList.map((item) => item.id))
+
   return (
     <FixedHeader
       handleGoBack={goBack}
@@ -144,73 +98,38 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
       handleToggle={handleToggle}
     >
       {displayFood ? (
-        <FlatList<Food>
-          data={mealFoodStore.foodsForList}
+        <FlatList<DailyFood>
+          data={dateStore.mealFoodStoreModel.dailyFoods}
           contentContainerStyle={$flatListContentContainer}
           refreshing={refreshing}
           onRefresh={manualRefresh}
           ListEmptyComponent={isLoading ? <ActivityIndicator /> : <></>}
-          renderItem={({ item, index }) =>
-            actions.arrSelectedFoodId?.includes(item.id) ? (
-              <ItemCard
-                key={index}
-                item={item}
-                isSelected={true}
-                onPressDetail={() => actions.removeFood(item)}
-                onPressAdd={() => {
-                  actions.removeFood(item)
-                  setIsSelected(!isSelected)
-                }}
-              />
-            ) : (
-              <ItemCard
-                key={index}
-                item={item}
-                isSelected={false}
-                onPressDetail={() => actions.removeFood(item)}
-                onPressAdd={() => {
-                  actions.addFood(item)
-                  setIsSelected(!isSelected)
-                }}
-              />
-            )
-          }
+          renderItem={({ item, index }) => (
+            <ItemCard
+              key={item.id}
+              item={item}
+              isSelected={mealFoodStoreModel.hasFoodList(item, screen)}
+              onPressDetail={() => console.log("Food")}
+              onPressToggle={() => mealFoodStoreModel.toggleFood(item, screen)}
+            />
+          )}
         />
       ) : (
         <FlatList<Meal>
-          data={mealFoodStore.mealsForList}
+          data={mealFoodStoreModel.mealsForList}
           contentContainerStyle={$flatListContentContainer}
           refreshing={refreshing}
           onRefresh={manualRefresh}
           ListEmptyComponent={isLoading ? <ActivityIndicator /> : <></>}
-          renderItem={
-            ({ item, index }) => <></>
-            // mealFoodStore.selectedMeal.includes(item) ? (
-            //   <ItemCard
-            //     key={index}
-            //     item={item}
-            //     onPressDetail={() => mealFoodStore.removeMeal(item)}
-            //     isSelected={true}
-            //     onPressAdd={() => {
-            //       setIsSelected(!isSelected)
-            //       mealFoodStore.removeMeal(item)
-            //       actions.removeMeal(item)
-            //     }}
-            //   />
-            // ) : (
-            //   <ItemCard
-            //     key={index}
-            //     item={item}
-            //     isSelected={false}
-            //     onPressDetail={() => mealFoodStore.addMeal(item)}
-            //     onPressAdd={() => {
-            //       setIsSelected(!isSelected)
-            //       mealFoodStore.addMeal(item)
-            //       actions.addMeal(item)
-            //     }}
-            //   />
-            // )
-          }
+          renderItem={({ item, index }) => (
+            <ItemCard
+              key={item.id}
+              item={item}
+              onPressDetail={() => console.log("Meal")}
+              isSelected={mealFoodStoreModel.hasMealList(item, screen)}
+              onPressToggle={() => mealFoodStoreModel.toggleMeal(item, screen)}
+            />
+          )}
         />
       )}
     </FixedHeader>
@@ -221,24 +140,28 @@ const ItemCard = observer(function ItemCard({
   item,
   isSelected,
   onPressDetail,
-  onPressAdd,
+  onPressToggle,
 }: {
-  item: Food | Meal
+  item: DailyFood | Meal
   isSelected: boolean
   onPressDetail: () => void
-  onPressAdd: () => void
+  onPressToggle: () => void
 }) {
   const [a, seta] = useState(isSelected)
   const handlePressFavorite = () => {
     onPressDetail()
   }
+  useEffect(() => {
+    seta(isSelected)
+  }, [isSelected])
 
   const handlePressCard = () => {
+    onPressDetail()
     console.log("handlePressCard")
   }
 
   const handlePressAdd = () => {
-    onPressAdd()
+    onPressToggle()
     seta(!a)
   }
 
@@ -250,7 +173,7 @@ const ItemCard = observer(function ItemCard({
       HeadingComponent={
         <View style={$metadata}>
           <Text style={$metadataText} size="xs">
-            {item.name}
+            {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
           </Text>
         </View>
       }

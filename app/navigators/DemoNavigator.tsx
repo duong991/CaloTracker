@@ -41,11 +41,12 @@ const Tab = createBottomTabNavigator<DemoTabParamList>()
 export function DemoNavigator() {
   const { bottom } = useSafeAreaInsets()
   const {
-    systemStore: { setOverLayVisible },
+    systemStore: { setOverLayVisible, setIsShowList },
     dateStore: { setDateTime, checkTimeChoseIsToday },
   } = useStores()
   const handleTabPress = () => {
     setOverLayVisible(false)
+    setIsShowList(false)
   }
   return (
     <Tab.Navigator

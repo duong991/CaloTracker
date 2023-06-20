@@ -36,6 +36,9 @@ export const FixedHeader = ({
   handleToggle,
 }: fixedHeaderProps) => {
   const { systemStore } = useStores()
+
+  const [textSearch, setTextSearch] = React.useState("")
+
   const handleTurnOffAddButton = () => {
     systemStore.setOverLayVisible(false)
   }
@@ -88,8 +91,8 @@ export const FixedHeader = ({
           <View style={$wrapInput}>
             <View style={$search}>
               <TextField
-                // value={authEmail}
-                // onChangeText={setAuthEmail}
+                value={textSearch}
+                onChangeText={setTextSearch}
                 autoCapitalize="none"
                 autoComplete="off"
                 autoCorrect={false}
@@ -102,13 +105,7 @@ export const FixedHeader = ({
         </View>
       </View>
 
-      <Screen
-        preset="fixed"
-        safeAreaEdges={["top", "bottom"]}
-        backgroundColor={colors.background}
-        style={$screen}
-      >
-        {/*  ContentHeader */}
+      <Screen preset="scroll" backgroundColor={colors.background} style={$screen}>
         {children}
       </Screen>
     </View>
@@ -125,6 +122,7 @@ const $headerCss: ViewStyle = {
   right: 0,
   left: 0,
   height: 150,
+
   shadowColor: "rbga(0,0,0,0.1)",
   shadowOffset: {
     width: 0,
@@ -167,17 +165,6 @@ const $wrapInput: ViewStyle = {
 const $search: ViewStyle = {
   flex: 1,
   marginRight: spacing.extraSmall,
-}
-const $buttonOfSearchInput: ViewStyle = {
-  width: 52,
-  height: 52,
-  justifyContent: "center",
-  alignItems: "center",
-  backgroundColor: "#FFFFFF",
-  borderRadius: 45,
-  marginStart: spacing.extraSmall,
-  borderWidth: 1,
-  borderColor: colors.palette.neutral400,
 }
 
 const $screen: ViewStyle = {

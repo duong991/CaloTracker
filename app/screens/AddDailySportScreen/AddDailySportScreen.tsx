@@ -16,7 +16,7 @@ import { useStores } from "../../models"
 import { delay } from "../../utils/delay"
 import { colors, spacing } from "../../theme"
 import { Exercise } from "../../models/Exercise"
-import { PlusSVG } from "../../components/fileSVG"
+import { PlusSVG, TickSVG } from "../../components/fileSVG"
 
 interface AddDailySportScreenProps extends AppStackScreenProps<"AddDailySport"> {}
 
@@ -26,7 +26,6 @@ export const AddDailySportScreen: FC<AddDailySportScreenProps> = observer(
     const { exerciseStore } = useStores()
     const [refreshing, setRefreshing] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
-
     useEffect(() => {
       ;(async function load() {
         setIsLoading(true)
@@ -45,7 +44,6 @@ export const AddDailySportScreen: FC<AddDailySportScreenProps> = observer(
     function goBack() {
       navigation.navigate("Demo")
     }
-
     return (
       <FixedHeader handleGoBack={goBack} title={null}>
         <FlatList<Exercise>
@@ -56,9 +54,10 @@ export const AddDailySportScreen: FC<AddDailySportScreenProps> = observer(
           ListEmptyComponent={isLoading ? <ActivityIndicator /> : <></>}
           renderItem={({ item, index }) => (
             <ExerciseCard
-              key={index}
+              key={item.id}
+              isSelected={exerciseStore.hasSelected(item)}
               exercise={item}
-              onPressAdd={() => exerciseStore.addExercise(item)}
+              onPressToggle={() => exerciseStore.toggleSelected(item)}
             />
           )}
         />
@@ -69,24 +68,37 @@ export const AddDailySportScreen: FC<AddDailySportScreenProps> = observer(
 
 const ExerciseCard = observer(function ExerciseCard({
   exercise,
-  onPressAdd,
+  isSelected,
+  onPressToggle,
 }: {
   exercise: Exercise
-  onPressAdd: () => void
+  isSelected: boolean
+  onPressToggle: () => void
 }) {
-  const handlePressFavorite = () => {
-    onPressAdd()
-  }
+  const [isSelect, setIsSelect] = useState(isSelected)
+  useEffect(() => {
+    setIsSelect(isSelected)
+  }, [isSelected])
 
   const handlePressCard = () => {
     console.log("handlePressCard")
+  }
+
+  const handleLongPressCard = () => {
+    console.log("handleLongPressCard")
+  }
+
+  const handlePressAdd = () => {
+    onPressToggle()
+    setIsSelect(!isSelect)
   }
 
   return (
     <Card
       style={$item}
       onPress={handlePressCard}
-      onLongPress={handlePressFavorite}
+      onLongPress={handleLongPressCard}
+      verticalAlignment="force-footer-bottom"
       HeadingComponent={
         <View style={$metadata}>
           <Text style={$metadataText} size="xs">
@@ -96,9 +108,11 @@ const ExerciseCard = observer(function ExerciseCard({
       }
       content={`${exercise.caloriesBurned} kcal - ${exercise.duration} phút`}
       RightComponent={
-        <View style={$buttonOfSearchInput}>
-          <PlusSVG size={12} color="#191919" />
-        </View>
+        <TouchableOpacity onPress={handlePressAdd}>
+          <View style={$buttonOfSearchInput}>
+            {isSelect ? <TickSVG size={12} /> : <PlusSVG size={12} color="#191919" />}
+          </View>
+        </TouchableOpacity>
       }
     />
   )

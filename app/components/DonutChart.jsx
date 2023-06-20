@@ -14,7 +14,7 @@ export default function Donut({
   percentage = 2000,
   radius = 40,
   strokeWidth = 10,
-  duration = 500,
+  duration = 200,
   color = "#8785A2",
   delay = 0,
   textColor = colors.mainText,
@@ -42,7 +42,15 @@ export default function Donut({
     animation(percentage)
     animated.addListener(
       (v) => {
-        const maxPerc = v.value > max ? 100 : (100 * v.value) / max
+        let maxPerc
+        if (v.value > max) {
+          maxPerc = 100
+        } else if (v.value < 0) {
+          maxPerc = 0
+        } else {
+          maxPerc = (100 * v.value) / max
+        }
+
         const strokeDashoffset = circumference - (circumference * maxPerc) / 100
         if (inputRef.current) {
           inputRef.current.setNativeProps({

@@ -45,13 +45,13 @@ export const colors = {
    * This is only included for rare, one-off cases. Try to use
    * semantic names as much as possible.
    */
-  palette,
   /**
    * A helper for making something see-thru.
    */
   transparent: "rgba(0, 0, 0, 0)",
   mainText: palette.mainText,
   bellColor: palette.accent500,
+  palette,
   /**
    * 
    * The default text color in many components.

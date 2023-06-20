@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { ComponentType, Fragment, ReactElement } from "react"
 import {
@@ -235,7 +236,13 @@ export function Card(props: CardProps) {
           ))}
       </View>
 
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "flex-end" }}>
+      <View
+        style={{
+          flex: 0.2,
+          justifyContent: "center",
+          alignItems: "flex-end",
+        }}
+      >
         {RightComponent}
       </View>
     </Wrapper>

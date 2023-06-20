@@ -5,16 +5,19 @@ interface DailyCaloAttributes {
     date: string;
 }
 
-interface DailyCaloFoodMappingAttributes {
+interface CaloIntakeMappingAttributes {
     id?: number;
-    dailyCaloId: number;
     foodId?: number;
     userFoodId?: number;
     mealId?: number;
     userMealId?: number;
-    menuId?: number;
-    userMenuId?: number;
     servingSize?: number;
+    mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+}
+interface CaloConsumedMappingAttributes {
+    id?: number;
+    exerciseId?: number;
+    duration?: number;
 }
 interface ExerciseAttributes {
     id?: number;
@@ -51,7 +54,7 @@ interface MealAttributes {
     protein: number;
     carbohydrates: number;
     fat: number;
-    mealType: 'breakfast' | 'lunch' | 'dinner' | 'snacks';
+    mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
 }
 
 interface MenuAttributes {
@@ -125,7 +128,7 @@ interface UserMealAttributes {
     protein: number;
     carbohydrates: number;
     fat: number;
-    mealType: 'breakfast' | 'lunch' | 'dinner' | 'snacks';
+    mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
 }
 
 interface UserMenuAttributes {
@@ -150,7 +153,8 @@ interface WaterLogAttributes {
 
 export {
     DailyCaloAttributes,
-    DailyCaloFoodMappingAttributes,
+    CaloIntakeMappingAttributes,
+    CaloConsumedMappingAttributes,
     ExerciseAttributes,
     FoodAttributes,
     UserFoodAttributes,

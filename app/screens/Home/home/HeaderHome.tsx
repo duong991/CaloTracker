@@ -21,12 +21,13 @@ type HeaderHomeProps = {
 export const HeaderHome: FC<HeaderHomeProps> = observer(
   ({ calorPerDay, carbG, fatG, proteinG }) => {
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
+
     const toggleDatePicker = () => {
       setDatePickerVisibility(!isDatePickerVisible)
     }
-
     const {
-      dateStore: { dateTime, setDateTime },
+      dateStore: { dateTime, setDateTime, mealFoodStoreModel },
+      exerciseStore,
     } = useStores()
 
     const handleConfirm = (dateTime) => {
@@ -54,6 +55,7 @@ export const HeaderHome: FC<HeaderHomeProps> = observer(
     }
 
     const dateString = dateTime.toLocaleString("vi-VN", { day: "numeric", month: "short" })
+    console.log("Homeheader", dateTime)
     const today = new Date()
     const dayOfWeek =
       dateTime.getDate() === today.getDate() &&
@@ -100,7 +102,7 @@ export const HeaderHome: FC<HeaderHomeProps> = observer(
             // eslint-disable-next-line react-native/no-inline-styles
             style={{
               width: "74%",
-              borderBottomWidth: 2,
+              borderBottomWidth: 1,
               borderBottomColor: "#143d54",
               marginBottom: 10,
               marginTop: -12,
@@ -110,16 +112,23 @@ export const HeaderHome: FC<HeaderHomeProps> = observer(
           <View style={$calories}>
             <View>
               <Text preset="subheading" size="md" style={$textCenter}>
-                1500
+                {mealFoodStoreModel.dailyMeals.totalCalories}
               </Text>
               <Text preset="default" size="xs">
                 Đã nạp
               </Text>
             </View>
-            <DonutChart radius={84} color="#FEC23E" max={calorPerDay} percentage={0} />
+            <DonutChart
+              radius={84}
+              color="#FEC23E"
+              max={calorPerDay}
+              percentage={
+                mealFoodStoreModel.dailyMeals.totalCalories - exerciseStore.totalCaloriesBurn * 0.8
+              }
+            />
             <View>
               <Text preset="subheading" size="md" style={$textCenter}>
-                1500
+                {exerciseStore.totalCaloriesBurn}
               </Text>
               <Text preset="default" size="xs">
                 Tiêu hao
@@ -128,19 +137,19 @@ export const HeaderHome: FC<HeaderHomeProps> = observer(
           </View>
           <View style={$bmr}>
             <View style={$itemBmr}>
-              <_Line max={carbG} />
+              <_Line max={carbG} percentage={mealFoodStoreModel.dailyMeals.totalCarbs} />
               <Text preset="default" size="xs">
                 Cab
               </Text>
             </View>
             <View style={$itemBmr}>
-              <_Line max={fatG} />
+              <_Line max={fatG} percentage={mealFoodStoreModel.dailyMeals.totalFat} />
               <Text preset="default" size="xs">
                 Fat
               </Text>
             </View>
             <View style={$itemBmr}>
-              <_Line max={proteinG} />
+              <_Line max={proteinG} percentage={mealFoodStoreModel.dailyMeals.totalProtein} />
               <Text preset="default" size="xs">
                 Protein
               </Text>

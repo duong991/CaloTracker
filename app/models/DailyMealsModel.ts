@@ -1,18 +1,19 @@
 import { Instance, SnapshotOut, SnapshotIn, types } from "mobx-state-tree"
-import { Food, FoodModel } from "./Food"
+// import { Food, FoodModel, } from "./Food"
+import { DailyFood, DailyFoodModel, } from "./DailyFoodModel"
 import { Meal, MealModel } from "./Meal"
 
 export const DailyMealsModel = types
     .model("DailyMeals")
     .props({
         breakfastMeals: types.array(types.reference(MealModel)),
-        breakfastFoods: types.array(types.reference(FoodModel)),
+        breakfastFoods: types.array(types.reference(DailyFoodModel)),
         lunchMeals: types.array(types.reference(MealModel)),
-        lunchFoods: types.array(types.reference(FoodModel)),
+        lunchFoods: types.array(types.reference(DailyFoodModel)),
         dinnerMeals: types.array(types.reference(MealModel)),
-        dinnerFoods: types.array(types.reference(FoodModel)),
-        snacksMeals: types.array(types.reference(MealModel)),
-        snacksFoods: types.array(types.reference(FoodModel)),
+        dinnerFoods: types.array(types.reference(DailyFoodModel)),
+        snackMeals: types.array(types.reference(MealModel)),
+        snackFoods: types.array(types.reference(DailyFoodModel)),
     })
     .views((store) => ({
         get combinedFoodsAndMeals() {
@@ -31,33 +32,105 @@ export const DailyMealsModel = types
             combined.push(...dinnerItems)
 
             // Bữa phụ
-            const snacksItems = [...store.snacksFoods, ...store.snacksMeals]
+            const snacksItems = [...store.snackFoods, ...store.snackMeals]
             combined.push(...snacksItems)
-
             return {
                 breakfast: breakfastItems,
                 lunch: lunchItems,
                 dinner: dinnerItems,
-                snacks: snacksItems,
+                snack: snacksItems,
                 combined,
             }
         },
         get totalCalories() {
-            const combined = this.combinedFoodsAndMeals.combined
-            return combined.reduce((total, item) => total + item.calories, 0)
+            const CaloriesFromFood =
+                store.breakfastFoods.reduce((total, item) => total + item.caloriesPerServing, 0) +
+                store.lunchFoods.reduce((total, item) => total + item.caloriesPerServing, 0) +
+                store.dinnerFoods.reduce((total, item) => total + item.caloriesPerServing, 0) +
+                store.snackFoods.reduce((total, item) => total + item.caloriesPerServing, 0);
+
+            const CaloriesFromMeal =
+                store.breakfastMeals.reduce((total, item) => total + item.calories, 0)
+                + store.lunchMeals.reduce((total, item) => total + item.calories, 0)
+                + store.dinnerMeals.reduce((total, item) => total + item.calories, 0)
+                + store.snackMeals.reduce((total, item) => total + item.calories, 0);
+
+            return CaloriesFromFood + CaloriesFromMeal
         },
         get totalProtein() {
-            const combined = this.combinedFoodsAndMeals.combined
-            return combined.reduce((total, item) => total + item.protein, 0)
+            const ProteinFromFood =
+                store.breakfastFoods.reduce((total, item) => total + item.proteinPerServing, 0)
+                + store.lunchFoods.reduce((total, item) => total + item.proteinPerServing, 0)
+                + store.dinnerFoods.reduce((total, item) => total + item.proteinPerServing, 0)
+                + store.snackFoods.reduce((total, item) => total + item.proteinPerServing, 0)
+
+            const ProteinFromMeal =
+                store.breakfastMeals.reduce((total, item) => total + item.protein, 0)
+                + store.lunchMeals.reduce((total, item) => total + item.protein, 0)
+                + store.dinnerMeals.reduce((total, item) => total + item.protein, 0)
+                + store.snackMeals.reduce((total, item) => total + item.protein, 0)
+
+            return ProteinFromFood + ProteinFromMeal
         },
         get totalFat() {
-            const combined = this.combinedFoodsAndMeals.combined
-            return combined.reduce((total, item) => total + item.fat, 0)
+            const FatFromFood =
+                store.breakfastFoods.reduce((total, item) => total + item.fatPerServing, 0)
+                + store.lunchFoods.reduce((total, item) => total + item.fatPerServing, 0)
+                + store.dinnerFoods.reduce((total, item) => total + item.fatPerServing, 0)
+                + store.snackFoods.reduce((total, item) => total + item.fatPerServing, 0)
+
+            const FatFromMeal =
+                store.breakfastMeals.reduce((total, item) => total + item.fat, 0)
+                + store.lunchMeals.reduce((total, item) => total + item.fat, 0)
+                + store.dinnerMeals.reduce((total, item) => total + item.fat, 0)
+                + store.snackMeals.reduce((total, item) => total + item.fat, 0)
+
+            return FatFromFood + FatFromMeal
         },
         get totalCarbs() {
-            const combined = this.combinedFoodsAndMeals.combined
-            return combined.reduce((total, item) => total + item.carbs, 0)
+            const CarbsFromFood =
+                store.breakfastFoods.reduce((total, item) => total + item.carbohydratesPerServing, 0)
+                + store.lunchFoods.reduce((total, item) => total + item.carbohydratesPerServing, 0)
+                + store.dinnerFoods.reduce((total, item) => total + item.carbohydratesPerServing, 0)
+                + store.snackFoods.reduce((total, item) => total + item.carbohydratesPerServing, 0)
+
+            const CarbsFromMeal =
+                store.breakfastMeals.reduce((total, item) => total + item.carbohydrates, 0)
+                + store.lunchMeals.reduce((total, item) => total + item.carbohydrates, 0)
+                + store.dinnerMeals.reduce((total, item) => total + item.carbohydrates, 0)
+                + store.snackMeals.reduce((total, item) => total + item.carbohydrates, 0)
+
+            return CarbsFromFood + CarbsFromMeal
         },
+        get totalCaloForBreakfast() {
+            const CaloFromFood =
+                store.breakfastFoods.reduce((total, item) => total + item.caloriesPerServing, 0)
+            const CaloFromMeal =
+                store.breakfastMeals.reduce((total, item) => total + item.calories, 0)
+            return CaloFromFood + CaloFromMeal
+        },
+        get totalCaloForLunch() {
+            const CaloFromFood =
+                store.lunchFoods.reduce((total, item) => total + item.caloriesPerServing, 0)
+            const CaloFromMeal =
+                store.lunchMeals.reduce((total, item) => total + item.calories, 0)
+            return CaloFromFood + CaloFromMeal
+        },
+        get totalCaloForDinner() {
+            const CaloFromFood =
+                store.dinnerFoods.reduce((total, item) => total + item.caloriesPerServing, 0)
+            const CaloFromMeal =
+                store.dinnerMeals.reduce((total, item) => total + item.calories, 0)
+            return CaloFromFood + CaloFromMeal
+        },
+        get totalCaloForSnack() {
+            const CaloFromFood =
+                store.snackFoods.reduce((total, item) => total + item.caloriesPerServing, 0)
+            const CaloFromMeal =
+                store.snackMeals.reduce((total, item) => total + item.calories, 0)
+            return CaloFromFood + CaloFromMeal
+        }
+
     }))
     .actions((store) => ({
         clearDailyMeals() {
@@ -67,8 +140,8 @@ export const DailyMealsModel = types
             store.lunchFoods.clear()
             store.dinnerMeals.clear()
             store.dinnerFoods.clear()
-            store.snacksMeals.clear()
-            store.snacksFoods.clear()
+            store.snackMeals.clear()
+            store.snackFoods.clear()
         },
 
         addMealToBreakfast(meal: Meal) {
@@ -80,13 +153,13 @@ export const DailyMealsModel = types
         removeMealFromBreakfast(meal: Meal) {
             store.breakfastMeals.remove(meal)
         },
-        addFoodToBreakfast(food: Food) {
+        addFoodToBreakfast(food: DailyFood) {
             if (store.breakfastFoods.find((f) => f.id === food.id)) {
                 return
             }
             store.breakfastFoods.push(food)
         },
-        removeFoodFromBreakfast(food: Food) {
+        removeFoodFromBreakfast(food: DailyFood) {
             store.breakfastFoods.remove(food)
         },
         addMealToLunch(meal: Meal) {
@@ -98,13 +171,13 @@ export const DailyMealsModel = types
         removeMealFromLunch(meal: Meal) {
             store.lunchMeals.remove(meal)
         },
-        addFoodToLunch(food: Food) {
+        addFoodToLunch(food: DailyFood) {
             if (store.lunchFoods.find((f) => f.id === food.id)) {
                 return
             }
             store.lunchFoods.push(food)
         },
-        removeFoodFromLunch(food: Food) {
+        removeFoodFromLunch(food: DailyFood) {
             store.lunchFoods.remove(food)
         },
         addMealToDinner(meal: Meal) {
@@ -116,33 +189,34 @@ export const DailyMealsModel = types
         removeMealFromDinner(meal: Meal) {
             store.dinnerMeals.remove(meal)
         },
-        addFoodToDinner(food: Food) {
+        addFoodToDinner(food: DailyFood) {
             if (store.dinnerFoods.find((f) => f.id === food.id)) {
                 return
             }
             store.dinnerFoods.push(food)
         },
-        removeFoodFromDinner(food: Food) {
+        removeFoodFromDinner(food: DailyFood) {
             store.dinnerFoods.remove(food)
         },
         addMealToSnacks(meal: Meal) {
-            if (store.snacksMeals.find((m) => m.id === meal.id)) {
+            if (store.snackMeals.find((m) => m.id === meal.id)) {
                 return
             }
-            store.snacksMeals.push(meal)
+            store.snackMeals.push(meal)
         },
         removeMealFromSnacks(meal: Meal) {
-            store.snacksMeals.remove(meal)
+            store.snackMeals.remove(meal)
         },
-        addFoodToSnacks(food: Food) {
-            if (store.snacksFoods.find((f) => f.id === food.id)) {
+        addFoodToSnacks(food: DailyFood) {
+            if (store.snackFoods.find((f) => f.id === food.id)) {
                 return
             }
-            store.snacksFoods.push(food)
+            store.snackFoods.push(food)
         },
-        removeFoodFromSnacks(food: Food) {
-            store.snacksFoods.remove(food)
+        removeFoodFromSnacks(food: DailyFood) {
+            store.snackFoods.remove(food)
         },
+
     }))
 export interface DailyMeals extends Instance<typeof DailyMealsModel> { }
 export interface DailyMealsSnapshotOut extends SnapshotOut<typeof DailyMealsModel> { }

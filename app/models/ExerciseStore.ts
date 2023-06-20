@@ -1,5 +1,5 @@
 import { types, Instance, SnapshotOut } from "mobx-state-tree";
-import { ExerciseModel } from "./Exercise";
+import { ExerciseModel, Exercise } from "./Exercise";
 import { exerciseApi } from "app/services/api";
 import { withSetPropAction } from "./helpers/withSetPropAction"
 
@@ -9,8 +9,25 @@ export const ExerciseStoreModel = types
         exercises: types.array(ExerciseModel),
         selectedExercises: types.array(types.reference(ExerciseModel)),
     })
+    .views((store) => ({
+        get exercisesForList() {
+            return store.exercises
+        },
+
+        get exercisesSelectedForList() {
+            return store.selectedExercises
+        },
+        get totalCaloriesBurn() {
+            return store.selectedExercises.reduce((total, exercise) => total + exercise.caloriesBurned, 0)
+        },
+
+        hasSelected(exercise: Exercise) {
+            return store.selectedExercises.includes(exercise)
+        },
+
+    }))
     .actions(withSetPropAction)
-    .actions((self) => ({
+    .actions((store) => ({
         async fetchExercises() {
             const response = await exerciseApi.getExercises()
             if (response.kind === "ok") {
@@ -33,24 +50,35 @@ export const ExerciseStoreModel = types
                     }
                     return 0; // Tên bằng nhau
                 });
-                self.setProp("exercises", exerciseData)
+                store.setProp("exercises", exerciseData)
             } else {
                 console.tron.error(`Error fetching exercises: ${JSON.stringify(response)}`, [])
             }
         },
-        addExercise(exercise) {
-            self.selectedExercises.push(exercise);
+        addExercise(exercise: Exercise) {
+            if (store.selectedExercises.find((f) => f.id === exercise.id)) {
+                return
+            }
+            store.selectedExercises.push(exercise);
         },
-        removeExercise(exercise) {
-            self.selectedExercises.remove(exercise);
+        removeExercise(exercise: Exercise) {
+            store.selectedExercises.remove(exercise);
         },
-    }))
-    .views((store) => ({
-        get exercisesForList() {
-            return store.exercises
-        },
+        clearExercise() {
+            store.selectedExercises.clear();
+        }
 
     }))
+    .actions((store) => ({
+        toggleSelected(exercise: Exercise) {
+            if (store.hasSelected(exercise)) {
+                store.removeExercise(exercise)
+            } else {
+                store.addExercise(exercise)
+            }
+        },
+    }))
+
 
 export interface ExerciseStore extends Instance<typeof ExerciseStoreModel> { }
 export interface ExerciseStoreSnapshot extends SnapshotOut<typeof ExerciseStoreModel> { }

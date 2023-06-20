@@ -34,7 +34,7 @@ export interface IDataRequestCreateUserMeal {
     protein: number;
     carbohydrates: number;
     fat: number;
-    mealType: 'breakfast' | 'lunch' | 'dinner' | 'snacks';
+    mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
     userMealFood: IUserMealFood[];
 }
 
@@ -54,7 +54,7 @@ export interface IDataRequestUpdateUserMeal {
     protein: number;
     carbohydrates: number;
     fat: number;
-    mealType: 'breakfast' | 'lunch' | 'dinner' | 'snacks';
+    mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
     userMealFood: IUpdateUserMealFood[];
 }
 
@@ -66,4 +66,46 @@ export interface IDataRequestWaterLog {
 export interface IDataRequestWeightLog {
     weight: number;
     date: Date;
+}
+
+// Interface của resquest daily calo
+interface IFoodId {
+    id: number;
+    servingSize: number;
+    mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+}
+
+interface IMealId {
+    id: number;
+    mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+}
+
+export interface IDataRequestUpdateCaloIntake {
+    date: string;
+    foodId: IFoodId[] | null;
+    mealId: number[] | null;
+    userFoodId: IFoodId[] | null;
+    userMealId: IMealId[] | null;
+}
+
+interface IExerciseId {
+    id: number;
+    duration: number;
+}
+export interface IDataRequestUpdateCaloConsumed {
+    date: string;
+    exerciseId: IExerciseId[] | null;
+}
+
+export interface IDataRequestDeleteCaloIntake {
+    date: string;
+    foodId: number[] | null;
+    mealId: number[] | null;
+    userFoodId: number[] | null;
+    userMealId: number[] | null;
+}
+
+export interface IDataRequestDeleteCaloConsumed {
+    date: string;
+    exerciseId: number[] | null;
 }

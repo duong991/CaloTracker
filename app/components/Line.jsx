@@ -11,14 +11,15 @@ import Svg, { G, Circle, Line } from "react-native-svg"
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput)
 
 export default function _Line({
-  percentage = 100,
-  width = 80,
+  percentage = 50,
+  width = 94,
   strokeWidth = 10,
   duration = 500,
   color = "#FEC23E",
   delay = 0,
   textColor = colors.mainText,
   max = 2000,
+  reverse = false,
 }) {
   const animated = React.useRef(new Animated.Value(0)).current
   const lineRef = React.useRef()
@@ -26,40 +27,39 @@ export default function _Line({
   const circumference = width * 2
 
   const animation = (toValue) => {
-    // Hàm animation để thực hiện animation
     return Animated.timing(animated, {
-      delay: 1000, // Thời gian delay trước khi bắt đầu animation
-      toValue, // Giá trị kết thúc của animation
-      duration, // Thời gian thực hiện animation
-      useNativeDriver: true, // Sử dụng native driver để tăng hiệu suất
-      easing: Easing.out(Easing.ease), // Cách thức thực hiện animation
+      delay,
+      toValue,
+      duration,
+      useNativeDriver: true,
+      easing: Easing.out(Easing.ease),
     }).start()
   }
 
   React.useEffect(() => {
     animation(percentage)
-    animated.addListener(
-      (v) => {
-        const maxPerc = v.value > max ? max : (max - v.value) / max
-        const strokeDashoffset = maxPerc * circumference
-        if (inputRef.current) {
-          inputRef.current.setNativeProps({
-            text: `${Math.round(v.value)} / ${Math.round(max)}g`,
-          })
-        }
-        if (lineRef?.current) {
-          lineRef.current.setNativeProps({
-            strokeDashoffset,
-          })
-        }
-      },
-      [max, percentage],
-    )
+    const listener = animated.addListener((value) => {
+      const maxPerc = value.value > max ? 100 : (100 * value.value) / max
+      const strokeDashoffset = circumference - (circumference * maxPerc) / 100
+
+      if (inputRef.current) {
+        inputRef.current.setNativeProps({
+          text: `${Math.round(value.value)} / ${Math.round(max)}g`,
+        })
+      }
+      if (lineRef?.current) {
+        lineRef.current.setNativeProps({
+          strokeDashoffset: reverse
+            ? circumference - (circumference * maxPerc * 0.98) / 100
+            : strokeDashoffset,
+        })
+      }
+    })
 
     return () => {
-      animated.removeAllListeners()
+      animated.removeListener(listener)
     }
-  })
+  }, [max, percentage, circumference, delay, duration, reverse])
 
   return (
     <View style={{ width, height: width / 1.4, position: "relative" }}>
@@ -73,8 +73,8 @@ export default function _Line({
           stroke={color}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
-          strokeDashoffset={circumference} // thêm thuộc tính strokeDashoffset
-          strokeDasharray={circumference} // thêm thuộc tính strokeDasharray
+          strokeDashoffset={circumference}
+          strokeDasharray={circumference}
         />
 
         <Line

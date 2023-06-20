@@ -45,7 +45,6 @@ export const RegisterScreen: FC<RegisterScreenProps> = observer(function registe
       return setIsLoading(false)
 
     if (authPassword !== authPasswordConfirm) {
-      console.log("test", authPassword, authPasswordConfirm)
       setAuthPassword("")
       setAuthPasswordConfirm("")
       setValidationErrorPassword("Password and Confirm Password must be the same")

@@ -9,7 +9,7 @@ import {
   UserMenuAttributes, MealFoodAttributes, MealAttributes,
   MealMenuAttributes, MenuAttributes, ExerciseAttributes,
   UserExrAttributes, WaterLogAttributes, UserWeightHistoryAttributes,
-  DailyCaloAttributes, DailyCaloFoodMappingAttributes
+  DailyCaloAttributes, CaloIntakeMappingAttributes, CaloConsumedMappingAttributes
 } from "../../interfaces/table-server.interface"
 
 export interface ApiFetchDataResponse {
@@ -29,7 +29,7 @@ export interface ApiFetchDataResponse {
   waterLogs: WaterLogAttributes[] | [];
   userWeightHistories: UserWeightHistoryAttributes[];
   dailyCalos: DailyCaloAttributes[] | [];
-  dailyCaloFoodMapping: DailyCaloFoodMappingAttributes[] | [];
+  dailyCaloFoodMapping: CaloIntakeMappingAttributes[] | [];
 }
 
 export interface ApiFetchDataUserInfoResponse {
@@ -106,8 +106,7 @@ export interface mealFoodItem {
   mealId: number
   foodId: number
   servingSize: number
-  food: FoodItem[]
-
+  food: FoodItem | null
 }
 
 export interface MealItem {
@@ -123,6 +122,33 @@ export interface MealItem {
 }
 
 export interface ApiGetMealResponse {
+  items: MealItem[]
+}
+
+/**
+  Interface of ApiGetUserMealResponse
+ *  
+ * */
+
+export interface UserMealFoodItem {
+  id: number
+  servingSize: number
+  food: FoodItem | null
+  userFood: FoodItem | null
+}
+export interface UserMealItem {
+  id: number;
+  name: string;
+  description: string;
+  calories: number;
+  protein: number;
+  carbohydrates: number;
+  fat: number;
+  mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  userMealFoods: mealFoodItem[];
+}
+
+export interface ApiGetUserMealResponse {
   items: MealItem[]
 }
 
@@ -142,6 +168,13 @@ export interface ApiResponseWaterLog {
 
 export interface ApiResponseWeightLogByDate {
   weight: number;
+}
+
+export interface ApiResponseDailyCaloByDate {
+  id: number;
+  date: Date;
+  caloIntakeMappings: CaloIntakeMappingAttributes[] | null;
+  caloConsumedMappings: CaloConsumedMappingAttributes[] | null;
 }
 
 

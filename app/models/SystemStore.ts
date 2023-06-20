@@ -4,7 +4,8 @@ import { Instance, SnapshotOut, types } from "mobx-state-tree"
 export const SystemStoreModel = types
     .model("SystemStore")
     .props({
-        isOverlayVisible: false
+        isOverlayVisible: false,
+        isShowList: false,
     })
     .views((store) => ({
         get getIsOverlayVisible() {
@@ -17,6 +18,12 @@ export const SystemStoreModel = types
         },
         setOverLayVisible(value: boolean) {
             store.isOverlayVisible = value
+        },
+        toggleIsShowList() {
+            store.isShowList = !store.isShowList
+        },
+        setIsShowList(value: boolean) {
+            store.isShowList = value
         }
 
     }))

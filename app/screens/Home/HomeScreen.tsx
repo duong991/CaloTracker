@@ -17,7 +17,7 @@ const MemoizedContent = React.memo(Content)
 const MemoizedDailyCalo = React.memo(DailyCalo)
 const MemoizedCaloBurned = React.memo(CaloBurned)
 export type TScreenName = "AddDailySport" | "AddDailyFood"
-export type TData = "Sport" | "Snack" | "Breakfast" | "Lunch" | "Dinner"
+export type TData = "sport" | "snack" | "breakfast" | "lunch" | "dinner"
 
 export const HomeScreen: FC<DemoTabScreenProps<"Home">> = observer(function HomeScreen(_props) {
   const {
@@ -43,6 +43,7 @@ export const HomeScreen: FC<DemoTabScreenProps<"Home">> = observer(function Home
   }
 
   const bodyIndx = getBodyIndex()
+  console.log(new Date())
   return (
     <View style={{ flex: 1 }}>
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["bottom", "top"]}>

@@ -36,8 +36,6 @@ export const Content: FC<ContentProps> = observer(({ waterPerDay = 0 }) => {
     weightLogStore,
   } = useStores()
   // let timeoutId: NodeJS.Timeout | null = null
-  console.log("Helo from content")
-
   // STATE lưu trữ danh sách các ly nước
   const [glassWaterList, setGlassWaterList] = useState<{ isFull: boolean; index: number }[]>([])
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null)
