@@ -3,7 +3,7 @@ import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
 export const FoodModel = types
     .model("Food")
     .props({
-        id: types.identifierNumber,
+        id: types.identifier,
         name: types.string,
         calories: types.number,
         protein: types.number,

@@ -2,7 +2,6 @@ import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { FoodModel, Food } from "./Food"
 import { DailyFoodModel, DailyFood } from "./DailyFoodModel"
 import { Meal, MealModel } from "./Meal"
-import { UserMealModel } from "./UserMeal"
 import { DailyMealsModel } from "./DailyMealsModel"
 import { withSetPropAction } from "./helpers/withSetPropAction"
 import { mealApi, foodApi } from "../services/api"
@@ -13,15 +12,19 @@ export const MealFoodStoreModel = types
     .props({
         // Danh sách các thực phẩm
         foods: types.array(FoodModel),
+        // Danh sách các thực phẩm đã nạp trong ngày
         dailyFoods: types.array(DailyFoodModel),
         // Danh sách các thực phẩm của người dùng
         userFoods: types.array(FoodModel),
-        // Danh sách các món ăn
+        // Danh sách các món ănr
         meals: types.array(MealModel),
         // Danh sách các món ăn của người dùng
-        userMeals: types.array(UserMealModel),
+        userMeals: types.array(MealModel),
         // Hiển thị danh sách các món ăn, hoặc thực phẩm đã nạp trong ngày
         dailyMeals: types.optional(DailyMealsModel, {}),
+        // // Hiển thị danh sách food trong 1 meal cụ thể do người dùng tạo
+        // userMealFoods: types.optional(DailyFoodModel, {}),
+        // // Hiển thị danh sách food trong 1 meal cụ thể do hệ thống tạo
 
     })
     .actions(withSetPropAction)
@@ -220,13 +223,14 @@ export const MealFoodStoreModel = types
             }
         },
         clearMealFood() {
-            console.log("run clearMealFood");
             store.dailyMeals.clearDailyMeals()
             store.meals.clear()
             store.foods.clear()
             store.userFoods.clear()
+            store.userMeals.clear()
+            store.dailyFoods.clear()
         },
-        addDailyFood(value, mealType: TMealType) {
+        addDailyFood(value, mealType: TMealType, isUserCreated: boolean) {
             const food = store.foods.find((food) => food.id === value.id)
             const dailyFood = DailyFoodModel.create({
                 id: food.id,
@@ -236,6 +240,7 @@ export const MealFoodStoreModel = types
                 carbohydrates: food.carbohydrates,
                 fat: food.fat,
                 servingSize: value.servingSize,
+                isUserCreated,
             })
             switch (mealType) {
                 case "breakfast":
@@ -252,20 +257,51 @@ export const MealFoodStoreModel = types
             }
 
         },
-        convertArrFoodToDailyFood(arr: Food[]) {
-            const dailyFood = arr.map((food) => {
-                return DailyFoodModel.create({
-                    id: food.id,
-                    name: food.name,
-                    calories: food.calories,
-                    protein: food.protein,
-                    carbohydrates: food.carbohydrates,
-                    fat: food.fat,
-                    servingSize: 100,
+        // hàm thực hiện convert thì food sang dailyFood đồng thời setProps dailyFoods
+        convertArrFoodToDailyFood(arrFood: Food[], arrUserFood: Food[]) {
+            console.log("food", arrFood);
+            console.log("userFood", arrUserFood);
+            let dailyFood = [];
+            let foods = []
+            let userFoods = []
+            if (arrFood.length > 0) {
+                foods = arrFood.map((food) => {
+                    return DailyFoodModel.create({
+                        id: food.id,
+                        name: food.name,
+                        calories: food.calories,
+                        protein: food.protein,
+                        carbohydrates: food.carbohydrates,
+                        fat: food.fat,
+                        servingSize: 100,
+                        isUserCreated: false,
+                    })
                 })
-            })
+            }
+            if (arrUserFood.length > 0) {
+                userFoods = arrUserFood.map((food) => {
+                    return DailyFoodModel.create({
+                        id: food.id,
+                        name: food.name,
+                        calories: food.calories,
+                        protein: food.protein,
+                        carbohydrates: food.carbohydrates,
+                        fat: food.fat,
+                        servingSize: 100,
+                        isUserCreated: true,
+                    })
+                })
+            }
+
+            dailyFood = [...userFoods, ...foods]
+
             store.setProp("dailyFoods", dailyFood)
+        },
+
+        removeUserFood(food: Food) {
+            store.userFoods.remove(food)
         }
+
     }))
 
 

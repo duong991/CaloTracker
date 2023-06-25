@@ -23,7 +23,6 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
     userInfoStore: { setUserInfo, clearUserInfo },
     systemStore: { setOverLayVisible },
     dateStore,
-    mealFoodStore,
   } = useStores()
 
   const handleLogout = () => {
@@ -34,7 +33,6 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
   // Lấy dữ liệu từ server
   useEffect(() => {
     dateStore.mealFoodStoreModel.clearMealFood()
-    mealFoodStore.clearMealFood()
     const fetchData = async () => {
       if (authToken) {
         await api.setAuthToken(authToken)
@@ -57,9 +55,15 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
     fetchData()
   }, [])
 
-  function goNext() {
+  async function goNext() {
     // checkNetworkAndSchedule()
     setOverLayVisible(false)
+    // thực hiện call api lấy dữ liệu userFood và userMeal
+    if (!isFirstTime) {
+      await dateStore.mealFoodStoreModel.fetchUserFoods()
+      await dateStore.mealFoodStoreModel.fetchUserMeals()
+    }
+
     navigation.navigate(isFirstTime ? "UpdateUserInfo" : "Demo")
   }
   useHeader({

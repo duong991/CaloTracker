@@ -38,11 +38,17 @@ export const DateStoreModel = types
       if (response2.kind === "ok") {
         const data = response2.data
         // check caloIntakeMappings 
+
+        // nếu không có caloIntakeMappings thì clear mealFoodStoreModel
         if (data.caloIntakeMappings === null || !data.caloIntakeMappings) {
           store.mealFoodStoreModel.clearMealFood()
-        } else if (data.caloIntakeMappings !== null && data.caloIntakeMappings) {
+
+        }
+        // nếu có caloIntakeMappings thì add mealFood vào mealFoodStoreModel 
+        else if (data.caloIntakeMappings !== null && data.caloIntakeMappings) {
           const dataIntake = data.caloIntakeMappings
           dataIntake.forEach((item) => {
+            // nếu mealId !== null thì add meal vào mealFoodStoreModel
             if (item.mealId !== null) {
               let meal;
               switch (item.mealType) {
@@ -64,16 +70,22 @@ export const DateStoreModel = types
                   break;
               }
             }
+            // nếu foodId !== null thì add food vào mealFoodStoreModel
             else if (item.foodId !== null) {
-              store.mealFoodStoreModel.addDailyFood(item, item.mealType)
+              store.mealFoodStoreModel.addDailyFood(item, item.mealType, false)
+            }
+            // nếu userFoodId !== null thì add userFood vào mealFoodStoreModel
+            else if (item.userFoodId !== null) {
+              store.mealFoodStoreModel.addDailyFood(item, item.mealType, true)
             }
           }
           )
         }
-        // check caloConsumedMappings
+        // nếu không có caloConsumedMappings thì clear exerciseStoreModel
         if (data.caloConsumedMappings === null || !data.caloConsumedMappings) {
           store.exerciseStoreModel.clearExercise()
         }
+        // nếu có caloConsumedMappings thì add exercise vào exerciseStoreModel
         else if (data.caloConsumedMappings !== null && data.caloConsumedMappings) {
           const dataConsumed = data.caloConsumedMappings
           dataConsumed.forEach((item) => {

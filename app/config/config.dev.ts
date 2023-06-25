@@ -7,5 +7,5 @@
  */
 export default {
   // API_URL: "https://api.rss2json.com/v1/",
-  API_URL: "http://192.168.88.136:5000/api/v1/",
+  API_URL: "http://192.168.102.105:5000/api/v1/",
 }

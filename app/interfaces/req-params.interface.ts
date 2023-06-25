@@ -20,7 +20,6 @@ export interface IDataRequestUserFood {
 }
 
 interface IUserMealFood {
-    mealId: number;
     foodId?: number;
     userFoodId?: number;
     servingSize: number;

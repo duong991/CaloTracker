@@ -11,17 +11,18 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
+  Alert,
 } from "react-native"
-import { Screen, Text, TextField, Toggle, Card } from "../../components"
+import { Screen, Text, TextField, Toggle, Card, Icon } from "../../components"
 import { DemoTabScreenProps } from "../../navigators/DemoNavigator"
 import { spacing, colors } from "../../theme"
 import { BulbSVG, PlusSVG } from "../../components/fileSVG"
 import { AddButton } from "../../components/AddButton"
 import { useStores } from "../../models"
 import { TData, TScreenName } from "../Home/HomeScreen"
-import { UserMeal } from "../../models/UserMeal"
-import { Food } from "../../models/Food"
-
+import { Meal } from "../../models/Meal"
+import { Food, FoodModel, FoodSnapshotIn } from "../../models/Food"
+import { foodApi, mealApi } from "app/services/api"
 export const FoodScreen: FC<DemoTabScreenProps<"Food">> = observer(function FoodScreen(_props) {
   const { navigation } = _props
 
@@ -53,6 +54,10 @@ export const FoodScreen: FC<DemoTabScreenProps<"Food">> = observer(function Food
 
   function goToAddMeal() {
     navigation.navigate(activeTab ? "AddMeal" : "AddFood")
+  }
+
+  function goToEditMeal(data: Food | Meal) {
+    navigation.navigate(activeTab ? "EditMeal" : "EditFood", { data })
   }
 
   const goToScreen = (screenName: TScreenName, data: TData) => {
@@ -183,32 +188,25 @@ export const FoodScreen: FC<DemoTabScreenProps<"Food">> = observer(function Food
             }}
           >
             {activeTab === 0 ? (
-              <FlatList<Food>
-                data={dateStore.mealFoodStoreModel.foodsForList.slice(0, visibleItems)}
-                contentContainerStyle={$flatListContentContainer}
-                // refreshing={refreshing}
-                // onRefresh={manualRefresh}
-                ListEmptyComponent={isLoading ? <ActivityIndicator /> : <></>}
-                renderItem={({ item, index }) => (
-                  <ItemCard key={item.id} item={item} onPressDetail={() => console.log("Food")} />
-                )}
-              />
+              <View style={$flatListContentContainer}>
+                {dateStore.mealFoodStoreModel.userFoodsForList
+                  .slice(0, visibleItems)
+                  .map((item, index) => (
+                    <ItemCard key={item.id} item={item} onLongPress={() => goToEditMeal(item)} />
+                  ))}
+                {isLoading && <ActivityIndicator />}
+              </View>
             ) : (
-              <FlatList<UserMeal>
-                data={dateStore.mealFoodStoreModel.userMealsForList}
-                contentContainerStyle={$flatListContentContainer}
-                // refreshing={refreshing}
-                // onRefresh={manualRefresh}
-                ListEmptyComponent={isLoading ? <ActivityIndicator /> : <></>}
-                renderItem={({ item, index }) => (
-                  <ItemCard
-                    key={item.id + 1}
-                    item={item}
-                    onPressDetail={() => console.log("Meal")}
-                  />
-                )}
-              />
+              <View style={$flatListContentContainer}>
+                {dateStore.mealFoodStoreModel.userMealsForList
+                  .slice(0, visibleItems)
+                  .map((item, index) => (
+                    <ItemCard key={item.id} item={item} onLongPress={() => goToEditMeal(item)} />
+                  ))}
+                {isLoading && <ActivityIndicator />}
+              </View>
             )}
+
             {/* Load more */}
             {isTabsVisible ? (
               <TouchableOpacity
@@ -266,25 +264,68 @@ export const FoodScreen: FC<DemoTabScreenProps<"Food">> = observer(function Food
 
 const ItemCard = observer(function ItemCard({
   item,
-  onPressDetail,
+  onLongPress,
 }: {
-  item: Food | UserMeal
-  onPressDetail: () => void
+  item: Food | Meal
+  onLongPress: (item: Food | Meal) => void
 }) {
-  const handlePressFavorite = () => {
-    onPressDetail()
+  const { dateStore } = useStores()
+
+  const handleEdit = (item: Food | Meal) => {
+    const id = item.id.substr(item.id.indexOf("-") + 1)
+    const label: "USERFOOD" | "USERMEAL" = item.id.substr(0, item.id.indexOf("-")) as any
+    onLongPress(item)
   }
 
-  const handlePressCard = () => {
-    onPressDetail()
-    console.log("handlePressCard")
+  const handleDelete = async (item: Food | Meal) => {
+    const id = item.id.substr(item.id.indexOf("-") + 1)
+    const label: "USERFOOD" | "USERMEAL" = item.id.substr(0, item.id.indexOf("-")) as any
+    if (label === "USERFOOD") {
+      Alert.alert("Xóa thực phẩm", "Bạn có chắc chắn muốn xóa thực phẩm này?", [
+        {
+          text: "Hủy",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        {
+          text: "Xóa",
+          onPress: async () => {
+            const result = await foodApi.deleteFood(+id)
+            if (result.kind === "ok") {
+              dateStore.mealFoodStoreModel.fetchUserFoods()
+            } else {
+              Alert.alert("Xóa thất bại", "Có lỗi xảy ra, vui lòng thử lại sau")
+            }
+          },
+        },
+      ])
+    } else if (label === "USERMEAL") {
+      Alert.alert("Xóa bữa ăn", "Bạn có chắc chắn muốn xóa bữa ăn này?", [
+        {
+          text: "Hủy",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        {
+          text: "Xóa",
+          onPress: async () => {
+            const result = await mealApi.deleteMeal(+id)
+            if (result.kind === "ok") {
+              dateStore.mealFoodStoreModel.fetchUserMeals()
+            } else {
+              Alert.alert("Xóa thất bại", "Có lỗi xảy ra, vui lòng thử lại sau")
+            }
+          },
+        },
+      ])
+    }
   }
 
   return (
     <Card
       style={$item}
-      onPress={handlePressCard}
-      onLongPress={handlePressFavorite}
+      onPress={() => console.log("hello")}
+      onLongPress={() => handleEdit(item)}
       HeadingComponent={
         <View style={$metadata}>
           <Text style={$metadataText} size="xs">
@@ -293,6 +334,13 @@ const ItemCard = observer(function ItemCard({
         </View>
       }
       content={`${item.calories} kcal`}
+      RightComponent={
+        <TouchableOpacity onPress={() => handleDelete(item)}>
+          <View style={{ width: 50, height: 50, justifyContent: "center", alignItems: "center" }}>
+            <Icon icon="x" color={colors.mainText} size={20} />
+          </View>
+        </TouchableOpacity>
+      }
     />
   )
 })

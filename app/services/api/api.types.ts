@@ -118,7 +118,6 @@ export interface MealItem {
   carbohydrates: number;
   fat: number;
   mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
-  mealFoods: mealFoodItem[];
 }
 
 export interface ApiGetMealResponse {
@@ -136,22 +135,6 @@ export interface UserMealFoodItem {
   food: FoodItem | null
   userFood: FoodItem | null
 }
-export interface UserMealItem {
-  id: number;
-  name: string;
-  description: string;
-  calories: number;
-  protein: number;
-  carbohydrates: number;
-  fat: number;
-  mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
-  userMealFoods: mealFoodItem[];
-}
-
-export interface ApiGetUserMealResponse {
-  items: MealItem[]
-}
-
 export interface ApiResponseMessage {
   message: string;
 }

@@ -20,12 +20,33 @@ import { useHeader } from "../../utils/useHeader"
 import { PlusSVG, CameraSVG } from "../../components/fileSVG"
 interface AddMealScreenProps extends AppStackScreenProps<"AddMeal"> {}
 
+type TArrayFood = {
+  id: string
+  name: string
+  calories: number
+  fat: number
+  carbohydrates: number
+  protein: number
+  sizeServing: number
+}
 export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealScreen(_props) {
   const navigation = _props.navigation
+
+  const [name, setName] = React.useState("")
+  const [description, setDescription] = React.useState("")
+  const [calories, setCalories] = React.useState("")
+  const [fat, setFat] = React.useState("")
+  const [carbs, setCarbs] = React.useState("")
+  const [protein, setProtein] = React.useState("")
+  const [arrFood, setArrFood] = React.useState<TArrayFood[]>([])
 
   // go to login screen
   function goToFoodScreen() {
     navigation.navigate("Demo")
+  }
+
+  function goToAddFoodForScreen() {
+    navigation.navigate("AddFoodForMeal")
   }
 
   return (
@@ -60,11 +81,109 @@ export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealSc
             <View style={{ width: "54%" }}>
               <TextField
                 keyboardType="default"
-                // value={minute}
-                // onChangeText={setMinute}
+                value={name}
+                onChangeText={setName}
                 inputWrapperStyle={$wrapTextField}
                 style={$textFieldStyle}
                 placeholder="bắt buộc"
+              />
+            </View>
+          </View>
+
+          <View
+            style={{ alignItems: "center", flexDirection: "row", marginTop: spacing.extraLarge }}
+          >
+            <View style={{ width: "44%", marginRight: spacing.small }}>
+              <Text preset="subheading" size="xs">
+                Mô tả
+              </Text>
+            </View>
+            <View style={{ width: "54%" }}>
+              <TextField
+                keyboardType="default"
+                value={description}
+                onChangeText={setDescription}
+                inputWrapperStyle={$wrapTextField}
+                style={$textFieldStyle}
+                placeholder="bắt buộc"
+              />
+            </View>
+          </View>
+
+          <View
+            style={{ alignItems: "center", flexDirection: "row", marginTop: spacing.extraLarge }}
+          >
+            <View style={{ width: "44%", marginRight: spacing.small }}>
+              <Text preset="subheading" size="xs">
+                Kcal
+              </Text>
+            </View>
+            <View style={{ width: "54%" }}>
+              <TextField
+                status="disabled"
+                value={calories}
+                inputWrapperStyle={[$wrapTextField, $textFieldDisabledStyle]}
+                style={$textFieldStyle}
+                placeholder="0"
+              />
+            </View>
+          </View>
+
+          <View
+            style={{ alignItems: "center", flexDirection: "row", marginTop: spacing.extraLarge }}
+          >
+            <View style={{ width: "44%", marginRight: spacing.small }}>
+              <Text preset="subheading" size="xs">
+                Protein
+              </Text>
+            </View>
+            <View style={{ width: "54%" }}>
+              <TextField
+                status="disabled"
+                value={description}
+                onChangeText={setDescription}
+                inputWrapperStyle={[$wrapTextField, $textFieldDisabledStyle]}
+                style={$textFieldStyle}
+                placeholder="0"
+              />
+            </View>
+          </View>
+
+          <View
+            style={{ alignItems: "center", flexDirection: "row", marginTop: spacing.extraLarge }}
+          >
+            <View style={{ width: "44%", marginRight: spacing.small }}>
+              <Text preset="subheading" size="xs">
+                Carbohydrates
+              </Text>
+            </View>
+            <View style={{ width: "54%" }}>
+              <TextField
+                status="disabled"
+                value={description}
+                onChangeText={setDescription}
+                inputWrapperStyle={[$wrapTextField, $textFieldDisabledStyle]}
+                style={$textFieldStyle}
+                placeholder="0"
+              />
+            </View>
+          </View>
+
+          <View
+            style={{ alignItems: "center", flexDirection: "row", marginTop: spacing.extraLarge }}
+          >
+            <View style={{ width: "44%", marginRight: spacing.small }}>
+              <Text preset="subheading" size="xs">
+                Fat
+              </Text>
+            </View>
+            <View style={{ width: "54%" }}>
+              <TextField
+                status="disabled"
+                value={description}
+                inputWrapperStyle={[$wrapTextField, $textFieldDisabledStyle]}
+                style={$textFieldStyle}
+                placeholder="0"
               />
             </View>
           </View>
@@ -98,16 +217,11 @@ export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealSc
 
         <Text preset="subheading" size="md" tx="addMealScreen.ingredientMeal" />
 
-        <View
-          style={{
-            alignItems: "center",
-            marginTop: spacing.extraLarge,
-          }}
-        >
+        <View style={arrFood.length > 0 ? $wrapContentArrFood : $wrapContentNotHasFood}>
           <Button
             text="Thêm thực phẩm"
             preset="default"
-            onPress={goToFoodScreen}
+            onPress={goToAddFoodForScreen}
             style={{
               borderRadius: 4,
               minHeight: 10,
@@ -122,6 +236,26 @@ export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealSc
             )}
           />
         </View>
+        {arrFood.length > 0 && (
+          <View
+            style={{
+              alignItems: "center",
+            }}
+          >
+            <Button
+              text="Tạo món ăn"
+              preset="filled"
+              // onPress={handleCreateUserFood}
+              style={{
+                paddingVertical: 10,
+                borderRadius: 50,
+                width: "40%",
+                marginBottom: 40,
+                borderWidth: 1,
+              }}
+            />
+          </View>
+        )}
       </Screen>
     </>
   )
@@ -172,6 +306,11 @@ const $wrapTextField: ViewStyle = {
   borderBottomWidth: 2,
 }
 
+const $textFieldDisabledStyle: ViewStyle = {
+  flex: 1,
+  opacity: 0.5,
+}
+
 const $textFieldStyle: TextStyle = {
   flex: 1,
   color: colors.text,
@@ -183,4 +322,20 @@ const $textFieldStyle: TextStyle = {
   paddingHorizontal: spacing.small,
   marginVertical: spacing.micro,
   marginHorizontal: spacing.micro,
+}
+
+const $wrapContentArrFood: ViewStyle = {
+  alignItems: "center",
+  marginTop: spacing.extraLarge,
+  minHeight: 300,
+  backgroundColor: "#ffffff",
+  padding: spacing.medium,
+  borderRadius: 25,
+  marginBottom: spacing.large,
+}
+
+const $wrapContentNotHasFood: ViewStyle = {
+  alignItems: "center",
+  marginTop: spacing.extraLarge,
+  minHeight: 300,
 }

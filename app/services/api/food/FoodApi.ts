@@ -36,9 +36,9 @@ export class FoodApi {
     /**
      * Cập nhật thông tin một món ăn.
      */
-    async updateFood(foodId: number, updatedFood: UserFoodAttributes): Promise<{ kind: "ok"; data: string } | GeneralApiProblem> {
+    async updateFood(data: UserFoodAttributes): Promise<{ kind: "ok"; data: string } | GeneralApiProblem> {
         try {
-            const response: ApiResponse<ApiResponseMessage> = await this.api.apisauce.put(`/foods/${foodId}`, updatedFood)
+            const response: ApiResponse<ApiResponseMessage> = await this.api.apisauce.put("/foods/update", { data })
             if (response.ok) {
                 return { kind: "ok", data: response.data.message }
             } else {
@@ -54,7 +54,7 @@ export class FoodApi {
      */
     async deleteFood(foodId: number): Promise<{ kind: "ok" } | GeneralApiProblem> {
         try {
-            const response = await this.api.apisauce.delete(`/foods/${foodId}`)
+            const response = await this.api.apisauce.post("/foods/delete", { foodId })
             if (response.ok) {
                 return { kind: "ok" }
             } else {
@@ -81,6 +81,7 @@ export class FoodApi {
             // This is where we transform the data into the shape we expect for our MST model.
             const foods: FoodSnapshotIn[] = rawData.items.map((raw) => ({
                 ...raw,
+                id: "SYSTEMFOOD-" + raw.id.toString()
             }))
 
             return { kind: "ok", foods }
@@ -96,6 +97,7 @@ export class FoodApi {
 
     async getAllFoodsFromUser(): Promise<{ kind: "ok", foods: FoodSnapshotIn[] } | GeneralApiProblem> {
         const response: ApiResponse<ApiGetFoodResponse> = await this.api.apisauce.get("/foods/");
+        console.log("responsefromapi:", response);
         if (!response.ok) {
             const problem = getGeneralApiProblem(response)
             if (problem) return problem
@@ -106,7 +108,10 @@ export class FoodApi {
             // This is where we transform the data into the shape we expect for our MST model.
             const foods: FoodSnapshotIn[] = rawData.items.map((raw) => ({
                 ...raw,
+                id: "USERFOOD-" + raw.id.toString()
             }))
+
+            console.log("food from api", foods);
 
             return { kind: "ok", foods }
         } catch (e) {

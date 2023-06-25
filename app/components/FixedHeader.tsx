@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { observer } from "mobx-react-lite"
-import React from "react"
+import React, { useEffect } from "react"
 import {
   TextStyle,
   ViewStyle,
@@ -25,6 +25,7 @@ type fixedHeaderProps = {
   isDisplayToggle?: boolean
   displayFood?: boolean
   handleToggle?: () => void
+  isAddFoodForMeal?: boolean
 }
 
 export const FixedHeader = ({
@@ -34,11 +35,23 @@ export const FixedHeader = ({
   isDisplayToggle = false,
   displayFood = false,
   handleToggle,
+  isAddFoodForMeal = false,
 }: fixedHeaderProps) => {
   const { systemStore } = useStores()
 
   const [textSearch, setTextSearch] = React.useState("")
+  const [activeTab, setActiveTab] = React.useState(true)
+  // activeTab === true => thuc pham cua toi
+  // activeTab === false => thuc pham he thong
 
+  useEffect(() => {
+    setActiveTab(true)
+  }, [isAddFoodForMeal])
+
+  const toggleActiveTab = () => {
+    setActiveTab(!activeTab)
+    handleToggle()
+  }
   const handleTurnOffAddButton = () => {
     systemStore.setOverLayVisible(false)
   }
@@ -47,6 +60,10 @@ export const FixedHeader = ({
     titleString = `${title} (Thực phẩm)`
   } else {
     titleString = `${title} (Món ăn)`
+  }
+
+  if (isAddFoodForMeal) {
+    titleString = title
   }
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
@@ -89,18 +106,67 @@ export const FixedHeader = ({
             </View>
           </View>
           <View style={$wrapInput}>
-            <View style={$search}>
-              <TextField
-                value={textSearch}
-                onChangeText={setTextSearch}
-                autoCapitalize="none"
-                autoComplete="off"
-                autoCorrect={false}
-                keyboardType="default"
-                placeholder="Tìm kiếm"
-                // onSubmitEditing={() => authPasswordInput.current?.focus()}
-              />
-            </View>
+            {isAddFoodForMeal ? (
+              <>
+                <View style={$wrapContentHeader}>
+                  <View
+                    style={{
+                      flex: 1,
+                      borderRightWidth: 1,
+                      borderColor: "rgba(79, 94, 79, 0.33) ",
+                    }}
+                  >
+                    <TouchableOpacity
+                      style={[
+                        {
+                          width: "100%",
+                          height: "100%",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        },
+                        activeTab ? $activeTab : null,
+                      ]}
+                      onPress={() => toggleActiveTab()}
+                    >
+                      <Text preset="subheading" size="xs" style={$textHeader}>
+                        Thực phẩm của tôi
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                    <TouchableOpacity
+                      style={[
+                        {
+                          width: "100%",
+                          height: "100%",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        },
+                        activeTab === false ? $activeTab : null,
+                      ]}
+                      onPress={() => toggleActiveTab()}
+                    >
+                      <Text preset="subheading" size="xs" style={$textHeader}>
+                        Thực phẩm hệ thống
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </>
+            ) : (
+              <View style={$search}>
+                <TextField
+                  value={textSearch}
+                  onChangeText={setTextSearch}
+                  autoCapitalize="none"
+                  autoComplete="off"
+                  autoCorrect={false}
+                  keyboardType="default"
+                  placeholder="Tìm kiếm"
+                  // onSubmitEditing={() => authPasswordInput.current?.focus()}
+                />
+              </View>
+            )}
           </View>
         </View>
       </View>
@@ -171,8 +237,21 @@ const $screen: ViewStyle = {
   flex: 1,
   backgroundColor: colors.background,
   position: "absolute",
-  top: 80,
+  top: 110,
   bottom: 0,
   left: 0,
   right: 0,
+}
+
+const $wrapContentHeader: ViewStyle = {
+  flex: 1,
+  flexDirection: "row",
+  justifyContent: "space-between",
+  height: Dimensions.get("window").height / 16,
+  backgroundColor: "#FFFFFF",
+  borderRadius: 8,
+}
+
+const $activeTab: ViewStyle = {
+  opacity: 0.4,
 }

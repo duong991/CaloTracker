@@ -1,25 +1,25 @@
 import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
 
-interface FoodItem {
-    id: number;
-    name: string;
-    calories: number;
-    protein: number;
-    carbohydrates: number;
-    fat: number;
-}
-interface IMealFood {
-    id: number
-    mealId: number
-    foodId: number
-    servingSize: number
-    food: FoodItem | null
-}
+// interface FoodItem {
+//     id: number;
+//     name: string;
+//     calories: number;
+//     protein: number;
+//     carbohydrates: number;
+//     fat: number;
+// }
+// interface IMealFood {
+//     id: number
+//     mealId: number
+//     foodId: number
+//     servingSize: number
+//     food: FoodItem | null
+// }
 type mealType = "breakfast" | "lunch" | "dinner" | "snack"
 export const MealModel = types
     .model("Meal")
     .props({
-        id: types.identifierNumber,
+        id: types.identifier,
         name: types.string,
         description: types.string,
         calories: types.number,
@@ -27,7 +27,8 @@ export const MealModel = types
         carbohydrates: types.number,
         fat: types.number,
         mealType: types.enumeration<mealType>("mealType", ["breakfast", "lunch", "dinner", "snack"]),
-        mealFoods: types.array(types.frozen<IMealFood>())
+        isUserCreated: types.boolean,
+        // mealFoods: types.array(types.frozen<IMealFood>()),
     })
     .views((store) => ({
         get nameMeal() {

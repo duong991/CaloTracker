@@ -9,8 +9,17 @@ import {
   TextStyle,
   ViewStyle,
   ActivityIndicator,
+  TouchableWithoutFeedback,
 } from "react-native"
-import { Text, ListItem, EmptyState, Card, Toggle } from "../../components"
+import {
+  Text,
+  ListItem,
+  EmptyState,
+  Card,
+  Toggle,
+  ModalFoodMacro,
+  QuantityModal,
+} from "../../components"
 import { AppStackScreenProps } from "../../navigators"
 import { FixedHeader } from "../../components/FixedHeader"
 import { useStores } from "../../models"
@@ -39,8 +48,15 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
   const [displayFood, setDisplayFood] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const { mealFoodStoreModel } = dateStore
 
+  const [isModalVisible, setModalVisible] = useState(false)
+  const [itemSelected, setItemSelected] = useState<DailyFood | Meal>()
+
+  const [visibleItems, setVisibleItems] = useState(20)
+  const [isTabsVisible, setIsTabsVisible] = useState(false)
+  const [textTabVisible, setTextTabVisible] = useState<"Xem thêm" | "Ẩn đi" | "">("")
+
+  const [isQuantityModalVisible, setIsQuantityModalVisible] = useState(false)
   useEffect(() => {
     setScreen(route.params.data as TScreen)
     switch (screen) {
@@ -64,18 +80,27 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
   useEffect(() => {
     ;(async function load() {
       setIsLoading(true)
-      await Promise.all([mealFoodStoreModel.fetchFoods(), mealFoodStoreModel.fetchMeals()])
+      await Promise.all([
+        dateStore.mealFoodStoreModel.fetchFoods(),
+        dateStore.mealFoodStoreModel.fetchMeals(),
+        dateStore.mealFoodStoreModel.fetchUserFoods(),
+        dateStore.mealFoodStoreModel.fetchUserMeals(),
+      ])
 
-      mealFoodStoreModel.convertArrFoodToDailyFood(mealFoodStoreModel.foodsForList)
+      // Thuật toán chuyển đổi mảng food và userFood thành mảng dailyFood
+      dateStore.mealFoodStoreModel.convertArrFoodToDailyFood(
+        dateStore.mealFoodStoreModel.foodsForList,
+        dateStore.mealFoodStoreModel.userFoodsForList,
+      )
       setIsLoading(false)
     })()
-  }, [mealFoodStoreModel])
+  }, [dateStore.mealFoodStoreModel])
 
   async function manualRefresh() {
     setRefreshing(true)
     await Promise.all([
-      mealFoodStoreModel.fetchFoods(),
-      mealFoodStoreModel.fetchMeals(),
+      dateStore.mealFoodStoreModel.fetchFoods(),
+      dateStore.mealFoodStoreModel.fetchMeals(),
       delay(750),
     ])
     setRefreshing(false)
@@ -89,6 +114,22 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
     setDisplayFood(!displayFood)
   }
 
+  const handleOpenModal = (item: DailyFood | Meal) => {
+    setItemSelected(item)
+    setModalVisible(true)
+  }
+
+  const handleOpenQuantityModal = () => {
+    setIsQuantityModalVisible(true)
+  }
+
+  const handleCancelQuantityModal = () => {
+    setIsQuantityModalVisible(false)
+  }
+
+  const handleSaveQuantityModal = () => {
+    setIsQuantityModalVisible(false)
+  }
   return (
     <FixedHeader
       handleGoBack={goBack}
@@ -97,40 +138,49 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
       displayFood={displayFood}
       handleToggle={handleToggle}
     >
+      {isModalVisible && (
+        <ModalFoodMacro
+          isModalVisible={isModalVisible}
+          setModalVisible={setModalVisible}
+          itemSelected={itemSelected}
+        />
+      )}
+      {isQuantityModalVisible && (
+        <QuantityModal
+          isVisible={isQuantityModalVisible}
+          onCancel={handleCancelQuantityModal}
+          onConfirm={handleSaveQuantityModal}
+        />
+      )}
+      {isLoading && <ActivityIndicator />}
       {displayFood ? (
-        <FlatList<DailyFood>
-          data={dateStore.mealFoodStoreModel.dailyFoods}
-          contentContainerStyle={$flatListContentContainer}
-          refreshing={refreshing}
-          onRefresh={manualRefresh}
-          ListEmptyComponent={isLoading ? <ActivityIndicator /> : <></>}
-          renderItem={({ item, index }) => (
+        <View style={$flatListContentContainer}>
+          {dateStore.mealFoodStoreModel.dailyFoods.slice(0, visibleItems).map((item, index) => (
             <ItemCard
               key={item.id}
               item={item}
-              isSelected={mealFoodStoreModel.hasFoodList(item, screen)}
-              onPressDetail={() => console.log("Food")}
-              onPressToggle={() => mealFoodStoreModel.toggleFood(item, screen)}
+              isSelected={dateStore.mealFoodStoreModel.hasFoodList(item, screen)}
+              onOpenModal={() => handleOpenModal(item)}
+              // onPressToggle={() => dateStore.mealFoodStoreModel.toggleFood(item, screen)}
+              onPressToggle={handleOpenQuantityModal}
             />
-          )}
-        />
+          ))}
+        </View>
       ) : (
-        <FlatList<Meal>
-          data={mealFoodStoreModel.mealsForList}
-          contentContainerStyle={$flatListContentContainer}
-          refreshing={refreshing}
-          onRefresh={manualRefresh}
-          ListEmptyComponent={isLoading ? <ActivityIndicator /> : <></>}
-          renderItem={({ item, index }) => (
+        <View style={$flatListContentContainer}>
+          {[
+            ...dateStore.mealFoodStoreModel.userMealsForList,
+            ...dateStore.mealFoodStoreModel.mealsForList,
+          ].map((item, index) => (
             <ItemCard
               key={item.id}
               item={item}
-              onPressDetail={() => console.log("Meal")}
-              isSelected={mealFoodStoreModel.hasMealList(item, screen)}
-              onPressToggle={() => mealFoodStoreModel.toggleMeal(item, screen)}
+              onOpenModal={() => handleOpenModal(item)}
+              isSelected={dateStore.mealFoodStoreModel.hasMealList(item, screen)}
+              onPressToggle={() => dateStore.mealFoodStoreModel.toggleMeal(item, screen)}
             />
-          )}
-        />
+          ))}
+        </View>
       )}
     </FixedHeader>
   )
@@ -139,67 +189,69 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
 const ItemCard = observer(function ItemCard({
   item,
   isSelected,
-  onPressDetail,
+  onOpenModal,
   onPressToggle,
 }: {
   item: DailyFood | Meal
   isSelected: boolean
-  onPressDetail: () => void
+  onOpenModal: (item) => void
   onPressToggle: () => void
 }) {
   const [a, seta] = useState(isSelected)
-  const handlePressFavorite = () => {
-    onPressDetail()
-  }
+
   useEffect(() => {
     seta(isSelected)
   }, [isSelected])
-
-  const handlePressCard = () => {
-    onPressDetail()
-    console.log("handlePressCard")
-  }
 
   const handlePressAdd = () => {
     onPressToggle()
     seta(!a)
   }
 
+  const handleLongPressCard = (item) => {
+    onOpenModal(item)
+  }
+
   return (
-    <Card
-      style={$item}
-      onPress={handlePressCard}
-      onLongPress={handlePressFavorite}
-      HeadingComponent={
-        <View style={$metadata}>
-          <Text style={$metadataText} size="xs">
-            {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
-          </Text>
-        </View>
-      }
-      content={`${item.calories} kcal`}
-      RightComponent={
-        <TouchableOpacity onPress={handlePressAdd}>
-          <View style={$buttonOfSearchInput}>
-            {a ? <TickSVG size={12} /> : <PlusSVG size={12} color="#191919" />}
+    <TouchableOpacity onLongPress={() => handleLongPressCard(item)}>
+      <Card
+        style={$item}
+        // onPress={handlePressCard}
+        // onPress={() => handleLongPressCard(item)}
+        HeadingComponent={
+          <View style={$metadata}>
+            <Text style={$metadataText} size="xs">
+              {item.name.charAt(0).toUpperCase() + item.name.slice(1)} -{" "}
+              {item.isUserCreated ? "Tự tạo" : "Mặc định"}
+            </Text>
           </View>
-        </TouchableOpacity>
-      }
-    />
+        }
+        content={`${item.calories} kcal`}
+        RightComponent={
+          <TouchableOpacity onPress={handlePressAdd}>
+            <View style={$buttonOfSearchInput}>
+              {a ? <TickSVG size={12} /> : <PlusSVG size={12} color="#191919" />}
+            </View>
+          </TouchableOpacity>
+        }
+      />
+    </TouchableOpacity>
   )
 })
 
 const $flatListContentContainer: ViewStyle = {
   paddingHorizontal: spacing.large,
-  paddingTop: spacing.large + spacing.extraLarge,
+  paddingTop: (spacing.extraLarge * 3) / 2,
   backgroundColor: colors.background,
-  height: "100%",
+  minHeight: "100%",
+  paddingBottom: spacing.extraLarge * 5,
 }
 
 const $item: ViewStyle = {
   padding: spacing.tiny + spacing.tiny,
   paddingHorizontal: spacing.medium + spacing.tiny,
-  marginTop: spacing.medium,
+  marginTop: spacing.medium / 2,
+  marginBottom: spacing.medium / 2,
   minHeight: 40,
   borderRadius: 40 / 2,
 }

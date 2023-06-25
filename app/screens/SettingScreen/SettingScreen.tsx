@@ -13,13 +13,11 @@ export const SettingScreen: FC<DemoTabScreenProps<"Setting">> = function Setting
     userInfoStore: { clearUserInfo },
     systemStore: { setOverLayVisible },
     dateStore,
-    mealFoodStore,
   } = useStores()
 
   const handleLogout = () => {
     dateStore.mealFoodStoreModel.clearMealFood()
     dateStore.mealFoodStoreModel.dailyMeals.clearDailyMeals()
-    mealFoodStore.clearMealFood()
     setOverLayVisible(false)
     cancelSyncQueueTask()
     clearUserInfo()

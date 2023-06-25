@@ -10,8 +10,10 @@ export * from "./StatisticalScreen"
 
 
 export * from "./FoodScreen"
+
 export * from "./AddFoodScreen"
 export * from "./AddMealScreen"
+export * from "./EditFoodScreen"
 
 export * from "./PersonalScreen"
 

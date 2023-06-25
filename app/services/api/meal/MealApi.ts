@@ -1,10 +1,10 @@
 import { Api, api } from "../api";
 import { GeneralApiProblem, getGeneralApiProblem } from "../apiProblem";
 import { ApiResponse } from "apisauce";
-import { IDataRequestCreateUserMeal, IDataRequestUpdateUserMeal } from "../../../interfaces/req-params.interface";
-import type { ApiResponseMessage, ApiGetMealResponse, ApiGetUserMealResponse } from "../api.types"
-import { MealSnapshotIn } from "app/models/Meal";
-import { UserMealSnapshotIn } from "app/models/UserMeal";
+import { IDataRequestCreateUserMeal, IDataRequestUpdateUserMeal, } from "../../../interfaces/req-params.interface";
+import type { ApiResponseMessage, ApiGetMealResponse } from "../api.types"
+import { MealSnapshotIn } from "../../../models/Meal"
+
 /**
 
 Quản lý các yêu cầu API liên quan đến Meal.
@@ -57,7 +57,7 @@ export class MealApi {
     */
     async deleteMeal(mealId: number): Promise<{ kind: "ok" } | GeneralApiProblem> {
         try {
-            const response = await this.api.apisauce.delete(`/meals/${mealId}`);
+            const response = await this.api.apisauce.post(`/meals/delete`, { mealId });
             if (response.ok) {
                 return { kind: "ok" };
             } else {
@@ -84,7 +84,10 @@ export class MealApi {
             // This is where we transform the data into the shape we expect for our MST model.
             const meals: MealSnapshotIn[] = rawData.items.map((raw) => ({
                 ...raw,
+                id: "SYSTEMMEAL-" + raw.id.toString(),
+                isUserCreated: false,
             }))
+
 
             return { kind: "ok", meals }
         } catch (e) {
@@ -98,8 +101,8 @@ export class MealApi {
     }
 
 
-    async getAllMealFromUser(): Promise<{ kind: "ok", meals: UserMealSnapshotIn[] } | GeneralApiProblem> {
-        const response: ApiResponse<ApiGetUserMealResponse> = await this.api.apisauce.get("/meals/");
+    async getAllMealFromUser(): Promise<{ kind: "ok", meals: MealSnapshotIn[] } | GeneralApiProblem> {
+        const response: ApiResponse<ApiGetMealResponse> = await this.api.apisauce.get("/meals/");
         if (!response.ok) {
             const problem = getGeneralApiProblem(response)
             if (problem) return problem
@@ -108,8 +111,10 @@ export class MealApi {
             const rawData = response.data
 
             // This is where we transform the data into the shape we expect for our MST model.
-            const meals: UserMealSnapshotIn[] = rawData.items.map((raw) => ({
+            const meals: MealSnapshotIn[] = rawData.items.map((raw) => ({
                 ...raw,
+                id: "USERMEAL-" + raw.id.toString(),
+                isUserCreated: true,
             }))
             return { kind: "ok", meals }
         } catch (e) {

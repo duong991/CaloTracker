@@ -14,8 +14,7 @@ interface ContentProps {}
 
 export const CaloBurned: FC<ContentProps> = observer(() => {
   const {
-    dailyMealsModel,
-    exerciseStore,
+    dateStore,
     systemStore: { isOverlayVisible },
   } = useStores()
   const [visibleItems, setVisibleItems] = useState(3)
@@ -23,7 +22,7 @@ export const CaloBurned: FC<ContentProps> = observer(() => {
   const [textTabVisible, setTextTabVisible] = useState<"Xem thêm" | "Ẩn đi" | "">("")
 
   useEffect(() => {
-    const selectedExercises = exerciseStore.exercisesSelectedForList
+    const selectedExercises = dateStore.exerciseStoreModel.exercisesSelectedForList
     setIsTabsVisible(selectedExercises.length > 0)
     if (selectedExercises.length > 3 && visibleItems === 3) {
       setTextTabVisible("Xem thêm")
@@ -32,17 +31,17 @@ export const CaloBurned: FC<ContentProps> = observer(() => {
     } else {
       setTextTabVisible("")
     }
-  }, [isOverlayVisible, exerciseStore.exercisesSelectedForList.length, visibleItems])
+  }, [isOverlayVisible, dateStore.exerciseStoreModel.exercisesSelectedForList.length, visibleItems])
   return (
     <View style={$wrapContent}>
-      <Title leftText="Bài tập trong ngày" rightText={`${exerciseStore.totalCaloriesBurn} kcal`} />
+      <Title
+        leftText="Bài tập trong ngày"
+        rightText={`${dateStore.exerciseStoreModel.totalCaloriesBurn} kcal`}
+      />
       {/* Header */}
-      <FlatList<Exercise>
-        data={exerciseStore.exercisesSelectedForList.slice(0, visibleItems)}
-        nestedScrollEnabled={true}
-        scrollEnabled={true}
-        contentContainerStyle={$flatListContentContainer}
-        renderItem={({ item, index }) => (
+      {dateStore.exerciseStoreModel.exercisesSelectedForList
+        .slice(0, visibleItems)
+        .map((item, index) => (
           <ItemCard
             key={index}
             item={item}
@@ -54,8 +53,7 @@ export const CaloBurned: FC<ContentProps> = observer(() => {
               console.log("onPressAdd")
             }}
           />
-        )}
-      />
+        ))}
       {/* Load more */}
       {isTabsVisible ? (
         <TouchableOpacity

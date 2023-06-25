@@ -4,12 +4,14 @@
 import { observer } from "mobx-react-lite"
 import React, { FC, useEffect } from "react"
 import { ViewStyle, View } from "react-native"
-import { Screen } from "../../components"
+import { Screen, Button } from "../../components"
 import { DemoTabScreenProps } from "../../navigators/DemoNavigator"
 import { spacing } from "../../theme"
 import { Content, HeaderHome, DailyCalo, CaloBurned } from "./home"
 import { useStores } from "../../models"
 import { AddButton } from "../../components/AddButton"
+import * as Notifications from "expo-notifications"
+import PieChartComponent from "../../components/PieChart"
 // import { displaySyncQueueData } from "../../database/processSyncQueue"
 // import printTableData from "../../database/printTable"
 // import findAllInfoFromTable from "../../database/findAllInfoFromTable"
@@ -43,7 +45,35 @@ export const HomeScreen: FC<DemoTabScreenProps<"Home">> = observer(function Home
   }
 
   const bodyIndx = getBodyIndex()
-  console.log(new Date())
+
+  const handleNotification = async () => {
+    console.log("Scheduling notification!")
+    await Notifications.requestPermissionsAsync()
+
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    })
+
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Time to drink water",
+        body: "You should drink water now",
+        data: { data: "goes here" },
+      },
+      trigger: {
+        seconds: 1,
+        repeats: false,
+      },
+    })
+  }
+
+  useEffect(() => {
+    handleNotification()
+  }, [])
   return (
     <View style={{ flex: 1 }}>
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["bottom", "top"]}>
@@ -54,6 +84,7 @@ export const HomeScreen: FC<DemoTabScreenProps<"Home">> = observer(function Home
           fatG={bodyIndx.gramOfFat}
           proteinG={bodyIndx.gramOfProtein}
         />
+        <Button onPress={handleNotification}>Click me!</Button>
         <MemoizedContent waterPerDay={bodyIndx.water} />
         <MemoizedDailyCalo />
         <MemoizedCaloBurned />

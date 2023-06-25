@@ -28,7 +28,7 @@ export class DailyCaloApi {
      * @returns {Promise<ApiResponseMessage>}
     **/
 
-    async updateCaloIntake(data: IDataRequestUpdateCaloIntake): Promise<ApiResponseMessage | GeneralApiProblem> {
+    async updateCaloIntake(data: IDataRequestUpdateCaloIntake): Promise<{ kind: "ok", data: ApiResponseMessage } | GeneralApiProblem> {
         const response: ApiResponse<ApiResponseMessage> = await this.api.apisauce.put("/daily-calo/calo-intake/", data);
         if (!response.ok) {
             const problem = getGeneralApiProblem(response)
@@ -36,13 +36,14 @@ export class DailyCaloApi {
         }
         try {
             const rawData = response.data
-            return rawData
+            return { kind: "ok", data: rawData }
+
         } catch (e) {
             if (__DEV__) {
                 console.tron.error(`Bad data: ${e.message}\n${response.data}`, e.stack)
             }
             console.log(e);
-            return { message: "Bad data" }
+            return { kind: "bad-data" }
         }
     }
 
@@ -52,7 +53,7 @@ export class DailyCaloApi {
      * 
      * @returns {Promise<ApiResponseMessage>}
      **/
-    async updateCaloConsumed(data: IDataRequestUpdateCaloConsumed): Promise<ApiResponseMessage | GeneralApiProblem> {
+    async updateCaloConsumed(data: IDataRequestUpdateCaloConsumed): Promise<{ kind: "ok", data: ApiResponseMessage } | GeneralApiProblem> {
         const response: ApiResponse<ApiResponseMessage> = await this.api.apisauce.put("/daily-calo/calo-consumed/", data);
         if (!response.ok) {
             const problem = getGeneralApiProblem(response)
@@ -60,13 +61,12 @@ export class DailyCaloApi {
         }
         try {
             const rawData = response.data
-            return rawData
+            return { kind: "ok", data: rawData }
         } catch (e) {
             if (__DEV__) {
                 console.tron.error(`Bad data: ${e.message}\n${response.data}`, e.stack)
             }
-            console.log(e);
-            return { message: "Bad data" }
+            return { kind: "bad-data" };
         }
     }
 
@@ -89,7 +89,6 @@ export class DailyCaloApi {
             if (__DEV__) {
                 console.tron.error(`Bad data: ${e.message}\n${response.data}`, e.stack)
             }
-            console.log(e);
             return { message: "Bad data" }
         }
     }
@@ -113,7 +112,6 @@ export class DailyCaloApi {
             if (__DEV__) {
                 console.tron.error(`Bad data: ${e.message}\n${response.data}`, e.stack)
             }
-            console.log(e);
             return { message: "Bad data" }
         }
     }

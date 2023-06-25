@@ -50,6 +50,15 @@
         "resizeMode": "contain",
         "backgroundColor": "#143d54"
       }
-    }
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/logoApp.png",
+          "color": "#ffffff"
+        }
+      ]
+    ]
   }
 }

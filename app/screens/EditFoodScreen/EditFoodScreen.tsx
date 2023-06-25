@@ -1,50 +1,70 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { observer } from "mobx-react-lite"
-import React, { FC } from "react"
+import React, { FC, useEffect } from "react"
 import { TextStyle, ViewStyle, View, TouchableOpacity, Dimensions, Alert } from "react-native"
 import { Button, Icon, Screen, Text, TextField, TextFieldAccessoryProps } from "../../components"
 import { AppStackScreenProps } from "../../navigators"
 import { colors, spacing } from "../../theme"
 import { foodApi } from "app/services/api"
 import { useStores } from "../../models"
+import { useRoute } from "@react-navigation/native"
 
-interface AddFoodScreenProps extends AppStackScreenProps<"AddFood"> {}
+interface EditFoodScreenProps extends AppStackScreenProps<"EditFood"> {}
 
-export const AddFoodScreen: FC<AddFoodScreenProps> = observer(function AddFoodScreen(_props) {
+export const EditFoodScreen: FC<EditFoodScreenProps> = observer(function EditFoodScreen(_props) {
   const navigation = _props.navigation
   const { dateStore } = useStores()
+  const route = useRoute()
+  const data = route.params.data as any
 
+  const [id, setId] = React.useState("")
   const [name, setName] = React.useState("")
   const [kcal, setKcal] = React.useState("")
   const [fat, setFat] = React.useState("")
   const [carbs, setCarbs] = React.useState("")
   const [protein, setProtein] = React.useState("")
 
-  const [flag, setFlag] = React.useState(false)
-
+  useEffect(() => {
+    const id = data.id.substr(data.id.indexOf("-") + 1)
+    setId(id)
+    setName(data.name)
+    setKcal(data.calories + "")
+    setFat(data.fat + "")
+    setCarbs(data.carbohydrates + "")
+    setProtein(data.protein + "")
+  }, [data])
   // go to login screen
-  function goToFoodScreen() {
-    if (flag) {
-      dateStore.mealFoodStoreModel.fetchUserFoods()
-    }
+  async function goToFoodScreen() {
+    await dateStore.mealFoodStoreModel.fetchUserFoods()
     navigation.navigate("Demo")
   }
 
-  function clearInput() {
-    setName("")
-    setKcal(undefined)
-    setFat(undefined)
-    setCarbs(undefined)
-    setProtein(undefined)
+  function checkChange() {
+    if (
+      name !== data.name ||
+      kcal !== data.calories + "" ||
+      fat !== data.fat + "" ||
+      carbs !== data.carbohydrates + "" ||
+      protein !== data.protein + ""
+    ) {
+      return true
+    }
+    return false
   }
 
-  async function handleCreateUserFood() {
+  async function handleUpdateFood() {
     if (!name || !kcal || !fat || !carbs || !protein) {
       Alert.alert("Vui lòng nhập đầy đủ thông tin")
       return
     }
-    const res = await foodApi.createFood({
+    if (!checkChange()) {
+      Alert.alert("Không có gì thay đổi")
+      await goToFoodScreen()
+      return
+    }
+    const res = await foodApi.updateFood({
+      id: +id,
       name,
       calories: +kcal,
       fat: +fat,
@@ -53,9 +73,8 @@ export const AddFoodScreen: FC<AddFoodScreenProps> = observer(function AddFoodSc
     })
 
     if (res && res.kind === "ok") {
-      clearInput()
-      setFlag(true)
-      Alert.alert("Thêm thực phẩm thành công")
+      Alert.alert("Cập nhật thực phẩm thành công")
+      await goToFoodScreen()
     } else {
       Alert.alert("Đã có lỗi xảy ra")
     }
@@ -78,7 +97,9 @@ export const AddFoodScreen: FC<AddFoodScreenProps> = observer(function AddFoodSc
             </View>
           </TouchableOpacity>
           <View style={{ width: "100%" }}>
-            <Text preset="subheading" size="md" tx="addFoodScreen.title" />
+            <Text preset="subheading" size="md">
+              Cập nhât thực phẩm
+            </Text>
           </View>
         </View>
         <Text preset="subheading" size="md" tx="addFoodScreen.basicInfo" />
@@ -209,9 +230,9 @@ export const AddFoodScreen: FC<AddFoodScreenProps> = observer(function AddFoodSc
           }}
         >
           <Button
-            text="Tạo thực phẩm"
+            text="Xác nhận"
             preset="filled"
-            onPress={handleCreateUserFood}
+            onPress={handleUpdateFood}
             style={{
               paddingVertical: 10,
               borderRadius: 50,

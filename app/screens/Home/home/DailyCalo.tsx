@@ -63,7 +63,11 @@ export const DailyCalo: FC<ContentProps> = observer(() => {
         setTextTabVisible("")
       }
     }
-    setTitle(`${btnSwap.find((btn) => btn.valueEn === mealType).valueVi} - ${totalCalories} kcal`)
+    setTitle(
+      `${btnSwap.find((btn) => btn.valueEn === mealType).valueVi} - ${totalCalories.toFixed(
+        0,
+      )} kcal`,
+    )
   }
 
   useEffect(() => {
@@ -124,13 +128,8 @@ export const DailyCalo: FC<ContentProps> = observer(() => {
         </Text>
       </View>
       {/* List food */}
-      {displayFood ? (
-        <FlatList<Food>
-          data={data.foods.slice(0, visibleItems)}
-          scrollEnabled={true}
-          contentContainerStyle={$flatListContentContainer}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item, index }) => (
+      {displayFood
+        ? data.foods.slice(0, visibleItems).map((item, index) => (
             <ItemCard
               key={index}
               item={item}
@@ -142,14 +141,8 @@ export const DailyCalo: FC<ContentProps> = observer(() => {
                 console.log("onPressAdd")
               }}
             />
-          )}
-        />
-      ) : (
-        <FlatList<Meal>
-          data={data.meals.slice(0, visibleItems)}
-          contentContainerStyle={$flatListContentContainer}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item, index }) => (
+          ))
+        : data.meals.slice(0, visibleItems).map((item, index) => (
             <ItemCard
               key={index}
               item={item}
@@ -161,9 +154,7 @@ export const DailyCalo: FC<ContentProps> = observer(() => {
                 console.log("onPressAdd")
               }}
             />
-          )}
-        />
-      )}
+          ))}
       {/* Load more */}
       {isTabsVisible ? (
         <TouchableOpacity

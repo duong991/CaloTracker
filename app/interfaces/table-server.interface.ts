@@ -37,7 +37,7 @@ interface FoodAttributes {
 
 interface UserFoodAttributes {
     id?: number;
-    userId: number;
+    userId?: number;
     name: string;
     calories: number;
     protein: number;

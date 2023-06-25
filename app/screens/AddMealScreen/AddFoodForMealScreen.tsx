@@ -1,6 +1,7 @@
+/* eslint-disable react-native/no-inline-styles */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { observer } from "mobx-react-lite"
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useEffect, useState, useMemo } from "react"
 import {
   View,
   TouchableOpacity,
@@ -9,55 +10,73 @@ import {
   ViewStyle,
   ActivityIndicator,
 } from "react-native"
-import { Text, ListItem, EmptyState, Card } from "../../components"
+import { Text, ListItem, EmptyState, Card, Toggle } from "../../components"
 import { AppStackScreenProps } from "../../navigators"
 import { FixedHeader } from "../../components/FixedHeader"
 import { useStores } from "../../models"
 import { delay } from "../../utils/delay"
 import { colors, spacing } from "../../theme"
-import { Exercise } from "../../models/Exercise"
 import { PlusSVG, TickSVG } from "../../components/fileSVG"
+import { useRoute } from "@react-navigation/native"
+import { Food } from "../../models/Food"
+// import { DailyFood } from "app/models/DailyFoodModel"
 
-interface AddDailySportScreenProps extends AppStackScreenProps<"AddDailySport"> {}
+interface AddFoodForMealScreenProps extends AppStackScreenProps<"AddFoodForMeal"> {}
 
-export const AddDailySportScreen: FC<AddDailySportScreenProps> = observer(
-  function AddDailySportScreen(_props) {
+export const AddFoodForMealScreen: FC<AddFoodForMealScreenProps> = observer(
+  function AddFoodForMealScreen(_props) {
     const navigation = _props.navigation
+
+    const route = useRoute()
+
     const { dateStore } = useStores()
+
+    const [typeOfFood, setTypeOfFood] = useState(true)
     const [refreshing, setRefreshing] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+
+    const [foodSelected, setFoodSelected] = useState<Food[]>([])
+
     useEffect(() => {
       ;(async function load() {
         setIsLoading(true)
-        await dateStore.exerciseStoreModel.fetchExercises()
-        console.log(dateStore.exerciseStoreModel.exercisesForList)
+        await Promise.all([
+          dateStore.mealFoodStoreModel.fetchFoods(),
+          dateStore.mealFoodStoreModel.fetchUserFoods(),
+          delay(200),
+        ])
         setIsLoading(false)
       })()
-    }, [dateStore.exerciseStoreModel])
-
-    async function manualRefresh() {
-      setRefreshing(true)
-      await Promise.all([dateStore.exerciseStoreModel.fetchExercises(), delay(750)])
-      setRefreshing(false)
-    }
+    }, [dateStore.mealFoodStoreModel])
 
     function goBack() {
-      navigation.navigate("Demo")
+      navigation.navigate("AddMeal")
+    }
+
+    const handleToggle = () => {
+      setTypeOfFood(!typeOfFood)
     }
     return (
-      <FixedHeader handleGoBack={goBack} title={null}>
-        <FlatList<Exercise>
-          data={dateStore.exerciseStoreModel.exercisesForList}
+      <FixedHeader
+        handleGoBack={goBack}
+        title={"Chọn thực phẩm cho món ăn"}
+        isAddFoodForMeal={true}
+        handleToggle={handleToggle}
+      >
+        <FlatList<Food>
+          data={
+            typeOfFood ? dateStore.mealFoodStoreModel.foods : dateStore.mealFoodStoreModel.userFoods
+          }
           contentContainerStyle={$flatListContentContainer}
           refreshing={refreshing}
-          onRefresh={manualRefresh}
           ListEmptyComponent={isLoading ? <ActivityIndicator /> : <></>}
           renderItem={({ item, index }) => (
-            <ExerciseCard
+            <ItemCard
               key={item.id}
-              isSelected={dateStore.exerciseStoreModel.hasSelected(item)}
-              exercise={item}
-              onPressToggle={() => dateStore.exerciseStoreModel.toggleSelected(item)}
+              item={item}
+              // isSelected={dateStore.mealFoodStoreModel.hasFoodList(item, screen)}
+              onPressDetail={() => console.log("Food")}
+              // onPressToggle={() => dateStore.mealFoodStoreModel.toggleFood(item, screen)}
             />
           )}
         />
@@ -66,51 +85,52 @@ export const AddDailySportScreen: FC<AddDailySportScreenProps> = observer(
   },
 )
 
-const ExerciseCard = observer(function ExerciseCard({
-  exercise,
-  isSelected,
-  onPressToggle,
-}: {
-  exercise: Exercise
-  isSelected: boolean
-  onPressToggle: () => void
+const ItemCard = observer(function ItemCard({
+  item,
+  //   isSelected,
+  onPressDetail,
+}: //   onPressToggle,
+{
+  item: Food
+  //   isSelected: boolean
+  onPressDetail: () => void
+  //   onPressToggle: () => void
 }) {
-  const [isSelect, setIsSelect] = useState(isSelected)
-  useEffect(() => {
-    setIsSelect(isSelected)
-  }, [isSelected])
+  const [a, seta] = useState()
+  const handlePressFavorite = () => {
+    onPressDetail()
+  }
+  //   useEffect(() => {
+  //     seta(isSelected)
+  //   }, [isSelected])
 
   const handlePressCard = () => {
+    onPressDetail()
     console.log("handlePressCard")
   }
 
-  const handleLongPressCard = () => {
-    console.log("handleLongPressCard")
-  }
-
   const handlePressAdd = () => {
-    onPressToggle()
-    setIsSelect(!isSelect)
+    // onPressToggle()
+    // seta(!a)
   }
 
   return (
     <Card
       style={$item}
       onPress={handlePressCard}
-      onLongPress={handleLongPressCard}
-      verticalAlignment="force-footer-bottom"
+      onLongPress={handlePressFavorite}
       HeadingComponent={
         <View style={$metadata}>
           <Text style={$metadataText} size="xs">
-            {exercise.nameEx}
+            {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
           </Text>
         </View>
       }
-      content={`${exercise.caloriesBurned} kcal - ${exercise.duration} phút`}
+      content={`${item.calories} kcal`}
       RightComponent={
         <TouchableOpacity onPress={handlePressAdd}>
           <View style={$buttonOfSearchInput}>
-            {isSelect ? <TickSVG size={12} /> : <PlusSVG size={12} color="#191919" />}
+            {a ? <TickSVG size={12} /> : <PlusSVG size={12} color="#191919" />}
           </View>
         </TouchableOpacity>
       }
@@ -144,14 +164,12 @@ const $metadataText: TextStyle = {
   marginBottom: spacing.tiny,
 }
 const $buttonOfSearchInput: ViewStyle = {
-  width: 30,
-  height: 30,
+  width: 40,
+  height: 40,
   justifyContent: "center",
   alignItems: "center",
   backgroundColor: "#EEEEEE",
-  borderRadius: 30 / 2,
-  marginStart: spacing.extraSmall,
-  marginTop: 12,
+  borderRadius: 40 / 2,
   opacity: 0.8,
   borderWidth: 0.5,
 

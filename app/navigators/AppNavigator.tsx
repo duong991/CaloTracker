@@ -20,6 +20,8 @@ import { useStores } from "../models"
 import { DemoNavigator, DemoTabParamList } from "./DemoNavigator"
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 import {
+  AddFoodForMealScreen,
+  EditFoodScreen,
   AddFoodScreen,
   StatisticalScreen,
   TargetScreen,
@@ -46,13 +48,19 @@ export type AppStackParamList = {
   Welcome: undefined
   Login: undefined
   Register: undefined
-  AddMeal: undefined
   UpdateUserInfo: undefined
   Target: undefined
   Macro: undefined
   Statistical: undefined
-  AddFood: undefined
   Demo: NavigatorScreenParams<DemoTabParamList>
+
+  AddFood: undefined
+  AddMeal: undefined
+
+  EditMeal: undefined
+  EditFood: undefined
+
+  AddFoodForMeal: undefined
 
   AddDailySport: undefined
   AddDailyFood: undefined
@@ -94,13 +102,14 @@ const AppStack = observer(function AppStack() {
           <Stack.Screen name="UpdateUserInfo" component={UpdateUserInfoScreen} />
           <Stack.Screen name="Target" component={TargetScreen} />
           <Stack.Screen name="Macro" component={MacroScreen} />
-          <Stack.Screen name="AddMeal" component={AddMealScreen} />
           <Stack.Screen name="Statistical" component={StatisticalScreen} />
+          <Stack.Screen name="AddMeal" component={AddMealScreen} />
           <Stack.Screen name="AddFood" component={AddFoodScreen} />
-
+          <Stack.Screen name="EditMeal" component={AddMealScreen} />
+          <Stack.Screen name="EditFood" component={EditFoodScreen} />
           <Stack.Screen name="AddDailySport" component={AddDailySportScreen} />
           <Stack.Screen name="AddDailyFood" component={AddDailyFoodScreen} />
-
+          <Stack.Screen name="AddFoodForMeal" component={AddFoodForMealScreen} />
           {/* @demo remove-block-start */}
           <Stack.Screen name="Demo" component={DemoNavigator} />
         </>

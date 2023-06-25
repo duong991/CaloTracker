@@ -26,8 +26,7 @@ export const HeaderHome: FC<HeaderHomeProps> = observer(
       setDatePickerVisibility(!isDatePickerVisible)
     }
     const {
-      dateStore: { dateTime, setDateTime, mealFoodStoreModel },
-      exerciseStore,
+      dateStore: { dateTime, setDateTime, mealFoodStoreModel, exerciseStoreModel },
     } = useStores()
 
     const handleConfirm = (dateTime) => {
@@ -122,13 +121,11 @@ export const HeaderHome: FC<HeaderHomeProps> = observer(
               radius={84}
               color="#FEC23E"
               max={calorPerDay}
-              percentage={
-                mealFoodStoreModel.dailyMeals.totalCalories - exerciseStore.totalCaloriesBurn * 0.8
-              }
+              percentage={mealFoodStoreModel.dailyMeals.totalCalories}
             />
             <View>
               <Text preset="subheading" size="md" style={$textCenter}>
-                {exerciseStore.totalCaloriesBurn}
+                {exerciseStoreModel.totalCaloriesBurn}
               </Text>
               <Text preset="default" size="xs">
                 Tiêu hao
