@@ -24,7 +24,8 @@ export const SystemStoreModel = types
         },
         setIsShowList(value: boolean) {
             store.isShowList = value
-        }
+        },
+
 
     }))
 

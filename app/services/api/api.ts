@@ -22,7 +22,7 @@ import type {
   ApiFetchDataUserInfoResponse
 } from "./api.types"
 import type { EpisodeSnapshotIn } from "../../models/Episode" // @demo remove-current-line
-import { UpdateInfoUserRequest } from "../../interfaces/req-params.interface"
+import { UpdateInfoUserRequest, UpdateWeightRequest } from "../../interfaces/req-params.interface"
 
 
 /**
@@ -150,6 +150,15 @@ export class Api {
       if (problem) return problem
     }
     return { kind: "ok", data: response.data }
+  }
+
+  async updateWeight(data: UpdateWeightRequest): Promise<{ kind: "ok", data: string } | GeneralApiProblem> {
+    const response: ApiResponse<ApiResponseMessage> = await this.apisauce.put("/users/weight", data);
+    if (!response.ok) {
+      const problem = getGeneralApiProblem(response)
+      if (problem) return problem
+    }
+    return { kind: "ok", data: response.data.message }
   }
 }
 // Singleton instance of the API for convenience

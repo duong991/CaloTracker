@@ -46,21 +46,16 @@ export const AddDailySportScreen: FC<AddDailySportScreenProps> = observer(
     }
     return (
       <FixedHeader handleGoBack={goBack} title={null}>
-        <FlatList<Exercise>
-          data={dateStore.exerciseStoreModel.exercisesForList}
-          contentContainerStyle={$flatListContentContainer}
-          refreshing={refreshing}
-          onRefresh={manualRefresh}
-          ListEmptyComponent={isLoading ? <ActivityIndicator /> : <></>}
-          renderItem={({ item, index }) => (
+        <View style={$flatListContentContainer}>
+          {dateStore.exerciseStoreModel.exercisesForList.map((item, index) => (
             <ExerciseCard
               key={item.id}
               isSelected={dateStore.exerciseStoreModel.hasSelected(item)}
               exercise={item}
               onPressToggle={() => dateStore.exerciseStoreModel.toggleSelected(item)}
             />
-          )}
-        />
+          ))}
+        </View>
       </FixedHeader>
     )
   },

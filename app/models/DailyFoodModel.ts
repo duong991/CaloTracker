@@ -17,19 +17,40 @@ export const DailyFoodModel = types
         },
 
         get caloriesPerServing() {
-            return store.calories / 100 * store.servingSize;
+            return store.calories / 100;
         },
         get proteinPerServing() {
-            return store.protein / 100 * store.servingSize;
+            return store.protein / 100;
         },
         get carbohydratesPerServing() {
-            return store.carbohydrates / 100 * store.servingSize;
+            return store.carbohydrates / 100;
         },
         get fatPerServing() {
-            return store.fat / 100 * store.servingSize;
-        }
-    }))
+            return store.fat / 100;
+        },
 
+    }))
+    .actions((store) => ({
+        addNewDailyFood(data: DailyFood) {
+            store.id = data.id;
+            store.name = data.name;
+            store.calories = data.calories;
+            store.protein = data.protein;
+            store.carbohydrates = data.carbohydrates;
+            store.fat = data.fat;
+            store.servingSize = data.servingSize;
+            store.isUserCreated = data.isUserCreated;
+        },
+        updateDailyFood(data: DailyFood) {
+            store.name = data.name;
+            store.calories = data.calories;
+            store.protein = data.protein;
+            store.carbohydrates = data.carbohydrates;
+            store.fat = data.fat;
+            store.servingSize = data.servingSize;
+            store.isUserCreated = data.isUserCreated;
+        },
+    }))
 
 export interface DailyFood extends Instance<typeof DailyFoodModel> { }
 export interface FoodSnapshotOut extends SnapshotOut<typeof DailyFoodModel> { }

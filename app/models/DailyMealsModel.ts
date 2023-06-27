@@ -7,13 +7,13 @@ export const DailyMealsModel = types
     .model("DailyMeals")
     .props({
         breakfastMeals: types.array(types.reference(MealModel)),
-        breakfastFoods: types.array(types.reference(DailyFoodModel)),
+        breakfastFoods: types.array(DailyFoodModel),
         lunchMeals: types.array(types.reference(MealModel)),
-        lunchFoods: types.array(types.reference(DailyFoodModel)),
+        lunchFoods: types.array(DailyFoodModel),
         dinnerMeals: types.array(types.reference(MealModel)),
-        dinnerFoods: types.array(types.reference(DailyFoodModel)),
+        dinnerFoods: types.array(DailyFoodModel),
         snackMeals: types.array(types.reference(MealModel)),
-        snackFoods: types.array(types.reference(DailyFoodModel)),
+        snackFoods: types.array(DailyFoodModel),
     })
     .views((store) => ({
         get combinedFoodsAndMeals() {
@@ -44,10 +44,13 @@ export const DailyMealsModel = types
         },
         get totalCalories() {
             const CaloriesFromFood =
-                store.breakfastFoods.reduce((total, item) => total + item.caloriesPerServing, 0) +
-                store.lunchFoods.reduce((total, item) => total + item.caloriesPerServing, 0) +
-                store.dinnerFoods.reduce((total, item) => total + item.caloriesPerServing, 0) +
-                store.snackFoods.reduce((total, item) => total + item.caloriesPerServing, 0);
+                store.breakfastFoods.reduce((total, item) => {
+                    console.log('tootolcalo', item);
+                    return total + item.calories
+                }, 0) +
+                store.lunchFoods.reduce((total, item) => total + item.calories, 0) +
+                store.dinnerFoods.reduce((total, item) => total + item.calories, 0) +
+                store.snackFoods.reduce((total, item) => total + item.calories, 0);
 
             const CaloriesFromMeal =
                 store.breakfastMeals.reduce((total, item) => total + item.calories, 0)
@@ -55,14 +58,14 @@ export const DailyMealsModel = types
                 + store.dinnerMeals.reduce((total, item) => total + item.calories, 0)
                 + store.snackMeals.reduce((total, item) => total + item.calories, 0);
 
-            return CaloriesFromFood + CaloriesFromMeal
+            return (CaloriesFromFood + CaloriesFromMeal).toFixed(1)
         },
         get totalProtein() {
             const ProteinFromFood =
-                store.breakfastFoods.reduce((total, item) => total + item.proteinPerServing, 0)
-                + store.lunchFoods.reduce((total, item) => total + item.proteinPerServing, 0)
-                + store.dinnerFoods.reduce((total, item) => total + item.proteinPerServing, 0)
-                + store.snackFoods.reduce((total, item) => total + item.proteinPerServing, 0)
+                store.breakfastFoods.reduce((total, item) => total + item.protein, 0)
+                + store.lunchFoods.reduce((total, item) => total + item.protein, 0)
+                + store.dinnerFoods.reduce((total, item) => total + item.protein, 0)
+                + store.snackFoods.reduce((total, item) => total + item.protein, 0)
 
             const ProteinFromMeal =
                 store.breakfastMeals.reduce((total, item) => total + item.protein, 0)
@@ -74,10 +77,10 @@ export const DailyMealsModel = types
         },
         get totalFat() {
             const FatFromFood =
-                store.breakfastFoods.reduce((total, item) => total + item.fatPerServing, 0)
-                + store.lunchFoods.reduce((total, item) => total + item.fatPerServing, 0)
-                + store.dinnerFoods.reduce((total, item) => total + item.fatPerServing, 0)
-                + store.snackFoods.reduce((total, item) => total + item.fatPerServing, 0)
+                store.breakfastFoods.reduce((total, item) => total + item.fat, 0)
+                + store.lunchFoods.reduce((total, item) => total + item.fat, 0)
+                + store.dinnerFoods.reduce((total, item) => total + item.fat, 0)
+                + store.snackFoods.reduce((total, item) => total + item.fat, 0)
 
             const FatFromMeal =
                 store.breakfastMeals.reduce((total, item) => total + item.fat, 0)
@@ -89,10 +92,10 @@ export const DailyMealsModel = types
         },
         get totalCarbs() {
             const CarbsFromFood =
-                store.breakfastFoods.reduce((total, item) => total + item.carbohydratesPerServing, 0)
-                + store.lunchFoods.reduce((total, item) => total + item.carbohydratesPerServing, 0)
-                + store.dinnerFoods.reduce((total, item) => total + item.carbohydratesPerServing, 0)
-                + store.snackFoods.reduce((total, item) => total + item.carbohydratesPerServing, 0)
+                store.breakfastFoods.reduce((total, item) => total + item.carbohydrates, 0)
+                + store.lunchFoods.reduce((total, item) => total + item.carbohydrates, 0)
+                + store.dinnerFoods.reduce((total, item) => total + item.carbohydrates, 0)
+                + store.snackFoods.reduce((total, item) => total + item.carbohydrates, 0)
 
             const CarbsFromMeal =
                 store.breakfastMeals.reduce((total, item) => total + item.carbohydrates, 0)
@@ -104,33 +107,34 @@ export const DailyMealsModel = types
         },
         get totalCaloForBreakfast() {
             const CaloFromFood =
-                store.breakfastFoods.reduce((total, item) => total + item.caloriesPerServing, 0)
+                store.breakfastFoods.reduce((total, item) => {
+                    return total + item.calories
+                }, 0)
             const CaloFromMeal =
                 store.breakfastMeals.reduce((total, item) => total + item.calories, 0)
             return CaloFromFood + CaloFromMeal
         },
         get totalCaloForLunch() {
             const CaloFromFood =
-                store.lunchFoods.reduce((total, item) => total + item.caloriesPerServing, 0)
+                store.lunchFoods.reduce((total, item) => total + item.calories, 0)
             const CaloFromMeal =
                 store.lunchMeals.reduce((total, item) => total + item.calories, 0)
             return CaloFromFood + CaloFromMeal
         },
         get totalCaloForDinner() {
             const CaloFromFood =
-                store.dinnerFoods.reduce((total, item) => total + item.caloriesPerServing, 0)
+                store.dinnerFoods.reduce((total, item) => total + item.calories, 0)
             const CaloFromMeal =
                 store.dinnerMeals.reduce((total, item) => total + item.calories, 0)
             return CaloFromFood + CaloFromMeal
         },
         get totalCaloForSnack() {
             const CaloFromFood =
-                store.snackFoods.reduce((total, item) => total + item.caloriesPerServing, 0)
+                store.snackFoods.reduce((total, item) => total + item.calories, 0)
             const CaloFromMeal =
                 store.snackMeals.reduce((total, item) => total + item.calories, 0)
             return CaloFromFood + CaloFromMeal
         }
-
     }))
     .actions((store) => ({
         clearDailyMeals() {
@@ -153,11 +157,12 @@ export const DailyMealsModel = types
         removeMealFromBreakfast(meal: Meal) {
             store.breakfastMeals.remove(meal)
         },
-        addFoodToBreakfast(food: DailyFood) {
-            if (store.breakfastFoods.find((f) => f.id === food.id)) {
+        addFoodToBreakfast(food1: DailyFood) {
+            if (store.breakfastFoods.find((f) => f.id === food1.id)) {
                 return
             }
-            store.breakfastFoods.push(food)
+            store.breakfastFoods.push(food1)
+
         },
         removeFoodFromBreakfast(food: DailyFood) {
             store.breakfastFoods.remove(food)
@@ -178,7 +183,11 @@ export const DailyMealsModel = types
             store.lunchFoods.push(food)
         },
         removeFoodFromLunch(food: DailyFood) {
-            store.lunchFoods.remove(food)
+            if (store.lunchFoods.find((f) => f.id === food.id)) {
+                const newLunchFoods = store.lunchFoods.filter((f) => f.id !== food.id)
+                store.lunchFoods.clear()
+                store.lunchFoods.push(...newLunchFoods)
+            }
         },
         addMealToDinner(meal: Meal) {
             if (store.dinnerMeals.find((m) => m.id === meal.id)) {

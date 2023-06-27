@@ -11,6 +11,11 @@ export interface UpdateInfoUserRequest {
     carb: number;
 }
 
+export interface UpdateWeightRequest {
+    weight: number;
+    date: string;
+}
+
 export interface IDataRequestUserFood {
     name: string;
     calories: number;

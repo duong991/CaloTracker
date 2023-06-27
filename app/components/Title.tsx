@@ -6,6 +6,7 @@ import { Text } from "./Text"
 interface ITitleProps {
   leftText?: string
   rightText?: string
+  onPressRightText?: () => void
 }
 
 /**
@@ -15,7 +16,7 @@ interface ITitleProps {
  * - [Documentation and Examples](https://github.com/infinitered/ignite/blob/master/docs/Components-Header.md)
  */
 export function Title(props: ITitleProps) {
-  const { leftText, rightText } = props
+  const { leftText, rightText, onPressRightText } = props
 
   return (
     <View style={$wrapTitle}>
@@ -25,7 +26,7 @@ export function Title(props: ITitleProps) {
         </Text>
       </View>
       <View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={onPressRightText}>
           <Text preset="subheading" size="sm" style={$titleTextStyle}>
             {rightText}
           </Text>

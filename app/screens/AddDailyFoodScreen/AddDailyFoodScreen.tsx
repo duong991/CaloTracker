@@ -119,7 +119,8 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
     setModalVisible(true)
   }
 
-  const handleOpenQuantityModal = () => {
+  const handleOpenQuantityModal = (item: DailyFood) => {
+    setItemSelected(item)
     setIsQuantityModalVisible(true)
   }
 
@@ -127,7 +128,15 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
     setIsQuantityModalVisible(false)
   }
 
-  const handleSaveQuantityModal = () => {
+  const handleSaveQuantityModal = (quantity: number) => {
+    console.log(itemSelected)
+    const newItem = {
+      ...(itemSelected as DailyFood),
+      servingSize: quantity,
+    }
+
+    console.log(newItem)
+    dateStore.mealFoodStoreModel.addDailyFood(newItem, screen, newItem.isUserCreated)
     setIsQuantityModalVisible(false)
   }
   return (
@@ -147,6 +156,7 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
       )}
       {isQuantityModalVisible && (
         <QuantityModal
+          title="Nhập số gram thực phẩm"
           isVisible={isQuantityModalVisible}
           onCancel={handleCancelQuantityModal}
           onConfirm={handleSaveQuantityModal}
@@ -162,7 +172,8 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
               isSelected={dateStore.mealFoodStoreModel.hasFoodList(item, screen)}
               onOpenModal={() => handleOpenModal(item)}
               // onPressToggle={() => dateStore.mealFoodStoreModel.toggleFood(item, screen)}
-              onPressToggle={handleOpenQuantityModal}
+              onPressToggle={(item) => handleOpenQuantityModal(item)}
+              handleRemove={() => dateStore.mealFoodStoreModel.removeFood(item, screen)}
             />
           ))}
         </View>
@@ -172,7 +183,7 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
             ...dateStore.mealFoodStoreModel.userMealsForList,
             ...dateStore.mealFoodStoreModel.mealsForList,
           ].map((item, index) => (
-            <ItemCard
+            <ItemCardMeal
               key={item.id}
               item={item}
               onOpenModal={() => handleOpenModal(item)}
@@ -187,6 +198,63 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
 })
 
 const ItemCard = observer(function ItemCard({
+  item,
+  isSelected,
+  onOpenModal,
+  onPressToggle,
+  handleRemove,
+}: {
+  item: DailyFood | Meal
+  isSelected: boolean
+  onOpenModal: (item) => void
+  onPressToggle: (item: any) => void
+  handleRemove?: () => void
+}) {
+  const [isClicked, setIsClicked] = useState(false)
+
+  useEffect(() => {
+    setIsClicked(isSelected)
+  }, [isSelected])
+
+  const handleIsClicked = () => {
+    if (isClicked) {
+      setIsClicked(false)
+      handleRemove && handleRemove()
+    } else {
+      onPressToggle(item)
+    }
+  }
+
+  const handleLongPressCard = (item) => {
+    onOpenModal(item)
+  }
+
+  return (
+    <TouchableOpacity onLongPress={() => handleLongPressCard(item)}>
+      <Card
+        style={$item}
+        HeadingComponent={
+          <View style={$metadata}>
+            <Text style={$metadataText} size="xs">
+              {item.name.charAt(0).toUpperCase() + item.name.slice(1)} -{" "}
+              {item.isUserCreated ? "Tự tạo" : "Mặc định"}
+            </Text>
+          </View>
+        }
+        content={`${item.calories} kcal`}
+        RightComponent={
+          <TouchableOpacity onPress={handleIsClicked}>
+            <View style={$buttonOfSearchInput}>
+              {isClicked ? <TickSVG size={12} /> : <PlusSVG size={12} color="#191919" />}
+            </View>
+          </TouchableOpacity>
+        }
+      />
+    </TouchableOpacity>
+  )
+})
+
+const ItemCardMeal = observer(function ItemCard({
   item,
   isSelected,
   onOpenModal,

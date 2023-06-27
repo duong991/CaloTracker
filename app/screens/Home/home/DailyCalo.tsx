@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, FC, useEffect, useMemo } from "react"
 import { TouchableOpacity, View, ViewStyle, TextStyle, FlatList } from "react-native"
-import { Text, Title, Card, Toggle } from "../../../components"
+import { Text, Title, Card, Toggle, Icon } from "../../../components"
 import { spacing } from "../../../theme"
 import { useStores } from "app/models"
 import { observer } from "mobx-react-lite"
@@ -39,7 +39,7 @@ export const DailyCalo: FC<ContentProps> = observer(() => {
     const selectedMeals = dateStore.mealFoodStoreModel.selectedMealForList(mealType)
     const totalCalories =
       dateStore.mealFoodStoreModel.dailyMeals[
-        `totalCaloFor${mealType.charAt(0).toUpperCase() + mealType.slice(1)}`
+        `totalCaloFor${mealType.charAt(0).toUpperCase() + mealType.slice(1)}` // totalCaloForBreakfast
       ]
 
     setData({ foods: selectedFoods, meals: selectedMeals })
@@ -65,7 +65,7 @@ export const DailyCalo: FC<ContentProps> = observer(() => {
     }
     setTitle(
       `${btnSwap.find((btn) => btn.valueEn === mealType).valueVi} - ${totalCalories.toFixed(
-        0,
+        1,
       )} kcal`,
     )
   }
@@ -78,7 +78,13 @@ export const DailyCalo: FC<ContentProps> = observer(() => {
   useEffect(() => {
     setTotalCalo(dateStore.mealFoodStoreModel.dailyMeals.totalCalories)
     updateDataAndTabs(btnSwap[mealIsSelected - 1].valueEn)
-  }, [dailyMealsModel, mealIsSelected, displayFood, visibleItems, dateStore.mealFoodStoreModel])
+  }, [
+    dailyMealsModel,
+    mealIsSelected,
+    displayFood,
+    visibleItems,
+    dateStore.mealFoodStoreModel.dailyMeals.totalCalories,
+  ])
 
   const handleOnPressBtnSwap = (idChoose: number) => {
     setMealIsSelected(idChoose)
@@ -133,7 +139,6 @@ export const DailyCalo: FC<ContentProps> = observer(() => {
             <ItemCard
               key={index}
               item={item}
-              isSelected={true}
               onPressDetail={() => {
                 console.log("onPressDetail")
               }}
@@ -146,7 +151,6 @@ export const DailyCalo: FC<ContentProps> = observer(() => {
             <ItemCard
               key={index}
               item={item}
-              isSelected={true}
               onPressDetail={() => {
                 console.log("onPressDetail")
               }}
@@ -183,16 +187,13 @@ export const DailyCalo: FC<ContentProps> = observer(() => {
 
 const ItemCard = observer(function ItemCard({
   item,
-  isSelected,
   onPressDetail,
   onPressAdd,
 }: {
   item: Food | Meal
-  isSelected: boolean
   onPressDetail: () => void
   onPressAdd: () => void
 }) {
-  const [a, seta] = useState(isSelected)
   const handlePressFavorite = () => {
     onPressDetail()
   }
@@ -203,7 +204,6 @@ const ItemCard = observer(function ItemCard({
 
   const handlePressAdd = () => {
     onPressAdd()
-    seta(!a)
   }
 
   return (
@@ -222,7 +222,7 @@ const ItemCard = observer(function ItemCard({
       RightComponent={
         <TouchableOpacity onPress={handlePressAdd}>
           <View style={$buttonOfSearchInput}>
-            {/* {a ? <TickSVG size={12} /> : <PlusSVG size={12} color="#191919" />} */}
+            <Icon icon="x" color={colors.mainText} size={20} />
           </View>
         </TouchableOpacity>
       }
@@ -273,13 +273,6 @@ const $subTitleStyle: TextStyle = {
   textDecorationStyle: "dotted",
 }
 
-const $flatListContentContainer: ViewStyle = {
-  width: "100%",
-  height: "100%",
-  paddingBottom: spacing.medium,
-  paddingHorizontal: spacing.medium,
-}
-
 const $item: ViewStyle = {
   paddingHorizontal: spacing.medium + spacing.tiny,
   marginTop: spacing.medium,
@@ -301,10 +294,7 @@ const $buttonOfSearchInput: ViewStyle = {
   height: 40,
   justifyContent: "center",
   alignItems: "center",
-  backgroundColor: "#EEEEEE",
-  borderRadius: 40 / 2,
   opacity: 0.8,
-  borderWidth: 0.5,
 
   shadowRadius: 290,
   shadowColor: "#0F0E0E",

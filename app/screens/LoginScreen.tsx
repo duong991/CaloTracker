@@ -107,12 +107,12 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     [isAuthPasswordHidden],
   )
 
-  useEffect(() => {
-    return () => {
-      setAuthPassword("")
-      setAuthEmail("")
-    }
-  }, [])
+  // useEffect(() => {
+  //   return () => {
+  //     setAuthPassword("")
+  //     setAuthEmail("")
+  //   }
+  // }, [])
 
   return (
     <>

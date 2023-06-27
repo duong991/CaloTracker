@@ -29,19 +29,24 @@ export function StatisticalIndex({
 
         <View style={$contentContainer}>
           <View style={$wrapItem}>
-            <View style={$rightItemTop}>
-              <Text preset="subheading" size="xl">
+            <View>
+              <Text preset="default" size="sm">
                 BMI
               </Text>
-              <Text preset="subheading" size="md" style={$redText}>
+              <Text preset="subheading" size="sm" style={[$labelBodyIndex, $redText]}>
                 {BMI}
               </Text>
             </View>
-            <View style={$leftItemTop}>
-              <Text preset="default" size="sm">
-                <ClockSVG size={12} /> {dateForUpdateWeight}
-              </Text>
-              <Text preset="default" size="xxs" style={$redText}>
+            <View style={{ justifyContent: "flex-end" }}>
+              <View
+                style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}
+              >
+                <ClockSVG size={12} />
+                <Text preset="default" size="sm">
+                  {dateForUpdateWeight}
+                </Text>
+              </View>
+              <Text preset="subheading" size="sm" style={[$labelBodyIndex, $redText]}>
                 Cập nhật cân nặng
               </Text>
             </View>
@@ -189,15 +194,12 @@ const $wrapItem: ViewStyle = {
   height: "50%",
 }
 
-const $rightItemTop: ViewStyle = {
+const $leftItemTop: ViewStyle = {
   justifyContent: "space-between",
   height: "76%",
 }
-const $leftItemTop: ViewStyle = {
+const $rightItemTop: ViewStyle = {
   alignItems: "flex-end",
-  justifyContent: "flex-end",
-  height: "76%",
-  opacity: 0.85,
 }
 const $redText: TextStyle = {
   color: "#FF0000",

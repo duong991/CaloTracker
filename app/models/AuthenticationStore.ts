@@ -11,6 +11,13 @@ export const AuthenticationStoreModel = types
     authEmail: "",
   })
   .views((store) => ({
+    get allInfo() {
+      return {
+        email: store.authEmail,
+        token: store.authToken,
+        refresh: store.refreshToken,
+      }
+    },
     get isFirstTime() {
       return store.availInfo
     },

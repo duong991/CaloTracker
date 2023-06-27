@@ -28,7 +28,6 @@ export const MealModel = types
         fat: types.number,
         mealType: types.enumeration<mealType>("mealType", ["breakfast", "lunch", "dinner", "snack"]),
         isUserCreated: types.boolean,
-        // mealFoods: types.array(types.frozen<IMealFood>()),
     })
     .views((store) => ({
         get nameMeal() {

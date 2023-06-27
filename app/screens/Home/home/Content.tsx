@@ -2,8 +2,8 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, FC, useEffect, useMemo } from "react"
-import { TouchableOpacity, View, ViewStyle } from "react-native"
-import { Text, Title } from "../../../components"
+import { TouchableOpacity, View, ViewStyle, Alert } from "react-native"
+import { Text, Title, QuantityModal } from "../../../components"
 import { spacing } from "../../../theme"
 import { GlassWater } from "../../../components/fileSVG"
 import { useStores } from "app/models"
@@ -11,6 +11,9 @@ import { observer } from "mobx-react-lite"
 import { waterLogApi } from "app/services/api"
 import LineChartComponent from "../../../components/LineChart"
 import { colors } from "../../../theme/colors"
+import { formatDateToString } from "../../../utils/formatDateToString"
+import { api } from "../../../services/api"
+
 interface ContentProps {
   waterPerDay: number
 }
@@ -32,16 +35,17 @@ const GlassWaterList = ({ glassWaterList, handlePressGlassWater }) => {
 export const Content: FC<ContentProps> = observer(({ waterPerDay = 0 }) => {
   const {
     dateStore: { amount, setAmount, fetchData, dateTime },
-    dailyMealsModel,
+    userInfoStore: { setUserInfo, clearUserInfo, weight, getUserInfo },
+    bodyIndexStore: { getBodyIndex, setBodyIndex },
     weightLogStore,
   } = useStores()
   // let timeoutId: NodeJS.Timeout | null = null
   // STATE lưu trữ danh sách các ly nước
   const [glassWaterList, setGlassWaterList] = useState<{ isFull: boolean; index: number }[]>([])
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null)
+  const [isModalVisible, setIsModalVisible] = useState(false)
 
-  const { combinedFoodsAndMeals } = dailyMealsModel
-  const { fetchWeightLogs, weightLogDates, weightLogWeights, weightLogCount } = weightLogStore
+  const { fetchWeightLogs, weightLogDates, weightLogWeights } = weightLogStore
 
   useEffect(() => {
     console.log("hello")
@@ -149,11 +153,52 @@ export const Content: FC<ContentProps> = observer(({ waterPerDay = 0 }) => {
 
   const memoizedWeightChart = useMemo(
     () => <LineChartComponent data={weightLogWeights} labels={weightLogDates} />,
-    [weightLogWeights, weightLogDates],
+    [weightLogWeights, weightLogDates, weight],
   )
+
+  const handleConfirm = async (weight: number) => {
+    const lastTimeToUpdate = formatDateToString(new Date())
+    const data = {
+      weight,
+      date: lastTimeToUpdate,
+    }
+    const res = await api.updateWeight(data)
+    if (res.kind === "ok") {
+      Alert.alert("Cập nhật cân nặng thành công")
+      const response = await api.getUserInfo()
+      if (response.kind === "ok") {
+        const data = response.data
+        if (data) {
+          setUserInfo(data.userInfo)
+          const { weight, R, age, gender, height, protein, carb, fat, target } = getUserInfo()
+          setBodyIndex(gender, height, weight, age, R, target, protein, fat, carb)
+        }
+      }
+      fetchWeightLogs()
+      setIsModalVisible(false)
+    } else {
+      Alert.alert("Cập nhật cân nặng thất bại")
+    }
+  }
+
+  const handleCancel = () => {
+    setIsModalVisible(false)
+  }
+
+  const handlePressWeight = () => {
+    setIsModalVisible(true)
+  }
 
   return (
     <>
+      {isModalVisible && (
+        <QuantityModal
+          isVisible={isModalVisible}
+          title="Cập nhật cân nặng"
+          onCancel={handleCancel}
+          onConfirm={handleConfirm}
+        />
+      )}
       <View style={$wrapContent}>
         <Title leftText="Bạn đã uống bao nhiêu nước" rightText={`${amount}/${waterPerDay}ml`} />
         <GlassWaterList
@@ -161,7 +206,11 @@ export const Content: FC<ContentProps> = observer(({ waterPerDay = 0 }) => {
           handlePressGlassWater={handlePressGlassWater}
         />
         <_Line />
-        <Title leftText="Mục tiêu cân nặng" rightText={"69kg"} />
+        <Title
+          leftText="Mục tiêu cân nặng"
+          rightText={`${weight}kg`}
+          onPressRightText={handlePressWeight}
+        />
         {memoizedWeightChart}
       </View>
     </>

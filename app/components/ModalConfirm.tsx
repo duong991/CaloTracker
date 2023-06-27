@@ -5,12 +5,14 @@ import Modal from "react-native-modal"
 import { Ionicons } from "@expo/vector-icons"
 
 interface QuantityModalProps {
+  title: string
   isVisible: boolean
   onCancel: () => void
   onConfirm: (quantity: number) => void
 }
 
-export function QuantityModal({ isVisible, onCancel, onConfirm }: QuantityModalProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function QuantityModal({ title, isVisible, onCancel, onConfirm }: QuantityModalProps) {
   const [quantity, setQuantity] = useState("")
 
   const handleConfirm = () => {
@@ -24,7 +26,7 @@ export function QuantityModal({ isVisible, onCancel, onConfirm }: QuantityModalP
     <Modal isVisible={isVisible} backdropOpacity={0.5} style={styles.modal}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>Nhập số lượng</Text>
+          <Text style={styles.title}>{title}</Text>
           <TouchableOpacity style={styles.closeButton} onPress={onCancel}>
             <Ionicons name="close-outline" size={24} color="#FFFFFF" />
           </TouchableOpacity>

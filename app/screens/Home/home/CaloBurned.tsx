@@ -1,9 +1,9 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState, FC, useEffect, useMemo } from "react"
-import { TouchableOpacity, View, ViewStyle, TextStyle, FlatList, ScrollView } from "react-native"
-import { Text, Title, Card } from "../../../components"
+import React, { useState, FC, useEffect } from "react"
+import { TouchableOpacity, View, ViewStyle, TextStyle } from "react-native"
+import { Text, Title, Card, Icon } from "../../../components"
 import { spacing } from "../../../theme"
 import { useStores } from "app/models"
 import { observer } from "mobx-react-lite"
@@ -121,7 +121,7 @@ const ItemCard = observer(function ItemCard({
       RightComponent={
         <TouchableOpacity onPress={handlePressAdd}>
           <View style={$buttonOfSearchInput}>
-            {/* {a ? <TickSVG size={12} /> : <PlusSVG size={12} color="#191919" />} */}
+            <Icon icon="x" color={colors.mainText} size={20} />
           </View>
         </TouchableOpacity>
       }
@@ -137,13 +137,6 @@ const $wrapContent: ViewStyle = {
   padding: spacing.large,
   backgroundColor: "#FFFFFF",
   borderRadius: 28,
-}
-
-const $flatListContentContainer: ViewStyle = {
-  width: "100%",
-  height: "100%",
-  paddingBottom: spacing.medium,
-  paddingHorizontal: spacing.medium,
 }
 
 const $item: ViewStyle = {
@@ -167,10 +160,7 @@ const $buttonOfSearchInput: ViewStyle = {
   height: 40,
   justifyContent: "center",
   alignItems: "center",
-  backgroundColor: "#EEEEEE",
-  borderRadius: 40 / 2,
   opacity: 0.8,
-  borderWidth: 0.5,
 
   shadowRadius: 290,
   shadowColor: "#0F0E0E",

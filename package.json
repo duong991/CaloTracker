@@ -54,6 +54,7 @@
     "expo-linking": "~3.3.0",
     "expo-localization": "~14.0.0",
     "expo-modules-core": "~1.0.4 || ~1.1.0",
+    "expo-notifications": "~0.17.0",
     "expo-splash-screen": "~0.17.5",
     "expo-sqlite": "~11.0.0",
     "expo-status-bar": "~1.4.2",
@@ -61,6 +62,7 @@
     "mobx": "6.6.0",
     "mobx-react-lite": "3.4.0",
     "mobx-state-tree": "5.1.5",
+    "moment-timezone": "^0.5.43",
     "react": "18.1.0",
     "react-native": "0.70.8",
     "react-native-bootsplash": "4.3.2",
@@ -75,8 +77,7 @@
     "react-native-svg-charts": "^5.4.0",
     "reactotron-mst": "3.1.4",
     "reactotron-react-js": "^3.3.7",
-    "reactotron-react-native": "5.0.3",
-    "expo-notifications": "~0.17.0"
+    "reactotron-react-native": "5.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
