@@ -5,7 +5,8 @@ import { DailyFoodModel, DailyFood } from "./DailyFoodModel"
 import { Meal, MealModel } from "./Meal"
 import { DailyMealsModel } from "./DailyMealsModel"
 import { withSetPropAction } from "./helpers/withSetPropAction"
-import { mealApi, foodApi } from "../services/api"
+import { mealApi, foodApi, searchApi } from "../services/api"
+import { action } from "mobx"
 type TScreen = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 type TMealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 export const MealFoodStoreModel = types
@@ -13,7 +14,7 @@ export const MealFoodStoreModel = types
     .props({
         // Danh sách các thực phẩm
         foods: types.array(FoodModel),
-        // Danh sách các thực phẩm đã nạp trong ngày
+        // Danh sách các thực phẩm kết hợp từ food của người dùng tự tạo và food của hệ thống
         dailyFoods: types.array(DailyFoodModel),
         // Danh sách các thực phẩm của người dùng
         userFoods: types.array(FoodModel),
@@ -26,7 +27,7 @@ export const MealFoodStoreModel = types
         // // Hiển thị danh sách food trong 1 meal cụ thể do người dùng tạo
         // userMealFoods: types.optional(DailyFoodModel, {}),
         // // Hiển thị danh sách food trong 1 meal cụ thể do hệ thống tạo
-
+        searchFoodList: types.array(DailyFoodModel),
     })
     .actions(withSetPropAction)
     .actions((store) => ({
@@ -62,38 +63,119 @@ export const MealFoodStoreModel = types
                 console.tron.error(`Error fetching meals: ${JSON.stringify(response)}`, [])
             }
         },
-        addDailyFood(value, mealType: TMealType, isUserCreated: boolean) {
+        async fetchSearchFoodList(keyword: string) {
+            const response = await searchApi.getDataSearchAllFood(keyword)
+            if (response.kind === "ok") {
+                const foods = response.items.foods
+                const userFoods = response.items.userFoods
+
+                const searchFoodList = foods.map((food) => {
+                    return DailyFoodModel.create({
+                        id: "SYSTEMFOOD-" + food.id,
+                        name: food.name,
+                        calories: food.calories,
+                        protein: food.protein,
+                        carbohydrates: food.carbohydrates,
+                        fat: food.fat,
+                        servingSize: 100,
+                        isUserCreated: false,
+                    })
+                })
+                const searchUserFoodList = userFoods.map((food) => {
+                    return DailyFoodModel.create({
+                        id: "USERFOOD-" + food.id,
+                        name: food.name,
+                        calories: food.calories,
+                        protein: food.protein,
+                        carbohydrates: food.carbohydrates,
+                        fat: food.fat,
+                        servingSize: 100,
+                        isUserCreated: true,
+                    })
+                })
+                store.setProp("searchFoodList", [...searchFoodList, ...searchUserFoodList])
+            } else {
+                console.tron.error(`Error fetching meals: ${JSON.stringify(response)}`, [])
+            }
+        },
+        addDailyFood(value: {
+            id: number,
+            servingSize: number,
+        }, mealType: TMealType, isUserCreated: boolean) {
             let food;
             if (isUserCreated) {
-                food = store.userFoods.find((food) => food.id === value.id)
+                food = store.userFoods.find((food) => {
+                    const idFood = food.id.split("-")[1]
+                    return +idFood === value.id
+                })
             } else {
-                food = store.foods.find((food) => food.id === value.id)
+                food = store.foods.find((food) => {
+                    const idFood = food.id.split("-")[1]
+                    return +idFood === value.id
+                })
             }
-            const dailyFood = DailyFoodModel.create({
-                id: food.id,
-                name: food.name,
-                calories: food.calories * value.servingSize / 100,
-                protein: food.protein * value.servingSize / 100,
-                carbohydrates: food.carbohydrates * value.servingSize / 100,
-                fat: food.fat * value.servingSize / 100,
-                servingSize: value.servingSize,
-                isUserCreated,
-            })
+            action(() => {
+                const dailyFood = DailyFoodModel.create({
+                    id: food.id,
+                    name: food.name,
+                    calories: food.calories * value.servingSize / 100,
+                    protein: food.protein * value.servingSize / 100,
+                    carbohydrates: food.carbohydrates * value.servingSize / 100,
+                    fat: food.fat * value.servingSize / 100,
+                    servingSize: value.servingSize,
+                    isUserCreated,
+                });
+
+                switch (mealType) {
+                    case "breakfast":
+                        store.dailyMeals.addFoodToBreakfast(dailyFood);
+                        break;
+                    case "lunch":
+                        store.dailyMeals.addFoodToLunch(dailyFood);
+                        break;
+                    case "dinner":
+                        store.dailyMeals.addFoodToDinner(dailyFood);
+                        break;
+                    case "snack":
+                        store.dailyMeals.addFoodToSnacks(dailyFood);
+                        break;
+                }
+            })();
+        },
+
+        addDailyMeal: (id: number, mealType: TMealType, isUserCreated: boolean) => {
+            let meal;
+            if (isUserCreated) {
+                meal = store.userMeals.find((meal) => {
+                    const idMeal = meal.id.split("-")[1]
+                    return +idMeal === id
+                })
+            } else {
+                meal = store.meals.find((meal) => {
+                    const idMeal = meal.id.split("-")[1]
+                    return +idMeal === id
+                })
+            }
             switch (mealType) {
                 case "breakfast":
-                    store.dailyMeals.addFoodToBreakfast(dailyFood);
+                    store.dailyMeals.addMealToBreakfast(meal);
                     break;
                 case "lunch":
-                    store.dailyMeals.addFoodToLunch(dailyFood);
+                    store.dailyMeals.addMealToLunch(meal);
                     break;
                 case "dinner":
-                    store.dailyMeals.addFoodToDinner(dailyFood);
+                    store.dailyMeals.addMealToDinner(meal);
                     break;
                 case "snack":
-                    store.dailyMeals.addFoodToSnacks(dailyFood);
+                    store.dailyMeals.addMealToSnacks(meal);
+                    break;
+                default:
+                    break;
             }
-
         },
+
+
+
         removeFood(food: DailyFood, screen: TScreen) {
             switch (screen) {
                 case "breakfast":
@@ -183,7 +265,16 @@ export const MealFoodStoreModel = types
                     return false
             }
         },
-
+        isListSystemFoodsHaveId(id: number) {
+            const idString = "SYSTEMFOOD-" + id;
+            const idFoods = store.foods.map((item) => item.id)
+            return idFoods.includes(idString)
+        },
+        isListUserFoodsHaveId(id: number) {
+            const idString = "USERFOOD-" + id;
+            const idFoods = store.userFoods.map((item) => item.id)
+            return idFoods.includes(idString)
+        },
     }))
     .views((store) => ({
         get foodsForList() {
@@ -201,13 +292,6 @@ export const MealFoodStoreModel = types
 
     }))
     .actions((store) => ({
-        toggleFood(food: DailyFood, screen: TScreen) {
-            if (store.hasFoodList(food, screen)) {
-                store.removeFood(food, screen)
-            } else {
-                store.addDailyFood(food, screen, food.isUserCreated)
-            }
-        },
         toggleMeal(meal: Meal, screen: TScreen) {
             if (store.hasMealList(meal, screen)) {
                 store.removeMeal(meal, screen)
@@ -251,10 +335,11 @@ export const MealFoodStoreModel = types
             store.userMeals.clear()
             store.dailyFoods.clear()
         },
+        clearDailyMeal() {
+            store.dailyMeals.clearDailyMeals()
+        },
         // hàm thực hiện convert thì food sang dailyFood đồng thời setProps dailyFoods
         convertArrFoodToDailyFood(arrFood: Food[], arrUserFood: Food[]) {
-            console.log("food", arrFood);
-            console.log("userFood", arrUserFood);
             let dailyFood = [];
             let foods = []
             let userFoods = []
@@ -294,7 +379,10 @@ export const MealFoodStoreModel = types
 
         removeUserFood(food: Food) {
             store.userFoods.remove(food)
-        }
+        },
+        clearSearchFood() {
+            store.searchFoodList.clear()
+        },
 
     }))
 

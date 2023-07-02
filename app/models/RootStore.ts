@@ -13,6 +13,7 @@ import { WeightLogStoreModel } from "./WeightLogStore"
 import { ExerciseStoreModel } from "./ExerciseStore"
 import { MealFoodStoreModel } from "./MealFoodStore"
 import { DailyMealsModel } from "./DailyMealsModel"
+import { MealDetailModal } from './MealDetails';
 /**
  * A RootStore model.
  */
@@ -29,6 +30,8 @@ export const RootStoreModel = types.model("RootStore").props({
   mealFoodStore: types.optional(MealFoodStoreModel, {}),
   dailyMealsModel: types.optional(DailyMealsModel, {}),
   episodeStore: types.optional(EpisodeStoreModel, {}),
+
+  mealDetailStore: types.optional(MealDetailModal, {}),
 })
 
 /**

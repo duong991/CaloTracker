@@ -6,7 +6,7 @@ import { ViewStyle, View, Dimensions, TouchableOpacity, Alert } from "react-nati
 import { Icon, Screen, Text, Button } from "../../components"
 import { AppStackScreenProps } from "../../navigators"
 import { colors, spacing } from "../../theme"
-
+import { useRoute } from "@react-navigation/native"
 import { PersonalInfo, ActiveLevel } from "./updateInfo"
 
 import { useStores } from "../../models"
@@ -17,7 +17,8 @@ export const UpdateUserInfoScreen: FC<UpdateUserInfoScreenProps> = observer(
     const navigation = _props.navigation
     const [minute, setMinute] = useState<number>()
     const [day, setDay] = useState<number>()
-
+    const route = useRoute()
+    const flag = route.params?.flag as boolean
     const {
       userInfoStore: {
         gender,
@@ -31,9 +32,10 @@ export const UpdateUserInfoScreen: FC<UpdateUserInfoScreenProps> = observer(
         setAge,
         getUserInfo,
       },
+      bodyIndexStore: { setBodyIndex },
     } = useStores()
     function goToWelcomeScreen() {
-      navigation.navigate("Welcome")
+      flag ? navigation.pop() : navigation.navigate("Welcome")
     }
     const calculatorActiveLevelAndGoToNextScreen = () => {
       if (!minute || !day || !height || !weight || !age) {
@@ -41,8 +43,14 @@ export const UpdateUserInfoScreen: FC<UpdateUserInfoScreenProps> = observer(
         return
       }
       setActiveLevel(minute, day)
-      console.log(getUserInfo())
-      navigation.navigate("Target")
+
+      if (flag) {
+        const { R, target, protein, fat, carb } = getUserInfo()
+        setBodyIndex(gender, height, weight, age, R, target, protein, fat, carb)
+        navigation.pop()
+      } else {
+        navigation.navigate("Target", { flag: false })
+      }
     }
 
     const handleDayChange = (value: number) => {

@@ -45,7 +45,6 @@ export const DailyMealsModel = types
         get totalCalories() {
             const CaloriesFromFood =
                 store.breakfastFoods.reduce((total, item) => {
-                    console.log('tootolcalo', item);
                     return total + item.calories
                 }, 0) +
                 store.lunchFoods.reduce((total, item) => total + item.calories, 0) +
@@ -58,7 +57,7 @@ export const DailyMealsModel = types
                 + store.dinnerMeals.reduce((total, item) => total + item.calories, 0)
                 + store.snackMeals.reduce((total, item) => total + item.calories, 0);
 
-            return (CaloriesFromFood + CaloriesFromMeal).toFixed(1)
+            return +(CaloriesFromFood + CaloriesFromMeal).toFixed(1)
         },
         get totalProtein() {
             const ProteinFromFood =
@@ -134,7 +133,165 @@ export const DailyMealsModel = types
             const CaloFromMeal =
                 store.snackMeals.reduce((total, item) => total + item.calories, 0)
             return CaloFromFood + CaloFromMeal
-        }
+        },
+        get listFoodOrMealForUpdateDB() {
+            const foodId = []
+            const mealId = []
+            const userFoodId = []
+            const userMealId = []
+            store.breakfastFoods?.forEach((item) => {
+                if (item.isUserCreated) {
+                    const id = item.id.split('-')[1]
+                    const data = {
+                        id: +id,
+                        servingSize: item.servingSize,
+                        mealType: 'breakfast',
+                    }
+                    userFoodId.push(data)
+                } else {
+                    const id = item.id.split('-')[1]
+                    const data = {
+                        id: +id,
+                        servingSize: item.servingSize,
+                        mealType: 'breakfast',
+                    }
+                    foodId.push(data)
+                }
+
+            })
+            store.lunchFoods.forEach((item) => {
+                if (item.isUserCreated) {
+                    const id = item.id.split('-')[1]
+                    const data = {
+                        id: +id,
+                        servingSize: item.servingSize,
+                        mealType: 'lunch',
+                    }
+                    userFoodId.push(data)
+                } else {
+                    const id = item.id.split('-')[1]
+                    const data = {
+                        id: +id,
+                        servingSize: item.servingSize,
+                        mealType: 'lunch',
+                    }
+                    foodId.push(data)
+                }
+            })
+            store.dinnerFoods.forEach((item) => {
+                if (item.isUserCreated) {
+                    const id = item.id.split('-')[1]
+
+                    const data = {
+                        id: +id,
+                        servingSize: item.servingSize,
+                        mealType: 'dinner',
+                    }
+                    userFoodId.push(data)
+                } else {
+                    const id = item.id.split('-')[1]
+                    const data = {
+                        id: +id,
+                        servingSize: item.servingSize,
+                        mealType: 'dinner',
+                    }
+                    foodId.push(data)
+                }
+            })
+            store.snackFoods.forEach((item) => {
+                if (item.isUserCreated) {
+                    const id = item.id.split('-')[1]
+                    const data = {
+                        id: +id,
+                        servingSize: item.servingSize,
+                        mealType: 'snack',
+                    }
+                    userFoodId.push(data)
+                } else {
+                    const id = item.id.split('-')[1]
+                    const data = {
+                        id: +id,
+                        servingSize: item.servingSize,
+                        mealType: 'snack',
+                    }
+                    foodId.push(data)
+                }
+            })
+            store.breakfastMeals.forEach((item) => {
+                if (item.isUserCreated) {
+                    const id = item.id.split('-')[1]
+                    const data = {
+                        id: +id,
+                        mealType: 'breakfast',
+                    }
+                    userMealId.push(data)
+                } else {
+                    const id = item.id.split('-')[1]
+                    const data = {
+                        id: +id,
+                        mealType: 'breakfast',
+                    }
+                    mealId.push(data)
+                }
+            })
+            store.lunchMeals.forEach((item) => {
+                if (item.isUserCreated) {
+                    const id = item.id.split('-')[1]
+                    const data = {
+                        id: +id,
+                        mealType: 'lunch',
+                    }
+                    userMealId.push(data)
+                } else {
+                    const id = item.id.split('-')[1]
+                    const data = {
+                        id: +id,
+                        mealType: 'lunch',
+                    }
+                    mealId.push(data)
+                }
+            })
+            store.dinnerMeals.forEach((item) => {
+                if (item.isUserCreated) {
+                    const id = item.id.split('-')[1]
+                    const data = {
+                        id: +id,
+                        mealType: 'dinner',
+                    }
+                    userMealId.push(data)
+                } else {
+                    const id = item.id.split('-')[1]
+                    const data = {
+                        id: +id,
+                        mealType: 'dinner',
+                    }
+                    mealId.push(data)
+                }
+            })
+            store.snackMeals.forEach((item) => {
+                if (item.isUserCreated) {
+                    const id = item.id.split('-')[1]
+                    const data = {
+                        id: +id,
+                        mealType: 'snack',
+                    }
+                    userMealId.push(data)
+                } else {
+                    const id = item.id.split('-')[1]
+                    const data = {
+                        id: +id,
+                        mealType: 'snack',
+                    }
+                    mealId.push(data)
+                }
+            })
+            return {
+                foodId,
+                mealId,
+                userFoodId,
+                userMealId,
+            }
+        },
     }))
     .actions((store) => ({
         clearDailyMeals() {
@@ -149,28 +306,18 @@ export const DailyMealsModel = types
         },
 
         addMealToBreakfast(meal: Meal) {
-            if (store.breakfastMeals.find((m) => m.id === meal.id)) {
-                return
-            }
             store.breakfastMeals.push(meal)
         },
         removeMealFromBreakfast(meal: Meal) {
             store.breakfastMeals.remove(meal)
         },
         addFoodToBreakfast(food1: DailyFood) {
-            if (store.breakfastFoods.find((f) => f.id === food1.id)) {
-                return
-            }
             store.breakfastFoods.push(food1)
-
         },
         removeFoodFromBreakfast(food: DailyFood) {
             store.breakfastFoods.remove(food)
         },
         addMealToLunch(meal: Meal) {
-            if (store.lunchMeals.find((m) => m.id === meal.id)) {
-                return
-            }
             store.lunchMeals.push(meal)
         },
         removeMealFromLunch(meal: Meal) {
@@ -190,41 +337,77 @@ export const DailyMealsModel = types
             }
         },
         addMealToDinner(meal: Meal) {
-            if (store.dinnerMeals.find((m) => m.id === meal.id)) {
-                return
-            }
             store.dinnerMeals.push(meal)
         },
         removeMealFromDinner(meal: Meal) {
             store.dinnerMeals.remove(meal)
         },
         addFoodToDinner(food: DailyFood) {
-            if (store.dinnerFoods.find((f) => f.id === food.id)) {
-                return
-            }
             store.dinnerFoods.push(food)
         },
         removeFoodFromDinner(food: DailyFood) {
             store.dinnerFoods.remove(food)
         },
         addMealToSnacks(meal: Meal) {
-            if (store.snackMeals.find((m) => m.id === meal.id)) {
-                return
-            }
             store.snackMeals.push(meal)
         },
         removeMealFromSnacks(meal: Meal) {
             store.snackMeals.remove(meal)
         },
         addFoodToSnacks(food: DailyFood) {
-            if (store.snackFoods.find((f) => f.id === food.id)) {
-                return
-            }
             store.snackFoods.push(food)
         },
         removeFoodFromSnacks(food: DailyFood) {
             store.snackFoods.remove(food)
         },
+
+        addFoodCustomServingToBreakfast(food: DailyFood) {
+            const newFood = {
+                ...food,
+                servingSize: food.servingSize,
+                calories: food.caloriesPerServing * food.servingSize,
+                protein: food.proteinPerServing * food.servingSize,
+                carbohydrates: food.carbohydratesPerServing * food.servingSize,
+                fat: food.fatPerServing * food.servingSize,
+            }
+            store.breakfastFoods.push(newFood)
+        },
+
+        addFoodCustomServingToLunch(food: DailyFood) {
+            const newFood = {
+                ...food,
+                servingSize: food.servingSize,
+                calories: food.caloriesPerServing * food.servingSize,
+                protein: food.proteinPerServing * food.servingSize,
+                carbohydrates: food.carbohydratesPerServing * food.servingSize,
+                fat: food.fatPerServing * food.servingSize,
+            }
+            store.lunchFoods.push(newFood)
+        },
+
+        addFoodCustomServingToDinner(food: DailyFood) {
+            const newFood = {
+                ...food,
+                servingSize: food.servingSize,
+                calories: food.caloriesPerServing * food.servingSize,
+                protein: food.proteinPerServing * food.servingSize,
+                carbohydrates: food.carbohydratesPerServing * food.servingSize,
+                fat: food.fatPerServing * food.servingSize,
+            }
+            store.dinnerFoods.push(newFood)
+        },
+
+        addFoodCustomServingToSnacks(food: DailyFood) {
+            const newFood = {
+                ...food,
+                servingSize: food.servingSize,
+                calories: food.caloriesPerServing * food.servingSize,
+                protein: food.proteinPerServing * food.servingSize,
+                carbohydrates: food.carbohydratesPerServing * food.servingSize,
+                fat: food.fatPerServing * food.servingSize,
+            }
+            store.snackFoods.push(newFood)
+        }
 
     }))
 export interface DailyMeals extends Instance<typeof DailyMealsModel> { }

@@ -18,6 +18,12 @@ import { AppStackScreenProps } from "../../navigators"
 import { colors, spacing } from "../../theme"
 import { useHeader } from "../../utils/useHeader"
 import { PlusSVG, CameraSVG } from "../../components/fileSVG"
+import { FoodTable } from "./FoodTable"
+// import { Camera, CameraType, FlashMode } from "expo-camera"
+// import * as MediaLibrary from "expo-media-library"
+import { useStores } from "../../models/helpers/useStores"
+import { mealApi } from "../../services/api"
+import { DropDown } from "../../components/DropDown"
 interface AddMealScreenProps extends AppStackScreenProps<"AddMeal"> {}
 
 type TArrayFood = {
@@ -29,19 +35,41 @@ type TArrayFood = {
   protein: number
   sizeServing: number
 }
+
 export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealScreen(_props) {
   const navigation = _props.navigation
+  const selectOptions = [
+    { title: "Breakfast", value: "breakfast" },
+    { title: "Meal", value: "meal" },
+    { title: "Lunch", value: "lunch" },
+  ]
+
+  const { mealDetailStore, dateStore } = useStores()
+  const {
+    systemFood,
+    userFood,
+    getDetailFoodList,
+    clearAllData,
+    getTotalCalories,
+    getTotalCarbohydrates,
+    getTotalFat,
+    getTotalProtein,
+  } = mealDetailStore
+  const arrFoodList = getDetailFoodList
+  const calories = getTotalCalories.toFixed(0) + ""
+  const fat = getTotalFat.toFixed(0) + ""
+  const carbohydrates = getTotalCarbohydrates.toFixed(0) + ""
+  const protein = getTotalProtein.toFixed(0) + ""
 
   const [name, setName] = React.useState("")
   const [description, setDescription] = React.useState("")
-  const [calories, setCalories] = React.useState("")
-  const [fat, setFat] = React.useState("")
-  const [carbs, setCarbs] = React.useState("")
-  const [protein, setProtein] = React.useState("")
-  const [arrFood, setArrFood] = React.useState<TArrayFood[]>([])
+  const [flag, setFlag] = React.useState(false)
 
-  // go to login screen
   function goToFoodScreen() {
+    console.log("flag", flag)
+    if (flag) {
+      dateStore.mealFoodStoreModel.fetchUserMeals()
+    }
     navigation.navigate("Demo")
   }
 
@@ -49,9 +77,58 @@ export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealSc
     navigation.navigate("AddFoodForMeal")
   }
 
+  useEffect(() => {
+    async function fetchData() {
+      if (dateStore.mealFoodStoreModel.foodsForList.length === 0) {
+        Promise.all([
+          dateStore.mealFoodStoreModel.fetchFoods(),
+          dateStore.mealFoodStoreModel.fetchUserFoods(),
+        ])
+      }
+    }
+    fetchData()
+  }, [])
+
+  const handleCreateNewMeal = async () => {
+    if (name === "" || description === "") {
+      Alert.alert("Vui lòng nhập đầy đủ thông tin")
+    } else {
+      const res = await mealApi.createMeal({
+        name,
+        description,
+        calories: +calories,
+        fat: +fat,
+        carbohydrates: +carbohydrates,
+        protein: +protein,
+        userFood,
+        mealType: "breakfast",
+        systemFood,
+      })
+
+      if (res.kind === "ok") {
+        setFlag(true)
+        clearAllData()
+        setName("")
+        setDescription("")
+        alert("Thêm món thành công")
+      } else {
+        alert("Thêm món thất bại")
+      }
+    }
+  }
+
   return (
     <>
       <Screen preset="auto" safeAreaEdges={["top", "bottom"]} contentContainerStyle={$container}>
+        {/* <Camera
+          ref={cameraRef}
+          style={{ flex: 1, zIndex: 9999 }}
+          type={type}
+          flashMode={flashMode}
+          onCameraReady={() => {
+            console.log("Camera ready")
+          }}
+        > */}
         <View style={$wrapHeading}>
           <TouchableOpacity onPress={goToFoodScreen}>
             <View
@@ -65,8 +142,19 @@ export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealSc
               <Icon icon="back" color={colors.mainText} size={30} />
             </View>
           </TouchableOpacity>
-          <View style={{ width: "100%" }}>
+          <View style={{ width: "50%" }}>
             <Text preset="subheading" size="md" tx="addMealScreen.title" />
+          </View>
+          <View
+            style={{
+              width: "35%",
+              justifyContent: "flex-end",
+              alignItems: "flex-end",
+            }}
+          >
+            <TouchableOpacity onPress={handleCreateNewMeal}>
+              <Icon icon="check" color={colors.mainText} size={30} />
+            </TouchableOpacity>
           </View>
         </View>
         <Text preset="subheading" size="md" tx="addMealScreen.basicInfo" />
@@ -140,8 +228,7 @@ export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealSc
             <View style={{ width: "54%" }}>
               <TextField
                 status="disabled"
-                value={description}
-                onChangeText={setDescription}
+                value={protein}
                 inputWrapperStyle={[$wrapTextField, $textFieldDisabledStyle]}
                 style={$textFieldStyle}
                 placeholder="0"
@@ -160,8 +247,7 @@ export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealSc
             <View style={{ width: "54%" }}>
               <TextField
                 status="disabled"
-                value={description}
-                onChangeText={setDescription}
+                value={carbohydrates}
                 inputWrapperStyle={[$wrapTextField, $textFieldDisabledStyle]}
                 style={$textFieldStyle}
                 placeholder="0"
@@ -180,7 +266,7 @@ export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealSc
             <View style={{ width: "54%" }}>
               <TextField
                 status="disabled"
-                value={description}
+                value={fat}
                 inputWrapperStyle={[$wrapTextField, $textFieldDisabledStyle]}
                 style={$textFieldStyle}
                 placeholder="0"
@@ -196,6 +282,7 @@ export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealSc
                 Hình ảnh
               </Text>
             </View>
+
             <View style={{ width: "54%", paddingLeft: spacing.large }}>
               <View
                 style={{
@@ -217,7 +304,7 @@ export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealSc
 
         <Text preset="subheading" size="md" tx="addMealScreen.ingredientMeal" />
 
-        <View style={arrFood.length > 0 ? $wrapContentArrFood : $wrapContentNotHasFood}>
+        <View style={arrFoodList.length < 0 ? $wrapContentArrFood : $wrapContentNotHasFood}>
           <Button
             text="Thêm thực phẩm"
             preset="default"
@@ -226,7 +313,6 @@ export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealSc
               borderRadius: 4,
               minHeight: 10,
               width: "60%",
-              marginBottom: 40,
               borderWidth: 1,
             }}
             LeftAccessory={() => (
@@ -236,26 +322,12 @@ export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealSc
             )}
           />
         </View>
-        {arrFood.length > 0 && (
-          <View
-            style={{
-              alignItems: "center",
-            }}
-          >
-            <Button
-              text="Tạo món ăn"
-              preset="filled"
-              // onPress={handleCreateUserFood}
-              style={{
-                paddingVertical: 10,
-                borderRadius: 50,
-                width: "40%",
-                marginBottom: 40,
-                borderWidth: 1,
-              }}
-            />
+        {arrFoodList.length > 0 && (
+          <View style={{}}>
+            <FoodTable />
           </View>
         )}
+        {/* </Camera> */}
       </Screen>
     </>
   )
@@ -327,7 +399,6 @@ const $textFieldStyle: TextStyle = {
 const $wrapContentArrFood: ViewStyle = {
   alignItems: "center",
   marginTop: spacing.extraLarge,
-  minHeight: 300,
   backgroundColor: "#ffffff",
   padding: spacing.medium,
   borderRadius: 25,
@@ -337,5 +408,4 @@ const $wrapContentArrFood: ViewStyle = {
 const $wrapContentNotHasFood: ViewStyle = {
   alignItems: "center",
   marginTop: spacing.extraLarge,
-  minHeight: 300,
 }

@@ -7,7 +7,7 @@ export const ExerciseStoreModel = types
     .model("ExerciseStore")
     .props({
         exercises: types.array(ExerciseModel),
-        selectedExercises: types.array(types.reference(ExerciseModel)),
+        selectedExercises: types.array(ExerciseModel),
     })
     .views((store) => ({
         get exercisesForList() {
@@ -18,11 +18,12 @@ export const ExerciseStoreModel = types
             return store.selectedExercises
         },
         get totalCaloriesBurn() {
-            return store.selectedExercises.reduce((total, exercise) => total + exercise.caloriesBurned, 0)
+            return store.selectedExercises.reduce((total, exercise) => total + exercise.caloriesBurned, 0).toFixed(0)
         },
 
         hasSelected(exercise: Exercise) {
-            return store.selectedExercises.includes(exercise)
+            const isExits = store.selectedExercises.find((f) => f.id === exercise.id)
+            return isExits
         },
 
     }))
@@ -62,7 +63,11 @@ export const ExerciseStoreModel = types
             store.selectedExercises.push(exercise);
         },
         removeExercise(exercise: Exercise) {
-            store.selectedExercises.remove(exercise);
+            const isExist = store.selectedExercises.findIndex((f) => f.id === exercise.id);
+            if (isExist === -1) {
+                return
+            }
+            store.selectedExercises.splice(isExist, 1);
         },
         clearExercise() {
             store.selectedExercises.clear();

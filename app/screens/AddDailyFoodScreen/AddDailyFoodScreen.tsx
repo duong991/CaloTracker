@@ -2,24 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { observer } from "mobx-react-lite"
 import React, { FC, useEffect, useState, useMemo } from "react"
-import {
-  View,
-  TouchableOpacity,
-  FlatList,
-  TextStyle,
-  ViewStyle,
-  ActivityIndicator,
-  TouchableWithoutFeedback,
-} from "react-native"
-import {
-  Text,
-  ListItem,
-  EmptyState,
-  Card,
-  Toggle,
-  ModalFoodMacro,
-  QuantityModal,
-} from "../../components"
+import { View, TouchableOpacity, TextStyle, ViewStyle, ActivityIndicator } from "react-native"
+import { Text, EmptyState, Card, ModalFoodMacro, QuantityModal } from "../../components"
 import { AppStackScreenProps } from "../../navigators"
 import { FixedHeader } from "../../components/FixedHeader"
 import { useStores } from "../../models"
@@ -30,7 +14,8 @@ import { useRoute } from "@react-navigation/native"
 import { Meal } from "../../models/Meal"
 // import { Food } from "../../models/Food"
 import { DailyFood } from "app/models/DailyFoodModel"
-
+import { debounce } from "lodash" // Sử dụng lodash để debounce\
+import { dailyCaloApi } from "../../services/api"
 interface AddDailyFoodScreenProps extends AppStackScreenProps<"AddDailyFood"> {}
 type TScreen = "breakfast" | "lunch" | "dinner" | "snack"
 
@@ -56,7 +41,13 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
   const [isTabsVisible, setIsTabsVisible] = useState(false)
   const [textTabVisible, setTextTabVisible] = useState<"Xem thêm" | "Ẩn đi" | "">("")
 
+  const [flag, setFlag] = useState(false)
   const [isQuantityModalVisible, setIsQuantityModalVisible] = useState(false)
+
+  useEffect(() => {
+    setFlag(false)
+  }, [])
+
   useEffect(() => {
     setScreen(route.params.data as TScreen)
     switch (screen) {
@@ -94,7 +85,7 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
       )
       setIsLoading(false)
     })()
-  }, [dateStore.mealFoodStoreModel])
+  }, [dateStore.mealFoodStoreModel.dailyFoods])
 
   async function manualRefresh() {
     setRefreshing(true)
@@ -105,8 +96,27 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
     ])
     setRefreshing(false)
   }
+  async function goBack() {
+    if (flag) {
+      const dataReq = dateStore.mealFoodStoreModel.dailyMeals.listFoodOrMealForUpdateDB
+      const date = dateStore.getDateStore().dateTime
+      date.setHours(0)
+      date.setMinutes(0)
+      date.setSeconds(0)
+      date.setMilliseconds(0)
 
-  function goBack() {
+      const res = await dailyCaloApi.updateCaloIntake({
+        date,
+        foodId: dataReq.foodId,
+        mealId: dataReq.mealId,
+        userFoodId: dataReq.userFoodId,
+        userMealId: dataReq.userMealId,
+      })
+      console.log("res", res)
+      if (res.kind !== "ok") {
+        alert("Có lỗi xảy ra")
+      }
+    }
     navigation.navigate("Demo")
   }
 
@@ -129,16 +139,26 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
   }
 
   const handleSaveQuantityModal = (quantity: number) => {
-    console.log(itemSelected)
-    const newItem = {
-      ...(itemSelected as DailyFood),
-      servingSize: quantity,
-    }
-
-    console.log(newItem)
-    dateStore.mealFoodStoreModel.addDailyFood(newItem, screen, newItem.isUserCreated)
+    const idItem = +itemSelected.id.split("-")[1]
+    const newItem = { id: idItem, servingSize: quantity }
+    setFlag(true)
+    dateStore.mealFoodStoreModel.addDailyFood(newItem, screen, itemSelected.isUserCreated)
     setIsQuantityModalVisible(false)
   }
+
+  const handleSearch = debounce((text: string) => {
+    if (text === "") {
+      dateStore.mealFoodStoreModel.clearSearchFood()
+    } else {
+      dateStore.mealFoodStoreModel.fetchSearchFoodList(text)
+    }
+  }, 300)
+
+  const handleRemoveFood = (item: DailyFood) => {
+    setFlag(true)
+    dateStore.mealFoodStoreModel.removeFood(item, screen)
+  }
+
   return (
     <FixedHeader
       handleGoBack={goBack}
@@ -146,6 +166,7 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
       isDisplayToggle={true}
       displayFood={displayFood}
       handleToggle={handleToggle}
+      handleSearch={handleSearch}
     >
       {isModalVisible && (
         <ModalFoodMacro
@@ -165,17 +186,29 @@ export const AddDailyFoodScreen: FC<AddDailyFoodScreenProps> = observer(function
       {isLoading && <ActivityIndicator />}
       {displayFood ? (
         <View style={$flatListContentContainer}>
-          {dateStore.mealFoodStoreModel.dailyFoods.slice(0, visibleItems).map((item, index) => (
-            <ItemCard
-              key={item.id}
-              item={item}
-              isSelected={dateStore.mealFoodStoreModel.hasFoodList(item, screen)}
-              onOpenModal={() => handleOpenModal(item)}
-              // onPressToggle={() => dateStore.mealFoodStoreModel.toggleFood(item, screen)}
-              onPressToggle={(item) => handleOpenQuantityModal(item)}
-              handleRemove={() => dateStore.mealFoodStoreModel.removeFood(item, screen)}
-            />
-          ))}
+          {dateStore.mealFoodStoreModel.searchFoodList.length === 0
+            ? dateStore.mealFoodStoreModel.dailyFoods
+                .slice(0, visibleItems)
+                .map((item, index) => (
+                  <ItemCard
+                    key={item.id}
+                    item={item}
+                    isSelected={dateStore.mealFoodStoreModel.hasFoodList(item, screen)}
+                    onOpenModal={() => handleOpenModal(item)}
+                    onPressToggle={(item) => handleOpenQuantityModal(item)}
+                    handleRemove={() => handleRemoveFood(item)}
+                  />
+                ))
+            : dateStore.mealFoodStoreModel.searchFoodList.map((item, index) => (
+                <ItemCard
+                  key={item.id}
+                  item={item}
+                  isSelected={dateStore.mealFoodStoreModel.hasFoodList(item, screen)}
+                  onOpenModal={() => handleOpenModal(item)}
+                  onPressToggle={(item) => handleOpenQuantityModal(item)}
+                  handleRemove={() => dateStore.mealFoodStoreModel.removeFood(item, screen)}
+                />
+              ))}
         </View>
       ) : (
         <View style={$flatListContentContainer}>

@@ -6,10 +6,11 @@ import Modal from "react-native-modal"
 import PieChartComponent from "./PieChart"
 import { DailyFood } from "../models/DailyFoodModel"
 import { Meal } from "../models/Meal"
+import { Food } from "../models/Food"
 interface ModalFoodMacroProps {
   isModalVisible: boolean
   setModalVisible: (value: boolean) => void
-  itemSelected: DailyFood | Meal
+  itemSelected: DailyFood | Meal | Food
 }
 export function ModalFoodMacro({
   isModalVisible,

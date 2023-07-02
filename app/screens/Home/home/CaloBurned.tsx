@@ -2,14 +2,14 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, FC, useEffect } from "react"
-import { TouchableOpacity, View, ViewStyle, TextStyle } from "react-native"
+import { TouchableOpacity, View, ViewStyle, TextStyle, Alert } from "react-native"
 import { Text, Title, Card, Icon } from "../../../components"
 import { spacing } from "../../../theme"
 import { useStores } from "app/models"
 import { observer } from "mobx-react-lite"
 import { colors } from "../../../theme/colors"
 import { Exercise } from "../../../models/Exercise"
-
+import { dailyCaloApi } from "app/services/api"
 interface ContentProps {}
 
 export const CaloBurned: FC<ContentProps> = observer(() => {
@@ -32,6 +32,25 @@ export const CaloBurned: FC<ContentProps> = observer(() => {
       setTextTabVisible("")
     }
   }, [isOverlayVisible, dateStore.exerciseStoreModel.exercisesSelectedForList.length, visibleItems])
+
+  const handleDeleteItem = async (item: Exercise) => {
+    const date = dateStore.getDateStore().dateTime
+    date.setHours(0)
+    date.setMinutes(0)
+    date.setSeconds(0)
+    date.setMilliseconds(0)
+    const data = {
+      id: item.id,
+      date,
+    }
+    const res = await dailyCaloApi.delete_Item_CaloConsumed(data)
+
+    if (res.kind === "ok") {
+      dateStore.exerciseStoreModel.removeExercise(item)
+    } else {
+      Alert.alert("Thông báo", "Có lỗi xảy ra, vui lòng thử lại sau")
+    }
+  }
   return (
     <View style={$wrapContent}>
       <Title
@@ -45,12 +64,8 @@ export const CaloBurned: FC<ContentProps> = observer(() => {
           <ItemCard
             key={index}
             item={item}
-            isSelected={true}
-            onPressDetail={() => {
-              console.log("onPressDetail")
-            }}
-            onPressAdd={() => {
-              console.log("onPressAdd")
+            handleRemoveItem={() => {
+              handleDeleteItem(item)
             }}
           />
         ))}
@@ -82,34 +97,25 @@ export const CaloBurned: FC<ContentProps> = observer(() => {
 
 const ItemCard = observer(function ItemCard({
   item,
-  isSelected,
-  onPressDetail,
-  onPressAdd,
+  handleRemoveItem,
 }: {
   item: Exercise
-  isSelected: boolean
-  onPressDetail: () => void
-  onPressAdd: () => void
+  handleRemoveItem: () => void
 }) {
-  const [a, seta] = useState(isSelected)
-  const handlePressFavorite = () => {
-    onPressDetail()
-  }
-
-  const handlePressCard = () => {
-    console.log("handlePressCard")
-  }
-
-  const handlePressAdd = () => {
-    onPressAdd()
-    seta(!a)
+  const handleRemove = () => {
+    Alert.alert("Xóa khỏi danh sách", "Bạn có chắc chắn muốn xóa?", [
+      {
+        text: "Không",
+        onPress: () => console.log("Cancel Pressed"),
+        style: "cancel",
+      },
+      { text: "Có", onPress: () => handleRemoveItem() },
+    ])
   }
 
   return (
     <Card
       style={$item}
-      onPress={handlePressCard}
-      onLongPress={handlePressFavorite}
       HeadingComponent={
         <View style={$metadata}>
           <Text style={$metadataText} size="xs">
@@ -117,9 +123,9 @@ const ItemCard = observer(function ItemCard({
           </Text>
         </View>
       }
-      content={`${item.caloriesBurned} kcal - ${item.duration} phút`}
+      content={`${item.caloriesBurned.toFixed(0)} kcal - ${item.duration} phút`}
       RightComponent={
-        <TouchableOpacity onPress={handlePressAdd}>
+        <TouchableOpacity onPress={handleRemove}>
           <View style={$buttonOfSearchInput}>
             <Icon icon="x" color={colors.mainText} size={20} />
           </View>

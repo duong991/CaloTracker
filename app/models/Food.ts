@@ -17,6 +17,7 @@ export const FoodModel = types
     }))
 
 
+
 export interface Food extends Instance<typeof FoodModel> { }
 export interface FoodSnapshotOut extends SnapshotOut<typeof FoodModel> { }
 export interface FoodSnapshotIn extends SnapshotIn<typeof FoodModel> { }

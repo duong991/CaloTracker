@@ -4,11 +4,17 @@ import { ApiResponse } from "apisauce";
 import { IDataRequestCreateUserMeal, IDataRequestUpdateUserMeal, } from "../../../interfaces/req-params.interface";
 import type { ApiResponseMessage, ApiGetMealResponse } from "../api.types"
 import { MealSnapshotIn } from "../../../models/Meal"
-
+import { FoodModelSnapshotIn } from "../../../models/MealDetails"
 /**
 
 Quản lý các yêu cầu API liên quan đến Meal.
 */
+
+
+interface IResponseMealDetails {
+    systemFood: FoodModelSnapshotIn[];
+    userFood: FoodModelSnapshotIn[];
+}
 export class MealApi {
     private api: Api;
 
@@ -127,6 +133,31 @@ export class MealApi {
 
     }
 
+    async getDetailUserMeal(mealId: number): Promise<{ kind: "ok", items: IResponseMealDetails } | GeneralApiProblem> {
+        const response: ApiResponse<IResponseMealDetails> = await this.api.apisauce.get(`/meals/detail/${mealId}`);
+        if (!response.ok) {
+            const problem = getGeneralApiProblem(response)
+            if (problem) return problem
+        }
+
+        try {
+            const rawData = response.data
+
+
+            return {
+                kind: "ok", items: {
+                    systemFood: rawData.systemFood,
+                    userFood: rawData.userFood,
+                }
+            }
+        } catch (e) {
+            if (__DEV__) {
+                console.tron.error(`Bad data: ${e.message}\n${response.data}`, e.stack)
+            }
+            console.log(e);
+            return { kind: "bad-data" }
+        }
+    }
 }
 
 const mealApi = new MealApi(api)

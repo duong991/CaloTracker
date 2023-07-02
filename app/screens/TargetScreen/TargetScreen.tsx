@@ -6,11 +6,14 @@ import { Icon, Screen, Text } from "../../components"
 import { AppStackScreenProps } from "../../navigators"
 import { colors, spacing } from "../../theme"
 import { useStores } from "../../models"
+import { useRoute } from "@react-navigation/native"
 
 interface TargetScreenProps extends AppStackScreenProps<"Target"> {}
 
 export const TargetScreen: FC<TargetScreenProps> = observer(function TargetScreen(_props) {
   const navigation = _props.navigation
+  const route = useRoute()
+  const flag = route.params?.flag as boolean
 
   const {
     userInfoStore: { setTarget, getUserInfo },
@@ -18,7 +21,7 @@ export const TargetScreen: FC<TargetScreenProps> = observer(function TargetScree
   } = useStores()
 
   function goToUpdateUserInfoScreen() {
-    navigation.navigate("UpdateUserInfo")
+    flag ? navigation.pop() : navigation.navigate("UpdateUserInfo")
   }
   const userInfo = getUserInfo()
 
@@ -30,19 +33,21 @@ export const TargetScreen: FC<TargetScreenProps> = observer(function TargetScree
     } else {
       setTarget("Giữ nguyên cân nặng")
     }
-    setBodyIndex(
-      userInfo.gender,
-      userInfo.height,
-      userInfo.weight,
-      userInfo.age,
-      userInfo.R,
-      userInfo.target,
-      userInfo.protein,
-      userInfo.fat,
-      userInfo.carb,
-    )
 
-    navigation.navigate("Macro")
+    const newInfo = getUserInfo()
+    setBodyIndex(
+      newInfo.gender,
+      newInfo.height,
+      newInfo.weight,
+      newInfo.age,
+      newInfo.R,
+      newInfo.target,
+      newInfo.protein,
+      newInfo.fat,
+      newInfo.carb,
+    )
+    console.log("flag", userInfo)
+    flag ? navigation.pop() : navigation.navigate("Macro")
   }
 
   return (

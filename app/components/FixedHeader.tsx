@@ -26,6 +26,7 @@ type fixedHeaderProps = {
   displayFood?: boolean
   handleToggle?: () => void
   isAddFoodForMeal?: boolean
+  handleSearch?: (text: string) => void
 }
 
 export const FixedHeader = ({
@@ -36,6 +37,7 @@ export const FixedHeader = ({
   displayFood = false,
   handleToggle,
   isAddFoodForMeal = false,
+  handleSearch,
 }: fixedHeaderProps) => {
   const { systemStore } = useStores()
 
@@ -64,6 +66,11 @@ export const FixedHeader = ({
 
   if (isAddFoodForMeal) {
     titleString = title
+  }
+
+  const onHandleChangeText = (text: string) => {
+    setTextSearch(text)
+    handleSearch(text)
   }
   return (
     <View style={{ flex: 1, backgroundColor: "white" }}>
@@ -157,13 +164,12 @@ export const FixedHeader = ({
               <View style={$search}>
                 <TextField
                   value={textSearch}
-                  onChangeText={setTextSearch}
+                  onChangeText={onHandleChangeText}
                   autoCapitalize="none"
                   autoComplete="off"
                   autoCorrect={false}
                   keyboardType="default"
                   placeholder="Tìm kiếm"
-                  // onSubmitEditing={() => authPasswordInput.current?.focus()}
                 />
               </View>
             )}

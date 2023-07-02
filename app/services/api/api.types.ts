@@ -154,12 +154,21 @@ export interface ApiResponseWeightLogByDate {
 }
 
 export interface ApiResponseDailyCaloByDate {
-  id: number;
-  date: Date;
-  caloIntakeMappings: CaloIntakeMappingAttributes[] | null;
-  caloConsumedMappings: CaloConsumedMappingAttributes[] | null;
+  items: {
+    id: number;
+    date: Date;
+    caloIntakeMappings: CaloIntakeMappingAttributes[] | null;
+    caloConsumedMappings: CaloConsumedMappingAttributes[] | null;
+  }
 }
 
+interface AllFoodItem {
+  foods: FoodItem[];
+  userFoods: FoodItem[];
+}
+export interface ApiSearchAllFoodResponse {
+  items: AllFoodItem
+}
 
 /**
  * The options used to configure apisauce.

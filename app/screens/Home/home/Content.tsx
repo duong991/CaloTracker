@@ -49,7 +49,7 @@ export const Content: FC<ContentProps> = observer(({ waterPerDay = 0 }) => {
 
   useEffect(() => {
     console.log("hello")
-    fetchData()
+    fetchData(dateTime)
     fetchWeightLogs()
   }, [])
   const scheduleApiCall = (amountUpdate: number) => {

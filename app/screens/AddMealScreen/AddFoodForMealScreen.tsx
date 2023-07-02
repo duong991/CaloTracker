@@ -10,7 +10,15 @@ import {
   ViewStyle,
   ActivityIndicator,
 } from "react-native"
-import { Text, ListItem, EmptyState, Card, Toggle } from "../../components"
+import {
+  Text,
+  ListItem,
+  EmptyState,
+  Card,
+  Toggle,
+  ModalFoodMacro,
+  QuantityModal,
+} from "../../components"
 import { AppStackScreenProps } from "../../navigators"
 import { FixedHeader } from "../../components/FixedHeader"
 import { useStores } from "../../models"
@@ -19,7 +27,7 @@ import { colors, spacing } from "../../theme"
 import { PlusSVG, TickSVG } from "../../components/fileSVG"
 import { useRoute } from "@react-navigation/native"
 import { Food } from "../../models/Food"
-// import { DailyFood } from "app/models/DailyFoodModel"
+import { DailyFood } from "app/models/DailyFoodModel"
 
 interface AddFoodForMealScreenProps extends AppStackScreenProps<"AddFoodForMeal"> {}
 
@@ -27,15 +35,67 @@ export const AddFoodForMealScreen: FC<AddFoodForMealScreenProps> = observer(
   function AddFoodForMealScreen(_props) {
     const navigation = _props.navigation
 
-    const route = useRoute()
+    const { dateStore, mealDetailStore } = useStores()
 
-    const { dateStore } = useStores()
-
+    // true: food, false: userFood
     const [typeOfFood, setTypeOfFood] = useState(true)
+
     const [refreshing, setRefreshing] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const [itemSelected, setItemSelected] = useState<Food>()
+    const [isModalVisible, setModalVisible] = useState(false)
+    const [isQuantityModalVisible, setIsQuantityModalVisible] = useState(false)
+    const handleOpenQuantityModal = (item: Food) => {
+      setItemSelected(item)
+      setIsQuantityModalVisible(true)
+    }
 
-    const [foodSelected, setFoodSelected] = useState<Food[]>([])
+    const handleCancelQuantityModal = () => {
+      setIsQuantityModalVisible(false)
+    }
+
+    const handleOpenModal = (item: Food) => {
+      setItemSelected(item)
+      setModalVisible(true)
+    }
+    const handleSaveQuantityModal = (quantity: number) => {
+      const idItem = +itemSelected.id.split("-")[1]
+      const newItem = { id: idItem, servingSize: quantity }
+      const newRecord = {
+        id: idItem,
+        servingSize: quantity,
+        name: itemSelected.name,
+        calories: (itemSelected.calories * quantity) / 100,
+        protein: (itemSelected.protein * quantity) / 100,
+        fat: (itemSelected.fat * quantity) / 100,
+        carbohydrates: (itemSelected.carbohydrates * quantity) / 100,
+      }
+      if (typeOfFood) {
+        mealDetailStore.addSystemFood(newItem.id, newItem.servingSize)
+        mealDetailStore.addNewRecordToDetailFoodList(
+          newRecord.id,
+          newRecord.servingSize,
+          newRecord.name,
+          newRecord.calories,
+          newRecord.protein,
+          newRecord.fat,
+          newRecord.carbohydrates,
+        )
+      } else {
+        mealDetailStore.addUserFood(newItem.id, newItem.servingSize)
+        mealDetailStore.addNewRecordToDetailFoodList(
+          newRecord.id,
+          newRecord.servingSize,
+          newRecord.name,
+          newRecord.calories,
+          newRecord.protein,
+          newRecord.fat,
+          newRecord.carbohydrates,
+        )
+      }
+
+      setIsQuantityModalVisible(false)
+    }
 
     useEffect(() => {
       ;(async function load() {
@@ -56,6 +116,17 @@ export const AddFoodForMealScreen: FC<AddFoodForMealScreenProps> = observer(
     const handleToggle = () => {
       setTypeOfFood(!typeOfFood)
     }
+
+    const handleRemove = (item: Food) => {
+      const newId = +item.id.split("-")[1]
+      if (typeOfFood) {
+        mealDetailStore.removeSystemFood(newId)
+        mealDetailStore.removeRecordFromDetailFoodList(newId)
+      } else {
+        mealDetailStore.removeUserFood(newId)
+        mealDetailStore.removeRecordFromDetailFoodList(newId)
+      }
+    }
     return (
       <FixedHeader
         handleGoBack={goBack}
@@ -63,23 +134,44 @@ export const AddFoodForMealScreen: FC<AddFoodForMealScreenProps> = observer(
         isAddFoodForMeal={true}
         handleToggle={handleToggle}
       >
-        <FlatList<Food>
-          data={
-            typeOfFood ? dateStore.mealFoodStoreModel.foods : dateStore.mealFoodStoreModel.userFoods
-          }
-          contentContainerStyle={$flatListContentContainer}
-          refreshing={refreshing}
-          ListEmptyComponent={isLoading ? <ActivityIndicator /> : <></>}
-          renderItem={({ item, index }) => (
-            <ItemCard
-              key={item.id}
-              item={item}
-              // isSelected={dateStore.mealFoodStoreModel.hasFoodList(item, screen)}
-              onPressDetail={() => console.log("Food")}
-              // onPressToggle={() => dateStore.mealFoodStoreModel.toggleFood(item, screen)}
-            />
+        {isModalVisible && (
+          <ModalFoodMacro
+            isModalVisible={isModalVisible}
+            setModalVisible={setModalVisible}
+            itemSelected={itemSelected}
+          />
+        )}
+        {isQuantityModalVisible && (
+          <QuantityModal
+            title="Nhập số gram thực phẩm"
+            isVisible={isQuantityModalVisible}
+            onCancel={handleCancelQuantityModal}
+            onConfirm={handleSaveQuantityModal}
+          />
+        )}
+        <View style={$flatListContentContainer}>
+          {isLoading ? (
+            <ActivityIndicator />
+          ) : (
+            (typeOfFood
+              ? dateStore.mealFoodStoreModel.foods
+              : dateStore.mealFoodStoreModel.userFoods
+            ).map((item, index) => (
+              <ItemCard
+                key={item.id}
+                item={item}
+                isSelected={
+                  typeOfFood
+                    ? mealDetailStore.isSystemFoodHaveId(item.id)
+                    : mealDetailStore.isUserFoodHaveId(item.id)
+                }
+                onOpenModal={() => handleOpenModal(item)}
+                onPressToggle={(item) => handleOpenQuantityModal(item)}
+                handleRemove={(item) => handleRemove(item)}
+              />
+            ))
           )}
-        />
+        </View>
       </FixedHeader>
     )
   },
@@ -87,54 +179,57 @@ export const AddFoodForMealScreen: FC<AddFoodForMealScreenProps> = observer(
 
 const ItemCard = observer(function ItemCard({
   item,
-  //   isSelected,
-  onPressDetail,
+  isSelected,
+  onOpenModal,
+  onPressToggle,
+  handleRemove,
 }: //   onPressToggle,
 {
   item: Food
-  //   isSelected: boolean
-  onPressDetail: () => void
-  //   onPressToggle: () => void
+  isSelected: boolean
+  onOpenModal: (item: Food) => void
+  onPressToggle: (item: any) => void
+  handleRemove?: (item: Food) => void
 }) {
-  const [a, seta] = useState()
-  const handlePressFavorite = () => {
-    onPressDetail()
-  }
-  //   useEffect(() => {
-  //     seta(isSelected)
-  //   }, [isSelected])
+  const [isClicked, setIsClicked] = useState(false)
+  useEffect(() => {
+    setIsClicked(isSelected)
+  }, [isSelected])
 
-  const handlePressCard = () => {
-    onPressDetail()
-    console.log("handlePressCard")
+  const handleIsClicked = () => {
+    if (isClicked) {
+      setIsClicked(false)
+      handleRemove && handleRemove(item)
+    } else {
+      onPressToggle(item)
+    }
   }
 
-  const handlePressAdd = () => {
-    // onPressToggle()
-    // seta(!a)
+  const handleLongPressCard = (item) => {
+    onOpenModal(item)
   }
 
   return (
-    <Card
-      style={$item}
-      onPress={handlePressCard}
-      onLongPress={handlePressFavorite}
-      HeadingComponent={
-        <View style={$metadata}>
-          <Text style={$metadataText} size="xs">
-            {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
-          </Text>
-        </View>
-      }
-      content={`${item.calories} kcal`}
-      RightComponent={
-        <TouchableOpacity onPress={handlePressAdd}>
-          <View style={$buttonOfSearchInput}>
-            {a ? <TickSVG size={12} /> : <PlusSVG size={12} color="#191919" />}
+    <TouchableOpacity onLongPress={() => handleLongPressCard(item)}>
+      <Card
+        style={$item}
+        HeadingComponent={
+          <View style={$metadata}>
+            <Text style={$metadataText} size="xs">
+              {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
+            </Text>
           </View>
-        </TouchableOpacity>
-      }
-    />
+        }
+        content={`${item.calories} kcal`}
+        RightComponent={
+          <TouchableOpacity onPress={handleIsClicked}>
+            <View style={$buttonOfSearchInput}>
+              {isClicked ? <TickSVG size={12} /> : <PlusSVG size={12} color="#191919" />}
+            </View>
+          </TouchableOpacity>
+        }
+      />
+    </TouchableOpacity>
   )
 })
 

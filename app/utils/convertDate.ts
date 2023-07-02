@@ -8,5 +8,11 @@ export const stringToDate = (date: string): Date => {
 }
 
 export const convertDateBeforeInsertOrUpdate = (date: Date): string => {
-    return date.toISOString().slice(0, 10)
+    if (date) {
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        return `${year}-${month}-${day}`;
+    }
+    return '';
 }

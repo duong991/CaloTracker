@@ -32,7 +32,6 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
 
   // Lấy dữ liệu từ server
   useEffect(() => {
-    dateStore.mealFoodStoreModel.clearMealFood()
     const fetchData = async () => {
       if (authToken) {
         await api.setAuthToken(authToken)
@@ -64,7 +63,7 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
       await dateStore.mealFoodStoreModel.fetchUserMeals()
     }
 
-    navigation.navigate(isFirstTime ? "UpdateUserInfo" : "Demo")
+    navigation.navigate(isFirstTime ? "UpdateUserInfo" : "Demo", { flag: false })
   }
   useHeader({
     rightTx: "common.logOut",

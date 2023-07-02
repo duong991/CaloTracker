@@ -2,30 +2,89 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { observer } from "mobx-react-lite"
-import React, { FC } from "react"
-import { TextStyle, View, ViewStyle, useWindowDimensions, Dimensions } from "react-native"
-import { ListItem, Screen, Text, TextField, StatisticalIndex } from "../../components"
+import React, { FC, useState } from "react"
+import { TextStyle, View, ViewStyle, Alert, Dimensions } from "react-native"
+import {
+  ListItem,
+  Screen,
+  Text,
+  TextField,
+  StatisticalIndex,
+  QuantityModal,
+} from "../../components"
 import { DemoTabScreenProps } from "../../navigators/DemoNavigator"
 import { spacing, colors } from "../../theme"
 
 import { AvatarSVG, MenuBarSVG, ClockSVG } from "../../components/fileSVG"
 import { useStores } from "app/models"
-
+import { formatDateToString } from "../../utils/formatDateToString"
+import { api } from "../../services/api"
 export const PersonalScreen: FC<DemoTabScreenProps<"Personal">> = observer(function PersonalScreen(
   _props,
 ) {
   const {
-    userInfoStore: { getUserInfo, getUserInfoForUpdate },
-    bodyIndexStore: { getBodyIndex, setCalorPerDay },
-    authenticationStore: { authEmail, allInfo },
+    userInfoStore: { getUserInfo, getUserInfoForUpdate, setUserInfo },
+    bodyIndexStore: { getBodyIndex, setBodyIndex },
+    authenticationStore: { authEmail },
+    weightLogStore,
   } = useStores()
+  const { navigation } = _props
+  const { fetchWeightLogs } = weightLogStore
 
   const userInfo = getUserInfo()
   const userInfoForUpdate = getUserInfoForUpdate()
   const bodyIndex = getBodyIndex()
+
+  const [isModalVisible, setIsModalVisible] = useState(false)
+
+  const handleConfirm = async (weight: number) => {
+    const lastTimeToUpdate = formatDateToString(new Date())
+    const data = {
+      weight,
+      date: lastTimeToUpdate,
+    }
+    const res = await api.updateWeight(data)
+    if (res.kind === "ok") {
+      Alert.alert("Cập nhật cân nặng thành công")
+      const response = await api.getUserInfo()
+      if (response.kind === "ok") {
+        const data = response.data
+        if (data) {
+          setUserInfo(data.userInfo)
+          const { weight, R, age, gender, height, protein, carb, fat, target } = getUserInfo()
+          setBodyIndex(gender, height, weight, age, R, target, protein, fat, carb)
+        }
+      }
+      fetchWeightLogs()
+      setIsModalVisible(false)
+    } else {
+      Alert.alert("Cập nhật cân nặng thất bại")
+    }
+  }
+
+  const handleCancel = () => {
+    setIsModalVisible(false)
+  }
+
+  const handlePressWeight = () => {
+    setIsModalVisible(true)
+  }
+
+  const goToUpdateProfile = () => {
+    navigation.push("UpdateUserInfo", { flag: true })
+  }
+
   return (
     <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["bottom", "top"]}>
       {/* Header */}
+      {isModalVisible && (
+        <QuantityModal
+          isVisible={isModalVisible}
+          title="Cập nhật cân nặng"
+          onCancel={handleCancel}
+          onConfirm={handleConfirm}
+        />
+      )}
       <View style={$wrapHeader}>
         <View style={$avatar}>
           <AvatarSVG />
@@ -42,6 +101,9 @@ export const PersonalScreen: FC<DemoTabScreenProps<"Personal">> = observer(funct
         height={userInfo.height}
         weight={userInfo.weight}
         dateForUpdateWeight={userInfo.dateForUpdateWeight}
+        isDisplay={true}
+        handleOpenModal={handlePressWeight}
+        goToScreen={goToUpdateProfile}
       />
     </Screen>
   )

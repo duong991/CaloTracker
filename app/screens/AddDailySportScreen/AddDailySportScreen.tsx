@@ -9,7 +9,7 @@ import {
   ViewStyle,
   ActivityIndicator,
 } from "react-native"
-import { Text, ListItem, EmptyState, Card } from "../../components"
+import { Text, ListItem, EmptyState, Card, QuantityModal } from "../../components"
 import { AppStackScreenProps } from "../../navigators"
 import { FixedHeader } from "../../components/FixedHeader"
 import { useStores } from "../../models"
@@ -17,6 +17,7 @@ import { delay } from "../../utils/delay"
 import { colors, spacing } from "../../theme"
 import { Exercise } from "../../models/Exercise"
 import { PlusSVG, TickSVG } from "../../components/fileSVG"
+import { dailyCaloApi } from "../../services/api"
 
 interface AddDailySportScreenProps extends AppStackScreenProps<"AddDailySport"> {}
 
@@ -26,6 +27,10 @@ export const AddDailySportScreen: FC<AddDailySportScreenProps> = observer(
     const { dateStore } = useStores()
     const [refreshing, setRefreshing] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const [isQuantityModalVisible, setIsQuantityModalVisible] = useState(false)
+    const [flag, setFlag] = useState(false)
+    const [itemSelected, setItemSelected] = useState<Exercise>()
+
     useEffect(() => {
       ;(async function load() {
         setIsLoading(true)
@@ -40,19 +45,73 @@ export const AddDailySportScreen: FC<AddDailySportScreenProps> = observer(
       await Promise.all([dateStore.exerciseStoreModel.fetchExercises(), delay(750)])
       setRefreshing(false)
     }
+    const handleOpenQuantityModal = (item: Exercise) => {
+      setItemSelected(item)
+      setIsQuantityModalVisible(true)
+    }
 
-    function goBack() {
+    const handleCancelQuantityModal = () => {
+      setIsQuantityModalVisible(false)
+    }
+
+    const handleSaveQuantityModal = (quantity: number) => {
+      setFlag(true)
+      const newExercise = {
+        ...itemSelected,
+        duration: quantity,
+        caloriesBurned: (itemSelected.caloriesBurned * quantity) / itemSelected.duration,
+      }
+      setFlag(true)
+      dateStore.exerciseStoreModel.addExercise(newExercise)
+      setIsQuantityModalVisible(false)
+    }
+    async function goBack() {
+      if (flag) {
+        const date = dateStore.getDateStore().dateTime
+        date.setHours(0)
+        date.setMinutes(0)
+        date.setSeconds(0)
+        date.setMilliseconds(0)
+        const exerciseIds = dateStore.exerciseStoreModel.exercisesSelectedForList.map((item) => {
+          return {
+            id: item.id,
+            duration: item.duration,
+          }
+        })
+        const res = await dailyCaloApi.updateCaloConsumed({
+          date,
+          exerciseId: exerciseIds,
+        })
+        console.log("res", res)
+        if (res.kind !== "ok") {
+          alert("Có lỗi xảy ra")
+        }
+      }
       navigation.navigate("Demo")
+    }
+
+    const handleRemove = (item: Exercise) => {
+      setFlag(true)
+      dateStore.exerciseStoreModel.removeExercise(item)
     }
     return (
       <FixedHeader handleGoBack={goBack} title={null}>
         <View style={$flatListContentContainer}>
+          {isQuantityModalVisible && (
+            <QuantityModal
+              title="Nhập số phút tập luyện"
+              isVisible={isQuantityModalVisible}
+              onCancel={handleCancelQuantityModal}
+              onConfirm={handleSaveQuantityModal}
+            />
+          )}
           {dateStore.exerciseStoreModel.exercisesForList.map((item, index) => (
             <ExerciseCard
               key={item.id}
               isSelected={dateStore.exerciseStoreModel.hasSelected(item)}
               exercise={item}
-              onPressToggle={() => dateStore.exerciseStoreModel.toggleSelected(item)}
+              onPressToggle={(item) => handleOpenQuantityModal(item)}
+              handleRemove={(item) => handleRemove(item)}
             />
           ))}
         </View>
@@ -65,34 +124,30 @@ const ExerciseCard = observer(function ExerciseCard({
   exercise,
   isSelected,
   onPressToggle,
+  handleRemove,
 }: {
   exercise: Exercise
   isSelected: boolean
-  onPressToggle: () => void
+  onPressToggle: (exercise: any) => void
+  handleRemove?: (exercise) => void
 }) {
   const [isSelect, setIsSelect] = useState(isSelected)
   useEffect(() => {
     setIsSelect(isSelected)
   }, [isSelected])
 
-  const handlePressCard = () => {
-    console.log("handlePressCard")
-  }
-
-  const handleLongPressCard = () => {
-    console.log("handleLongPressCard")
-  }
-
-  const handlePressAdd = () => {
-    onPressToggle()
-    setIsSelect(!isSelect)
+  const handleIsClicked = () => {
+    if (isSelect) {
+      setIsSelect(false)
+      handleRemove && handleRemove(exercise)
+    } else {
+      onPressToggle(exercise)
+    }
   }
 
   return (
     <Card
       style={$item}
-      onPress={handlePressCard}
-      onLongPress={handleLongPressCard}
       verticalAlignment="force-footer-bottom"
       HeadingComponent={
         <View style={$metadata}>
@@ -103,7 +158,7 @@ const ExerciseCard = observer(function ExerciseCard({
       }
       content={`${exercise.caloriesBurned} kcal - ${exercise.duration} phút`}
       RightComponent={
-        <TouchableOpacity onPress={handlePressAdd}>
+        <TouchableOpacity onPress={handleIsClicked}>
           <View style={$buttonOfSearchInput}>
             {isSelect ? <TickSVG size={12} /> : <PlusSVG size={12} color="#191919" />}
           </View>

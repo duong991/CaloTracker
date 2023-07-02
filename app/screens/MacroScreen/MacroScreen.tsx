@@ -7,24 +7,32 @@ import { Icon, Screen, Text } from "../../components"
 import { AppStackScreenProps } from "../../navigators"
 import { colors, spacing } from "../../theme"
 import { useStores } from "../../models"
+import { useRoute } from "@react-navigation/native"
+
 interface MacroScreenProps extends AppStackScreenProps<"Macro"> {}
 
 export const MacroScreen: FC<MacroScreenProps> = observer(function MacroScreen(_props) {
   const navigation = _props.navigation
-
+  const route = useRoute()
+  const flag = route.params?.flag as boolean
   const {
-    userInfoStore: { setMacro, getUserInfoForUpdate },
+    userInfoStore: { setMacro, getUserInfoForUpdate, getUserInfo },
+    bodyIndexStore: { setBodyIndex },
   } = useStores()
 
   function goToTargetScreen() {
-    navigation.navigate("Target")
+    flag ? navigation.pop() : navigation.navigate("Target")
   }
 
   function setMacroAndGoToNextScreen(value: number) {
     const userInfo = getUserInfoForUpdate()
     setMacro(value)
     console.log(userInfo)
-    navigation.navigate("Statistical")
+    if (flag) {
+      const { weight, R, age, gender, height, protein, carb, fat, target } = getUserInfo()
+      setBodyIndex(gender, height, weight, age, R, target, protein, fat, carb)
+    }
+    flag ? navigation.pop() : navigation.navigate("Statistical")
   }
 
   return (

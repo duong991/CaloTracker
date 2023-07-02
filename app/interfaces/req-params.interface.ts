@@ -25,8 +25,7 @@ export interface IDataRequestUserFood {
 }
 
 interface IUserMealFood {
-    foodId?: number;
-    userFoodId?: number;
+    id: number;
     servingSize: number;
 }
 
@@ -39,7 +38,8 @@ export interface IDataRequestCreateUserMeal {
     carbohydrates: number;
     fat: number;
     mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
-    userMealFood: IUserMealFood[];
+    userFood: IUserMealFood[],
+    systemFood: IUserMealFood[]
 }
 
 interface IUpdateUserMealFood {
@@ -85,9 +85,9 @@ interface IMealId {
 }
 
 export interface IDataRequestUpdateCaloIntake {
-    date: string;
+    date: Date;
     foodId: IFoodId[] | null;
-    mealId: number[] | null;
+    mealId: IMealId[] | null;
     userFoodId: IFoodId[] | null;
     userMealId: IMealId[] | null;
 }
@@ -97,12 +97,12 @@ interface IExerciseId {
     duration: number;
 }
 export interface IDataRequestUpdateCaloConsumed {
-    date: string;
+    date: Date;
     exerciseId: IExerciseId[] | null;
 }
 
 export interface IDataRequestDeleteCaloIntake {
-    date: string;
+    date: Date;
     foodId: number[] | null;
     mealId: number[] | null;
     userFoodId: number[] | null;
@@ -110,6 +110,6 @@ export interface IDataRequestDeleteCaloIntake {
 }
 
 export interface IDataRequestDeleteCaloConsumed {
-    date: string;
+    date: Date;
     exerciseId: number[] | null;
 }

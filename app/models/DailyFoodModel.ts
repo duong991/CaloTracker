@@ -53,6 +53,6 @@ export const DailyFoodModel = types
     }))
 
 export interface DailyFood extends Instance<typeof DailyFoodModel> { }
-export interface FoodSnapshotOut extends SnapshotOut<typeof DailyFoodModel> { }
-export interface FoodSnapshotIn extends SnapshotIn<typeof DailyFoodModel> { }
+export interface DailyFoodSnapshotOut extends SnapshotOut<typeof DailyFoodModel> { }
+export interface DailyFoodSnapshotIn extends SnapshotIn<typeof DailyFoodModel> { }
 

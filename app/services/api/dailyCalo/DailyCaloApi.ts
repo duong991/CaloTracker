@@ -124,6 +124,7 @@ export class DailyCaloApi {
         * */
 
     async getDailyCaloByDate(date: string): Promise<{ kind: "ok", data: ApiResponseDailyCaloByDate } | GeneralApiProblem> {
+
         const response: ApiResponse<ApiResponseDailyCaloByDate> = await this.api.apisauce.get(`/daily-calo/by-date/?date=${date}`);
         if (!response.ok) {
             const problem = getGeneralApiProblem(response)
@@ -138,6 +139,31 @@ export class DailyCaloApi {
             }
             return { kind: "bad-data" };
         }
+    }
+
+    async delete_Item_CaloIntake(data: {
+        id: number,
+        date: Date,
+        type: 'food' | 'userFood' | 'meal' | 'userMeal'
+    }): Promise<{ kind: 'ok' } | GeneralApiProblem> {
+        const response: ApiResponse<ApiResponseMessage> = await this.api.apisauce.post("/daily-calo/delete-item-calo-intake", data);
+        if (!response.ok) {
+            const problem = getGeneralApiProblem(response)
+            if (problem) return problem
+        }
+        return { kind: 'ok' }
+    }
+
+    async delete_Item_CaloConsumed(data: {
+        id: number,
+        date: Date,
+    }): Promise<{ kind: 'ok' } | GeneralApiProblem> {
+        const response: ApiResponse<ApiResponseMessage> = await this.api.apisauce.post("/daily-calo/delete-item-calo-consumed", data);
+        if (!response.ok) {
+            const problem = getGeneralApiProblem(response)
+            if (problem) return problem
+        }
+        return { kind: 'ok' }
     }
 }
 const dailyCaloApi = new DailyCaloApi(api)

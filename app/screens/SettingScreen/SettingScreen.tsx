@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { FC } from "react"
-import { TextStyle, View, ViewStyle } from "react-native"
+import { TextStyle, View, ViewStyle, TouchableOpacity } from "react-native"
 import { Button, ListItem, Screen, Text } from "../../components"
 import { DemoTabScreenProps } from "../../navigators/DemoNavigator"
 import { colors, spacing } from "../../theme"
@@ -14,7 +14,7 @@ export const SettingScreen: FC<DemoTabScreenProps<"Setting">> = function Setting
     systemStore: { setOverLayVisible },
     dateStore,
   } = useStores()
-
+  const { navigation } = _props
   const handleLogout = () => {
     dateStore.mealFoodStoreModel.clearMealFood()
     dateStore.mealFoodStoreModel.dailyMeals.clearDailyMeals()
@@ -23,6 +23,14 @@ export const SettingScreen: FC<DemoTabScreenProps<"Setting">> = function Setting
     clearUserInfo()
     logout()
   }
+
+  const goToTargetScreen = () => {
+    navigation.push("Target", { flag: true })
+  }
+
+  const goToMacroScreen = () => {
+    navigation.push("Macro", { flag: true })
+  }
   return (
     <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$container}>
       <Text style={$title} preset="heading" tx="settingScreen.title" />
@@ -30,14 +38,18 @@ export const SettingScreen: FC<DemoTabScreenProps<"Setting">> = function Setting
         <ListItem
           LeftComponent={
             <View style={$item}>
-              <Text preset="subheading">Cập nhật chỉ số trao đổi chất BMI</Text>
+              <TouchableOpacity onPress={goToTargetScreen}>
+                <Text preset="subheading">Cập nhật mục tiêu cân nặng</Text>
+              </TouchableOpacity>
             </View>
           }
         />
         <ListItem
           LeftComponent={
             <View style={$item}>
-              <Text preset="subheading">Cập nhật macro dinh dưỡng</Text>
+              <TouchableOpacity onPress={goToMacroScreen}>
+                <Text preset="subheading">Cập nhật macro dinh dưỡng</Text>
+              </TouchableOpacity>
             </View>
           }
         />

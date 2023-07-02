@@ -1,20 +1,4 @@
 import { Instance, SnapshotIn, SnapshotOut, types } from "mobx-state-tree"
-
-// interface FoodItem {
-//     id: number;
-//     name: string;
-//     calories: number;
-//     protein: number;
-//     carbohydrates: number;
-//     fat: number;
-// }
-// interface IMealFood {
-//     id: number
-//     mealId: number
-//     foodId: number
-//     servingSize: number
-//     food: FoodItem | null
-// }
 type mealType = "breakfast" | "lunch" | "dinner" | "snack"
 export const MealModel = types
     .model("Meal")

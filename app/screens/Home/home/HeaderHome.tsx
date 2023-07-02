@@ -29,6 +29,10 @@ export const HeaderHome: FC<HeaderHomeProps> = observer(
       dateStore: { dateTime, setDateTime, mealFoodStoreModel, exerciseStoreModel },
     } = useStores()
 
+    // useEffect(() => {
+    //   fetchData()
+    // }, [dateTime])
+
     const handleConfirm = (dateTime) => {
       if (dateTime > new Date()) {
         setDateTime(new Date())
@@ -54,7 +58,6 @@ export const HeaderHome: FC<HeaderHomeProps> = observer(
     }
 
     const dateString = dateTime.toLocaleString("vi-VN", { day: "numeric", month: "short" })
-    console.log("Homeheader", dateTime)
     const today = new Date()
     const dayOfWeek =
       dateTime.getDate() === today.getDate() &&

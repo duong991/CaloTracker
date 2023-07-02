@@ -25,7 +25,7 @@ export const HomeScreen: FC<DemoTabScreenProps<"Home">> = observer(function Home
     userInfoStore: { getUserInfo },
     bodyIndexStore: { getBodyIndex, setBodyIndex },
     systemStore: { isOverlayVisible },
-    dateStore: { setDateTime },
+    dateStore: { setDateTime, mealFoodStoreModel },
   } = useStores()
   const { navigation } = _props
 
@@ -35,8 +35,18 @@ export const HomeScreen: FC<DemoTabScreenProps<"Home">> = observer(function Home
   }
 
   useEffect(() => {
+    const load = async () => {
+      await Promise.all([
+        mealFoodStoreModel.fetchFoods(),
+        mealFoodStoreModel.fetchMeals(),
+        mealFoodStoreModel.fetchUserFoods(),
+        mealFoodStoreModel.fetchUserMeals(),
+      ])
+    }
+
     setDateTime(new Date())
     handleCalculateBodyIndex()
+    load()
   }, [])
 
   const goToScreen = (screenName: TScreenName, data: TData) => {
@@ -83,7 +93,7 @@ export const HomeScreen: FC<DemoTabScreenProps<"Home">> = observer(function Home
           fatG={bodyIndx.gramOfFat}
           proteinG={bodyIndx.gramOfProtein}
         />
-        <Button onPress={handleNotification}>Click me!</Button>
+        {/* <Button onPress={handleNotification}>Click me!</Button> */}
         <MemoizedContent waterPerDay={bodyIndx.water} />
         <MemoizedDailyCalo />
         <MemoizedCaloBurned />

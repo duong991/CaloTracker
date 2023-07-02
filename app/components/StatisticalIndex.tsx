@@ -1,22 +1,39 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { FC } from "react"
-import { TextStyle, View, ViewStyle, Dimensions } from "react-native"
+import React from "react"
+import { TextStyle, View, ViewStyle, Dimensions, Alert, TouchableOpacity } from "react-native"
 import { Text } from "."
 import { spacing, colors } from "../theme"
-
 import { Icon } from "./Icon"
 import { ClockSVG, MenuBarSVG } from "./fileSVG"
+interface StatisticalIndexProps {
+  BMI: number
+  water: number
+  weightStatus: string
+  height: number
+  weight: number
+  dateForUpdateWeight: string
+  isDisplay?: boolean
+  handleOpenModal?(): void
+  goToScreen?(): void
+}
+export const StatisticalIndex = (
+  {
+    BMI,
+    water,
+    weightStatus,
+    height,
+    weight,
+    dateForUpdateWeight,
+    isDisplay = false,
+    handleOpenModal,
+    goToScreen,
+  }: StatisticalIndexProps,
+  _props,
+) => {
+  const { navigation } = _props
 
-export function StatisticalIndex({
-  BMI,
-  water,
-  weightStatus,
-  height,
-  weight,
-  dateForUpdateWeight,
-}) {
   return (
     <>
       <View style={$wrapContent}>
@@ -24,7 +41,11 @@ export function StatisticalIndex({
           <Text preset="subheading" size="sm">
             Chỉ số khối cơ thể (BMI)
           </Text>
-          <MenuBarSVG size={30} />
+          {isDisplay && (
+            <TouchableOpacity onPress={goToScreen}>
+              <MenuBarSVG size={30} />
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={$contentContainer}>
@@ -46,9 +67,13 @@ export function StatisticalIndex({
                   {dateForUpdateWeight}
                 </Text>
               </View>
-              <Text preset="subheading" size="sm" style={[$labelBodyIndex, $redText]}>
-                Cập nhật cân nặng
-              </Text>
+              {isDisplay && (
+                <TouchableOpacity onPress={handleOpenModal}>
+                  <Text preset="subheading" size="sm" style={[$labelBodyIndex, $redText]}>
+                    Cập nhật cân nặng
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
           {/* Line */}
@@ -93,7 +118,7 @@ export function StatisticalIndex({
           <Text preset="subheading" size="sm">
             Bạn nên uống bao nhiêu nước
           </Text>
-          <MenuBarSVG size={30} />
+          {isDisplay && <MenuBarSVG size={30} />}
         </View>
 
         <View style={$contentContainer}>
@@ -194,13 +219,6 @@ const $wrapItem: ViewStyle = {
   height: "50%",
 }
 
-const $leftItemTop: ViewStyle = {
-  justifyContent: "space-between",
-  height: "76%",
-}
-const $rightItemTop: ViewStyle = {
-  alignItems: "flex-end",
-}
 const $redText: TextStyle = {
   color: "#FF0000",
   fontWeight: "bold",

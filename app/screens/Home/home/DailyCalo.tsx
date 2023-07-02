@@ -2,14 +2,15 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, FC, useEffect, useMemo } from "react"
-import { TouchableOpacity, View, ViewStyle, TextStyle, FlatList } from "react-native"
+import { TouchableOpacity, View, ViewStyle, TextStyle, FlatList, Alert } from "react-native"
 import { Text, Title, Card, Toggle, Icon } from "../../../components"
 import { spacing } from "../../../theme"
 import { useStores } from "app/models"
 import { observer } from "mobx-react-lite"
 import { colors } from "../../../theme/colors"
 import { Meal } from "../../../models/Meal"
-import { Food } from "../../../models/Food"
+import { DailyFood } from "app/models/DailyFoodModel"
+import { dailyCaloApi } from "app/services/api"
 interface ContentProps {}
 
 const btnSwap = [
@@ -18,6 +19,8 @@ const btnSwap = [
   { id: 3, valueVi: "Bữa tối", valueEn: "dinner" },
   { id: 4, valueVi: "Bữa phụ", valueEn: "snack" },
 ]
+
+type TScreen = "breakfast" | "lunch" | "dinner" | "snack"
 
 export const DailyCalo: FC<ContentProps> = observer(() => {
   const {
@@ -95,6 +98,70 @@ export const DailyCalo: FC<ContentProps> = observer(() => {
     setDisplayFood(!displayFood)
     setVisibleItems(3)
   }
+
+  const handleDeleteItemFood = async (item: DailyFood) => {
+    if (displayFood) {
+      const labelId = item.id.split("-")[0]
+      const foodId = +item.id.split("-")[1]
+      let type: "food" | "userFood"
+      if (labelId === "SYSTEMFOOD") {
+        type = "food"
+      } else {
+        type = "userFood"
+      }
+      const date = dateStore.getDateStore().dateTime
+      date.setHours(0)
+      date.setMinutes(0)
+      date.setSeconds(0)
+      date.setMilliseconds(0)
+      const data = {
+        id: foodId,
+        date,
+        type,
+      }
+      const res = await dailyCaloApi.delete_Item_CaloIntake(data)
+      if (res.kind === "ok") {
+        dateStore.mealFoodStoreModel.removeFood(
+          item,
+          btnSwap[mealIsSelected - 1].valueEn as TScreen,
+        )
+      } else {
+        Alert.alert("Xóa thất bại")
+      }
+    }
+  }
+
+  const handleDeleteItemMeal = async (item: Meal) => {
+    if (!displayFood) {
+      const labelId = item.id.split("-")[0]
+      const mealId = +item.id.split("-")[1]
+      let type: "meal" | "userMeal"
+      if (labelId === "SYSTEMMEAL") {
+        type = "meal"
+      } else {
+        type = "userMeal"
+      }
+      const date = dateStore.getDateStore().dateTime
+      date.setHours(0)
+      date.setMinutes(0)
+      date.setSeconds(0)
+      date.setMilliseconds(0)
+      const data = {
+        id: mealId,
+        date,
+        type,
+      }
+      const res = await dailyCaloApi.delete_Item_CaloIntake(data)
+      if (res.kind === "ok") {
+        dateStore.mealFoodStoreModel.removeMeal(
+          item,
+          btnSwap[mealIsSelected - 1].valueEn as TScreen,
+        )
+      } else {
+        Alert.alert("Xóa thất bại")
+      }
+    }
+  }
   return (
     <View style={$wrapContent}>
       <Title leftText="Lượng calo tiêu thụ" rightText={totalCalo + " kcal"} />
@@ -135,27 +202,21 @@ export const DailyCalo: FC<ContentProps> = observer(() => {
       </View>
       {/* List food */}
       {displayFood
-        ? data.foods.slice(0, visibleItems).map((item, index) => (
-            <ItemCard
-              key={index}
-              item={item}
-              onPressDetail={() => {
-                console.log("onPressDetail")
-              }}
-              onPressAdd={() => {
-                console.log("onPressAdd")
-              }}
-            />
-          ))
+        ? data.foods
+            .slice(0, visibleItems)
+            .map((item, index) => (
+              <ItemCard
+                key={index}
+                item={item}
+                handleRemoveItem={() => handleDeleteItemFood(item)}
+              />
+            ))
         : data.meals.slice(0, visibleItems).map((item, index) => (
             <ItemCard
               key={index}
               item={item}
-              onPressDetail={() => {
-                console.log("onPressDetail")
-              }}
-              onPressAdd={() => {
-                console.log("onPressAdd")
+              handleRemoveItem={() => {
+                handleDeleteItemMeal(item)
               }}
             />
           ))}
@@ -187,40 +248,44 @@ export const DailyCalo: FC<ContentProps> = observer(() => {
 
 const ItemCard = observer(function ItemCard({
   item,
-  onPressDetail,
-  onPressAdd,
+  handleRemoveItem,
 }: {
-  item: Food | Meal
-  onPressDetail: () => void
-  onPressAdd: () => void
+  item: DailyFood | Meal
+  handleRemoveItem?: () => void
 }) {
-  const handlePressFavorite = () => {
-    onPressDetail()
-  }
+  const [title, setTitle] = useState("")
+  useEffect(() => {
+    if ("servingSize" in item && item.servingSize !== null && item.servingSize > 0) {
+      setTitle(item.name + " - " + item.servingSize + " rg")
+    } else {
+      setTitle(item.name)
+    }
+  }, [item])
 
-  const handlePressCard = () => {
-    console.log("handlePressCard")
-  }
-
-  const handlePressAdd = () => {
-    onPressAdd()
+  const handleRemove = () => {
+    Alert.alert("Xóa khỏi danh sách", "Bạn có chắc chắn muốn xóa?", [
+      {
+        text: "Không",
+        onPress: () => console.log("Cancel Pressed"),
+        style: "cancel",
+      },
+      { text: "Có", onPress: () => handleRemoveItem() },
+    ])
   }
 
   return (
     <Card
       style={$item}
-      onPress={handlePressCard}
-      onLongPress={handlePressFavorite}
       HeadingComponent={
         <View style={$metadata}>
           <Text style={$metadataText} size="xs">
-            {item.name}
+            {title}
           </Text>
         </View>
       }
       content={`${item.calories} kcal`}
       RightComponent={
-        <TouchableOpacity onPress={handlePressAdd}>
+        <TouchableOpacity onPress={handleRemove}>
           <View style={$buttonOfSearchInput}>
             <Icon icon="x" color={colors.mainText} size={20} />
           </View>
