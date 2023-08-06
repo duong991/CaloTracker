@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-undef */
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -12,6 +13,7 @@ import {
   View,
   TouchableOpacity,
   Dimensions,
+  Image,
 } from "react-native"
 import { Button, Icon, Screen, Text, TextField, TextFieldAccessoryProps } from "../../components"
 import { AppStackScreenProps } from "../../navigators"
@@ -23,7 +25,8 @@ import { FoodTable } from "./FoodTable"
 // import * as MediaLibrary from "expo-media-library"
 import { useStores } from "../../models/helpers/useStores"
 import { mealApi } from "../../services/api"
-import { DropDown } from "../../components/DropDown"
+import { launchCameraAsync, useCameraPermissions, PermissionStatus } from "expo-image-picker"
+
 interface AddMealScreenProps extends AppStackScreenProps<"AddMeal"> {}
 
 type TArrayFood = {
@@ -65,6 +68,42 @@ export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealSc
   const [description, setDescription] = React.useState("")
   const [flag, setFlag] = React.useState(false)
 
+  // xử lý camera
+  const [picture, setPicture] = useState(null)
+  const [base64, setBase64] = useState(null)
+  const [cameraPermissionInfomation, requestCameraPermission] = useCameraPermissions()
+  async function verifyPermissions() {
+    if (cameraPermissionInfomation.status === PermissionStatus.UNDETERMINED) {
+      const permissionResponse = await requestCameraPermission()
+
+      return permissionResponse.granted
+    }
+    if (cameraPermissionInfomation.status === PermissionStatus.DENIED) {
+      alert("You need to grant camera permissions to use this app")
+      return false
+    }
+    return true
+  }
+
+  const takeImageHandler = async () => {
+    const hasPermission = await verifyPermissions()
+
+    if (!hasPermission) {
+      return
+    }
+
+    const image = await launchCameraAsync({
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    })
+    if (image?.assets[0]?.uri) {
+      setPicture(image.assets[0].uri)
+      setBase64(image.assets[0].base64)
+    }
+  }
+  //= ===================================================================================
+
   function goToFoodScreen() {
     console.log("flag", flag)
     if (flag) {
@@ -98,6 +137,7 @@ export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealSc
         description,
         calories: +calories,
         fat: +fat,
+        image: base64,
         carbohydrates: +carbohydrates,
         protein: +protein,
         userFood,
@@ -110,6 +150,7 @@ export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealSc
         clearAllData()
         setName("")
         setDescription("")
+        setPicture(null)
         alert("Thêm món thành công")
       } else {
         alert("Thêm món thất bại")
@@ -120,15 +161,6 @@ export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealSc
   return (
     <>
       <Screen preset="auto" safeAreaEdges={["top", "bottom"]} contentContainerStyle={$container}>
-        {/* <Camera
-          ref={cameraRef}
-          style={{ flex: 1, zIndex: 9999 }}
-          type={type}
-          flashMode={flashMode}
-          onCameraReady={() => {
-            console.log("Camera ready")
-          }}
-        > */}
         <View style={$wrapHeading}>
           <TouchableOpacity onPress={goToFoodScreen}>
             <View
@@ -284,22 +316,54 @@ export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealSc
             </View>
 
             <View style={{ width: "54%", paddingLeft: spacing.large }}>
-              <View
-                style={{
-                  width: 50,
-                  height: 50,
-                  borderRadius: 50,
-                  borderWidth: 0.56,
-                  borderColor: colors.mainText,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: "#E6FFFD",
-                }}
-              >
-                <CameraSVG size={28} />
-              </View>
+              <TouchableOpacity onPress={takeImageHandler}>
+                <View
+                  style={{
+                    width: 50,
+                    height: 50,
+                    borderRadius: 50,
+                    borderWidth: 0.56,
+                    borderColor: colors.mainText,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "#E6FFFD",
+                  }}
+                >
+                  <CameraSVG size={28} />
+                </View>
+              </TouchableOpacity>
             </View>
           </View>
+          {picture && (
+            <View
+              style={{
+                alignItems: "center",
+                flexDirection: "row",
+                marginTop: spacing.medium,
+              }}
+            >
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderRadius: 21,
+                  width: 202,
+                  height: 202,
+                  borderColor: colors.border,
+                  shadowColor: "#000",
+                  shadowOffset: {
+                    width: 2,
+                    height: 2,
+                  },
+                  shadowOpacity: 0.25,
+                }}
+              >
+                <Image
+                  source={{ uri: picture }}
+                  style={{ width: 200, height: 200, borderRadius: 20 }}
+                />
+              </View>
+            </View>
+          )}
         </View>
 
         <Text preset="subheading" size="md" tx="addMealScreen.ingredientMeal" />
@@ -323,11 +387,10 @@ export const AddMealScreen: FC<AddMealScreenProps> = observer(function AddMealSc
           />
         </View>
         {arrFoodList.length > 0 && (
-          <View style={{}}>
+          <View>
             <FoodTable />
           </View>
         )}
-        {/* </Camera> */}
       </Screen>
     </>
   )

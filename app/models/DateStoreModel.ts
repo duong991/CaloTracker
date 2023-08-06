@@ -31,76 +31,81 @@ export const DateStoreModel = types
         const response2 = await
           dailyCaloApi.getDailyCaloByDate(dateString)
         // nếu response.kind === "ok" thì set amount = response.data.amount
+        console.log(response2, "---", response);
         if (response.kind === "ok") {
           store.setProp("amount", response.data.amount)
         } else {
           console.tron.error(`Error fetching water log : ${JSON.stringify(response)}`, [])
         }
         // nếu response2.kind === "ok" thì set mealFoodStoreModel và exerciseStoreModel
-        if (response2.kind === "ok" && response2.data.items !== null) {
+        if (response2.kind === "ok") {
           const data = response2.data.items
-          console.log("data.caloConsumedMappings", data.caloConsumedMappings);
-
-          // nếu không có caloIntakeMappings thì clear mealFoodStoreModel _ tức ngày hôm đó không có nhật ký được ghi lại
-          if (data.caloIntakeMappings === null || !data.caloIntakeMappings) {
+          if (data === null) {
             store.mealFoodStoreModel.clearDailyMeal()
-          }
-          // nếu có caloIntakeMappings thì add mealFood vào mealFoodStoreModel _ tức ngày hôm đó có nhật ký được ghi lại
-          else if (data.caloIntakeMappings !== null && data.caloIntakeMappings) {
-            // clear mealFoodStoreModel
-            store.mealFoodStoreModel.clearDailyMeal()
-            // add mealFood vào mealFoodStoreModel
-            // lấy caloIntakeMappings _ mảng các mealFood trong ngày chứa Id của meal và food và số lượng, được dùng trong bữa nào
-            const dataIntake = data.caloIntakeMappings
-            dataIntake.forEach((item) => {
-              // nếu mealId !== null thì add meal vào mealFoodStoreModel _mealId là id của meal hệ thống
-              if (item.mealId !== null) {
-                store.mealFoodStoreModel.addDailyMeal(item.mealId, item.mealType, false)
-              }
-              // nếu foodId !== null thì add food vào mealFoodStoreModel _foodId là id của food hệ thống
-              else if (item.foodId !== null) {
-                const value = {
-                  id: item.foodId,
-                  servingSize: item.servingSize,
-                }
-                store.mealFoodStoreModel.addDailyFood(value, item.mealType, false)
-              }
-              else if (item.userFoodId !== null) {
-                const value = {
-                  id: item.userFoodId,
-                  servingSize: item.servingSize,
-                }
-                store.mealFoodStoreModel.addDailyFood(value, item.mealType, true)
-              }
-              else if (item.userMealId) {
-                store.mealFoodStoreModel.addDailyMeal(item.userMealId, item.mealType, true)
-              }
-            }
-            )
-          }
-          // nếu không có caloConsumedMappings thì clear exerciseStoreModel
-          if (!data?.caloConsumedMappings.length) {
             store.exerciseStoreModel.clearExercise()
-          }
-          // nếu có caloConsumedMappings thì add exercise vào exerciseStoreModel
-          else {
-            const dataConsumed = data.caloConsumedMappings
-            dataConsumed.forEach((item) => {
-              if (item.exerciseId !== null) {
-                let newExercise
-                const exercise = store.exerciseStoreModel.exercises.find((exercise) => exercise.id === item.exerciseId);
-                if (exercise) {
-                  newExercise = {
-                    id: exercise.id,
-                    name: exercise.name,
-                    caloriesBurned: exercise.caloriesBurned * item.duration / exercise.duration,
-                    duration: item.duration,
+          } else {
+            // nếu không có caloIntakeMappings thì clear mealFoodStoreModel _ tức ngày hôm đó không có nhật ký được ghi lại
+            if (data.caloIntakeMappings === null || !data.caloIntakeMappings) {
+              store.mealFoodStoreModel.clearDailyMeal()
+            }
+            // nếu có caloIntakeMappings thì add mealFood vào mealFoodStoreModel _ tức ngày hôm đó có nhật ký được ghi lại
+            else if (data.caloIntakeMappings !== null && data.caloIntakeMappings) {
+              // clear mealFoodStoreModel
+              store.mealFoodStoreModel.clearDailyMeal()
+              // add mealFood vào mealFoodStoreModel
+              // lấy caloIntakeMappings _ mảng các mealFood trong ngày chứa Id của meal và food và số lượng, được dùng trong bữa nào
+              const dataIntake = data.caloIntakeMappings
+              dataIntake.forEach((item) => {
+                // nếu mealId !== null thì add meal vào mealFoodStoreModel _mealId là id của meal hệ thống
+                if (item.mealId !== null) {
+                  store.mealFoodStoreModel.addDailyMeal(item.mealId, item.mealType, false)
+                }
+                // nếu foodId !== null thì add food vào mealFoodStoreModel _foodId là id của food hệ thống
+                else if (item.foodId !== null) {
+                  const value = {
+                    id: item.foodId,
+                    servingSize: item.servingSize,
                   }
-                  store.exerciseStoreModel.addExercise(newExercise)
+                  store.mealFoodStoreModel.addDailyFood(value, item.mealType, false)
+                }
+                else if (item.userFoodId !== null) {
+                  const value = {
+                    id: item.userFoodId,
+                    servingSize: item.servingSize,
+                  }
+                  store.mealFoodStoreModel.addDailyFood(value, item.mealType, true)
+                }
+                else if (item.userMealId) {
+                  store.mealFoodStoreModel.addDailyMeal(item.userMealId, item.mealType, true)
                 }
               }
-            })
+              )
+            }
+            // nếu không có caloConsumedMappings thì clear exerciseStoreModel
+            if (!data?.caloConsumedMappings.length) {
+              store.exerciseStoreModel.clearExercise()
+            }
+            // nếu có caloConsumedMappings thì add exercise vào exerciseStoreModel
+            else {
+              const dataConsumed = data.caloConsumedMappings
+              dataConsumed.forEach((item) => {
+                if (item.exerciseId !== null) {
+                  let newExercise
+                  const exercise = store.exerciseStoreModel.exercises.find((exercise) => exercise.id === item.exerciseId);
+                  if (exercise) {
+                    newExercise = {
+                      id: exercise.id,
+                      name: exercise.name,
+                      caloriesBurned: exercise.caloriesBurned * item.duration / exercise.duration,
+                      duration: item.duration,
+                    }
+                    store.exerciseStoreModel.addExercise(newExercise)
+                  }
+                }
+              })
+            }
           }
+
         } else {
           store.mealFoodStoreModel.clearDailyMeal()
           console.tron.error(`Error fetching daily calo : ${JSON.stringify(response2)}`, [])
@@ -118,6 +123,7 @@ export const DateStoreModel = types
         }
       }
       if (store.dateTime && flag) {
+        console.log("setDateTime", store.dateTime);
         this.fetchData(value)
       }
     },
